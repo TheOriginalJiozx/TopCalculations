@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>TopCalculations - Login</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-left">
+        <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+        <div class="navbar-links">
+            <a class="nav-link" th:href="@{/}">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
+            <a class="nav-link" th:href="@{/project}" th:if="${username != 'Guest'}">View Project</a>
+            <a class="nav-link" th:href="@{/addTask}" th:if="${username != 'Guest'}">Add Task</a>
+            <span class="nav-link" th:if="${username != 'Guest'}">
+                <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                </form>
+            </span>
+        </div>
+    </div>
+    <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+</nav>
+
+<div class="container container-custom">
+    <h1>Welcome, <span th:text="${username}"></span>!</h1>
+    <form th:action="@{/login}" method="post">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>
+
+<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
+</body>
+</html>
