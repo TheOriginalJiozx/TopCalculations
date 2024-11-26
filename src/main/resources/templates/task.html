@@ -3,9 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>TopCalculations - Project</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
-
+<nav class="navbar">
+    <div class="navbar-left">
+        <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+        <div class="navbar-links">
+            <a class="nav-link" th:href="@{/}">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
+            <a class="nav-link" th:href="@{/project}" th:if="${username != 'Guest'}">View Project</a>
+            <a class="nav-link" th:href="@{/task}" th:if="${username != 'Guest'}">Add Task</a>
+            <span class="nav-link" th:if="${username != 'Guest'}">
+                <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                </form>
+            </span>
+        </div>
+    </div>
+    <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+</nav>
 <h1>Project</h1>
 
 <div class="table-container">
@@ -44,5 +62,6 @@
     </div>
 </div>
 
+<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

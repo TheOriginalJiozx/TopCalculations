@@ -1,7 +1,7 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Sign Up</title>
+    <title>TopCalculations - Sign Up</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
@@ -13,7 +13,7 @@
             <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
             <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
             <a class="nav-link" th:href="@{/project}" th:if="${username != 'Guest'}">View Project</a>
-            <a class="nav-link" th:href="@{/addTask}" th:if="${username != 'Guest'}">Add Task</a>
+            <a class="nav-link" th:href="@{/task}" th:if="${username != 'Guest'}">Add Task</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
                 <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>

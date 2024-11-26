@@ -67,7 +67,7 @@ public class CalculationsController {
     @PostMapping("/calculations/add")
     public ModelAndView addCalculations(@RequestParam Long calculationId, String calculationData) {
         Long userId = calculationsService.getCurrentUserId();
-        ModelAndView modelAndView = new ModelAndView("project");
+        ModelAndView modelAndView = new ModelAndView("task");
 
         String authenticatedUsername = getAuthenticatedUsername();
         modelAndView.addObject("username", authenticatedUsername);
