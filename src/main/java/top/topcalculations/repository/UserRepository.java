@@ -1,12 +1,12 @@
 package top.topcalculations.repository;
 
-import top.topcalculations.model.Calculations;
-import top.topcalculations.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
+import top.topcalculations.model.Calculations;
+import top.topcalculations.model.User;
 
 import javax.sql.DataSource;
 import java.util.List;

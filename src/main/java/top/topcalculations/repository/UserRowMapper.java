@@ -1,7 +1,7 @@
 package top.topcalculations.repository;
 
-import top.topcalculations.model.User;
 import org.springframework.jdbc.core.RowMapper;
+import top.topcalculations.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

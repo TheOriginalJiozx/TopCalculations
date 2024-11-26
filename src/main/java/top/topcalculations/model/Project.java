@@ -1,15 +1,17 @@
 package top.topcalculations.model;
 
-public class Task {
+public class Project {
     private int id;
     private String wbs;
-    private String taskName; // Changed field name to camelCase to match Thymeleaf template
+    private String projectName;
+    private String mainProjectName;
+    private String taskName;
     private String duration;
-    private String plannedStartDate; // Changed field name to camelCase to match Thymeleaf template
-    private String plannedFinishDate; // Changed field name to camelCase to match Thymeleaf template
+    private String plannedStartDate;
+    private String plannedFinishDate;
     private String assigned;
+    private String isSubProject;
 
-    // Getters and Setters
     public int getId() {
         return id;
     }
@@ -18,12 +20,36 @@ public class Task {
         this.id = id;
     }
 
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getIsSubProject() {
+        return isSubProject;
+    }
+
+    public void setIsSubProject(String isSubProject) {
+        this.isSubProject = isSubProject;
+    }
+
     public String getWbs() {
         return wbs;
     }
 
     public void setWbs(String wbs) {
         this.wbs = wbs;
+    }
+
+    public String getMainProjectName() {
+        return mainProjectName;
+    }
+
+    public void setMainProjectName(String projectName) {
+        this.mainProjectName = projectName;
     }
 
     public String getTaskName() {

@@ -1,13 +1,13 @@
 package top.topcalculations.service;
 
-import top.topcalculations.model.User;
-import top.topcalculations.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import top.topcalculations.model.User;
+import top.topcalculations.repository.UserRepository;
 
 @Service
 public class UserService {

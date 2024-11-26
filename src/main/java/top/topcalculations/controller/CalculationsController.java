@@ -1,9 +1,5 @@
 package top.topcalculations.controller;
 
-import top.topcalculations.model.Calculations;
-import top.topcalculations.repository.CalculationsRepository;
-import top.topcalculations.repository.UserRepository;
-import top.topcalculations.service.CalculationsService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,6 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import top.topcalculations.model.Calculations;
+import top.topcalculations.repository.CalculationsRepository;
+import top.topcalculations.repository.UserRepository;
+import top.topcalculations.service.CalculationsService;
 
 import java.util.List;
 
@@ -67,7 +67,7 @@ public class CalculationsController {
     @PostMapping("/calculations/add")
     public ModelAndView addCalculations(@RequestParam Long calculationId, String calculationData) {
         Long userId = calculationsService.getCurrentUserId();
-        ModelAndView modelAndView = new ModelAndView("task");
+        ModelAndView modelAndView = new ModelAndView("addProject");
 
         String authenticatedUsername = getAuthenticatedUsername();
         modelAndView.addObject("username", authenticatedUsername);

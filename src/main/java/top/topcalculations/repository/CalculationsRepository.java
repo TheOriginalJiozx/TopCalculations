@@ -1,8 +1,9 @@
 package top.topcalculations.repository;
-import top.topcalculations.model.Calculations;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import top.topcalculations.model.Calculations;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

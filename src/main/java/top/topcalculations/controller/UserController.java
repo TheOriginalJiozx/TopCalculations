@@ -1,7 +1,5 @@
 package top.topcalculations.controller;
 
-import top.topcalculations.model.User;
-import top.topcalculations.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -10,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import top.topcalculations.model.User;
+import top.topcalculations.service.UserService;
 
 @Controller
 public class UserController {
