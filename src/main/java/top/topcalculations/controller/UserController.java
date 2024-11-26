@@ -1,7 +1,7 @@
 package top.topcalculations.controller;
 
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.model.User;
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.service.UserService;
+import top.topcalculations.model.User;
+import top.topcalculations.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;

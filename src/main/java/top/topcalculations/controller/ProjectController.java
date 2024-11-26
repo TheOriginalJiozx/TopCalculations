@@ -1,7 +1,7 @@
 package top.topcalculations.controller;
 
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.model.Task;
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.service.TaskService;
+import top.topcalculations.model.Task;
+import top.topcalculations.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

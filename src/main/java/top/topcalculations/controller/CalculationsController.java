@@ -1,9 +1,9 @@
 package top.topcalculations.controller;
 
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.model.Calculations;
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.repository.CalculationsRepository;
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.repository.UserRepository;
-import kalkunlationsvaerktoej.kalkulationsvaerktoej.service.CalculationsService;
+import top.topcalculations.model.Calculations;
+import top.topcalculations.repository.CalculationsRepository;
+import top.topcalculations.repository.UserRepository;
+import top.topcalculations.service.CalculationsService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
