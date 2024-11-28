@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.topcalculations.model.Project;
-import top.topcalculations.service.CalculationsService;
 import top.topcalculations.service.ProjectService;
+import top.topcalculations.service.UserService;
 
 import java.util.List;
 
@@ -22,12 +22,18 @@ public class ProjectController {
     private ProjectService projectService;
 
     @Autowired
-    private CalculationsService calculationsService;
+    private UserService userService;
 
     private String getAuthenticatedUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName()))
                 ? auth.getName() : "Guest";
+    }
+
+    @GetMapping("/")
+    public String showIndexPage(Model model) {
+        model.addAttribute("username", getAuthenticatedUsername());
+        return "index";
     }
 
     private void addAuthenticatedUsernameToModel(Model model) {
@@ -46,7 +52,7 @@ public class ProjectController {
 
     @PostMapping("/addProject")
     public String submitForm(@ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes) {
-        Long userId = calculationsService.getCurrentUserId();
+        Long userId = userService.getCurrentUserId();
 
         if (userId == null) {
             model.addAttribute("message", "Error: User not authenticated.");

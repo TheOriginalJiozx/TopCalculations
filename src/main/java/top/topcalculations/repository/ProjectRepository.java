@@ -18,7 +18,6 @@ public class ProjectRepository {
 
     public void saveProject(Project project) {
         if (project.getTaskName() == null || project.getTaskName().isEmpty()) {
-            // It's a new project (not a task), generate a new WBS
             String newWBS = generateNewWBS();
             project.setWbs(newWBS);
         }
@@ -28,17 +27,14 @@ public class ProjectRepository {
     }
 
     public void saveTask(Project project) {
-        // Save task (task doesn't require WBS generation)
         String sql = "INSERT INTO projects (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql, project.getWbs(), project.getMainProjectName(), project.getTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
 
-    // Method to generate a new WBS for a project (for new projects)
     private String generateNewWBS() {
         String sql = "SELECT MAX(CAST(WBS AS UNSIGNED)) FROM projects";
         Integer highestWBS = jdbcTemplate.queryForObject(sql, Integer.class);
 
-        // Increment the WBS value
         int newWBSValue = (highestWBS == null) ? 1 : highestWBS + 1;
         return String.valueOf(newWBSValue);  // WBS is stored as VARCHAR, so return as a String
     }

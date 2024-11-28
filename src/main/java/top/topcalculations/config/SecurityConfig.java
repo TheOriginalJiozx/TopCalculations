@@ -1,11 +1,8 @@
 package top.topcalculations.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,7 +41,7 @@ public class SecurityConfig {
                 )
                 .csrf(csrf -> csrf
                         .ignoringRequestMatchers("/project")
-                        .ignoringRequestMatchers("/h2-console/**", "/wishlist/add", "/wishlist/reserve")
+                        .ignoringRequestMatchers("/h2-console/**")
                 )
                 .headers(headers -> headers
                         .frameOptions().sameOrigin()
