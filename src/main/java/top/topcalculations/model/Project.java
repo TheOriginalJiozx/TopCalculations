@@ -10,7 +10,7 @@ public class Project {
     private String plannedStartDate;
     private String plannedFinishDate;
     private String assigned;
-    private String isSubProject;
+    private String subTaskName;
 
     public int getId() {
         return id;
@@ -28,12 +28,12 @@ public class Project {
         this.projectName = projectName;
     }
 
-    public String getIsSubProject() {
-        return isSubProject;
+    public String getSubTaskName() {
+        return subTaskName;
     }
 
-    public void setIsSubProject(String isSubProject) {
-        this.isSubProject = isSubProject;
+    public void setSubTaskName(String subTaskName) {
+        this.subTaskName = subTaskName;
     }
 
     public String getWbs() {

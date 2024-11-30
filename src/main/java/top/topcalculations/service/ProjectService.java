@@ -21,12 +21,20 @@ public class ProjectService {
         projectRepository.saveTask(project);
     }
 
+    public void saveSubTask(Project project) {
+        projectRepository.saveSubTask(project);
+    }
+
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
     public List<Project> getAllProjectsWithoutTasks() {
         return projectRepository.findAllWithoutTasks();
+    }
+
+    public List<Project> getAllTasks() {
+        return projectRepository.findAllTasks();
     }
 
     public List<Project> getTasks(String mainProjectName) {
@@ -36,6 +44,11 @@ public class ProjectService {
     public Project getProjectByName(String projectName) {
         return projectRepository.findProjectByName(projectName);
     }
+
+    public Project getTaskByName(String taskName) {
+        return projectRepository.findTaskByName(taskName);
+    }
+
 
     public boolean wbsExists(String wbs) {
         return projectRepository.wbsExists(wbs);

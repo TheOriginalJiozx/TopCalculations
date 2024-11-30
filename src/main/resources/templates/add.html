@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>TopCalculations - Add Project or Task</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/add.css}" />
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-left">
+        <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+        <div class="navbar-links">
+            <a class="nav-link" th:href="@{/}">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
+            <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
+            <span class="nav-link" th:if="${username != 'Guest'}">
+                <form th:action="@{/logout}" method="post" style="display: inline;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                </form>
+            </span>
+        </div>
+    </div>
+    <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+</nav>
+
+<h1>Add Project or Task</h1>
+
+<div class="container container-custom-task">
+    <form th:action="@{/add}" th:object="${project}" method="post">
+        <div class="form-group">
+            <label for="task_name">Name of Project or Task:</label>
+            <input type="text" id="task_name" th:field="*{taskName}" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="main_task">Main Project (if exists):</label>
+            <select id="main_task" th:field="*{mainProjectName}" class="form-control">
+                <option value="" th:text="'-- Select Main Project --'"></option>
+                <option th:each="project : ${projects}" th:value="${project.projectName}" th:text="${project.projectName}"></option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="duration">Duration:</label>
+            <input type="text" id="duration" th:field="*{duration}" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="planned_start_date">Planned Start Date:</label>
+            <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="planned_finish_date">Planned Finish Date:</label>
+            <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <label for="assigned">Assigned:</label>
+            <input type="text" id="assigned" th:field="*{assigned}" required class="form-control">
+        </div>
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+    </form>
+</div>
+
+<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

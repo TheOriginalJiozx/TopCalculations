@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**", "/wishlist/reserve", "/project").permitAll()
                         .requestMatchers("/login", "/signup").anonymous()
+                        //.requestMatchers("/view-projects").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -40,7 +41,6 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/project")
                         .ignoringRequestMatchers("/h2-console/**")
                 )
                 .headers(headers -> headers
@@ -55,18 +55,21 @@ public class SecurityConfig {
     public DaoAuthenticationProvider authenticationProvider(JdbcTemplate jdbcTemplate) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(username -> {
-            String sql = "SELECT username, password, enabled FROM users WHERE username = ?";
+            String sql = "SELECT username, password, enabled, role FROM users WHERE username = ?";
             return jdbcTemplate.queryForObject(sql, new Object[]{username}, (rs, rowNum) -> {
                 String user = rs.getString("username");
                 String password = rs.getString("password");
                 boolean enabled = rs.getBoolean("enabled");
+                String role = rs.getString("role");
                 return org.springframework.security.core.userdetails.User.withUsername(user)
                         .password(password)
                         .accountLocked(!enabled)
                         .authorities("USER")
+                        .roles(role)
                         .build();
             });
         });
+
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

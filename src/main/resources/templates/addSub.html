@@ -2,9 +2,9 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>TopCalculations - Add Project</title>
+    <title>TopCalculations - Add Subtask</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
-    <link rel="stylesheet" th:href="@{/css/task.css}" />
+    <link rel="stylesheet" th:href="@{/css/add.css}" />
 </head>
 <body>
 <nav class="navbar">
@@ -14,8 +14,8 @@
             <a class="nav-link" th:href="@{/}">Home</a>
             <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
             <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
-            <a class="nav-link" th:href="@{/project}" th:if="${username != 'Guest'}">View Projects</a>
-            <a class="nav-link" th:href="@{/addProject}" th:if="${username != 'Guest'}">Add Project</a>
+            <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
@@ -26,22 +26,20 @@
     <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
-<h1>Add Project</h1>
+<h1>Add Subtask</h1>
 
 <div class="container container-custom-task">
-    <form th:action="@{/addProject}" th:object="${project}" method="post">
+    <form th:action="@{/addSub}" th:object="${project}" method="post">
         <div class="form-group">
-            <label for="task_name">Name of Project or Task:</label>
-            <input type="text" id="task_name" th:field="*{taskName}" required class="form-control">
+            <label for="sub_task_name">Name of Subtask:</label>
+            <input type="text" id="sub_task_name" th:field="*{subTaskName}" required class="form-control">
         </div>
 
         <div class="form-group">
-            <label for="main_task">Main Project (if exists):</label>
-            <select id="main_task" th:field="*{mainProjectName}" class="form-control">
-                <option value="" th:text="'-- Select Main Project --'"></option>
-                <option th:each="project : ${projects}"
-                        th:value="${project.projectName}"
-                        th:text="${project.projectName}"></option>
+            <label for="main_task">Main Task: </label>
+            <select id="main_task" th:field="*{taskName}" class="form-control">
+                <option value="" th:text="'-- Select Main Task --'"></option>
+                <option th:each="project : ${projects}" th:value="${project.taskName}" th:text="${project.taskName}"></option>
             </select>
         </div>
 
@@ -66,12 +64,12 @@
         </div>
 
         <div class="form-group">
-            <button type="submit" class="btn btn-primary">Save Task</button>
+            <button type="submit" class="btn btn-primary">Save</button>
         </div>
     </form>
 
     <div th:if="${message}" class="alert alert-success">
-        <p th:text="${message}"></p>
+        <p th:utext="${message}"></p>
     </div>
 </div>
 
