@@ -52,6 +52,11 @@ public class ProjectRepository {
         return jdbcTemplate.query(sql, new Object[]{mainProjectName}, new ProjectRowMapper());
     }
 
+    public List<Project> findTask(String task, String username) {
+        String sql = "SELECT * FROM projects p JOIN users u ON p.assigned = u.username WHERE p.task_name = ? AND u.username = ?";
+        return jdbcTemplate.query(sql, new Object[]{task, username}, new ProjectRowMapper());
+    }
+
     public Project findProjectByName(String projectName) {
         String sql = "SELECT * FROM projects WHERE project_name = ?";
         List<Project> projects = jdbcTemplate.query(sql, new Object[]{projectName}, new ProjectRowMapper());

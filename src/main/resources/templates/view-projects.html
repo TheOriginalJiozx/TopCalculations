@@ -44,7 +44,7 @@
       <tbody>
       <tr th:each="project : ${projects}">
         <td th:text="${project.wbs}"></td>
-        <td th:text="${project.projectTaskName}"></td>
+        <a class="name" th:href=""><td th:text="${project.projectTaskName}"></td></a>
         <td th:text="${project.duration}"></td>
         <td th:text="${project.plannedStartDate}"></td>
         <td th:text="${project.plannedFinishDate}"></td>

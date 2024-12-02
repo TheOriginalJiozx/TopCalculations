@@ -2,6 +2,7 @@ package top.topcalculations.controller;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -193,4 +194,48 @@ public class ProjectController {
         addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
         return "view-projects"; // Returnerer visning af projekter
     }
+
+    // Vist for at se egen redigerbar task (er man admin kan man redigere alle tasks)
+    @GetMapping("/task")
+    public String viewTask(@ModelAttribute Project project, Model model) {
+        addAuthenticatedUsernameToModel(model);
+
+        String username = getAuthenticatedUsername();
+
+        if (username == null || username.equals("Guest")) {
+            model.addAttribute("errorMessage", "Please log in to view tasks.");
+            return "task";
+        }
+
+        if (project.getTaskName() == null || project.getTaskName().isEmpty()) {
+            model.addAttribute("errorMessage", "Task name cannot be null or empty.");
+            return "task";
+        }
+
+        Project task = projectService.getTaskByName(project.getTaskName());
+        if (task == null) {
+            model.addAttribute("errorMessage", "Task not found.");
+            return "task";
+        }
+
+        List<Project> tasks = projectService.getTask(task.getTaskName(), username);
+        if (tasks == null || tasks.isEmpty()) {
+            model.addAttribute("errorMessage", "No tasks found for this user.");
+            return "task";
+        }
+
+        model.addAttribute("tasks", tasks);
+        model.addAttribute("username", username);
+
+        return "task";
+    }
+
+    // Vist for at se egen redigerbar task (er man admin kan man redigere alle tasks)
+    /*@GetMapping("/subtask")
+    public String viewTask(Model model) {
+        List<Project> subtasks = projectService.getSubTask(); // Henter alle egne subtasks
+        model.addAttribute("subtasks", subtasks); // Tilføjer task til modellen
+        addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
+        return "subtasks"; // Returnerer visning af egen subtask (er man admin kan man redigere alle subtasks)
+    }*/
 }

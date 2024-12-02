@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>TopCalculations - Task</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
 <body>
 <nav class="navbar">
@@ -24,6 +25,41 @@
     </div>
     <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
+
+<div class="body-wrapper">
+    <div class="container-custom-task">
+        <h1><span th:text="${username}"></span>' Task</h1>
+
+        <div th:if="${errorMessage}">
+            <p style="color: red;" th:text="${errorMessage}"></p>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>WBS</th>
+                <th>Name</th>
+                <th>Duration</th>
+                <th>Planned Start Date</th>
+                <th>Planned Finish Date</th>
+                <th>Assigned</th>
+                <th>Time Spent on Task</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="project : ${projects}">
+                <td th:text="${project.wbs}"></td>
+                <a class="name" th:href=""><td th:text="${project.projectTaskName}"></td></a>
+                <td th:text="${project.duration}"></td>
+                <td th:text="${project.plannedStartDate}"></td>
+                <td th:text="${project.plannedFinishDate}"></td>
+                <td th:text="${project.assigned}"></td>
+                <td th:text="${project.spentTime}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
 </body>
 </html>

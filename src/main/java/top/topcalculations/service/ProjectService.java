@@ -37,6 +37,10 @@ public class ProjectService {
         return projectRepository.findAllTasks();
     }
 
+    public List<Project> getTask(String task, String username) {
+        return projectRepository.findTask(task, username);
+    }
+
     public List<Project> getTasks(String mainProjectName) {
         return projectRepository.findTasks(mainProjectName);
     }

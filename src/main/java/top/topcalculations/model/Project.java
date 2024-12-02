@@ -6,6 +6,7 @@ public class Project {
     private String projectName;
     private String mainProjectName;
     private String taskProjectName;
+    private String taskName;
     private String duration;
     private String plannedStartDate;
     private String plannedFinishDate;
@@ -26,6 +27,14 @@ public class Project {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 
     public String getSubTaskName() {

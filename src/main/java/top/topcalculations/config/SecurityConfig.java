@@ -79,7 +79,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**", "/wishlist/reserve", "/project").permitAll()
+                        .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**").permitAll()
                         .requestMatchers("/login", "/signup").anonymous()
                         //.requestMatchers("/view-projects").hasRole("ADMIN") // Kommentarer indikerer mulig rollebaseret adgangskontrol.
                         .anyRequest().authenticated()
