@@ -37,9 +37,9 @@
 
         <div class="form-group">
             <label for="main_task">Main Task: </label>
-            <select id="main_task" th:field="*{taskName}" class="form-control">
+            <select id="main_task" th:field="*{taskProjectName}" class="form-control">
                 <option value="" th:text="'-- Select Main Task --'"></option>
-                <option th:each="project : ${projects}" th:value="${project.taskName}" th:text="${project.taskName}"></option>
+                <option th:each="project : ${projects}" th:value="${project.taskProjectName}" th:text="${project.taskProjectName}"></option>
             </select>
         </div>
 
