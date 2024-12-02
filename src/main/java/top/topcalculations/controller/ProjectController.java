@@ -72,7 +72,7 @@ public class ProjectController {
             if (mainProject != null) {
                 String mainProjectWBS = mainProject.getWbs(); // Henter WBS (Work Breakdown Structure) for hovedprojekt
 
-                List<Project> tasks = projectService.getTasks(mainProject.getProjectName()); // Henter opgaver relateret til hovedprojekt
+                List<Project> tasks = projectService.getTasks(mainProject.getProjectTaskName()); // Henter opgaver relateret til hovedprojekt
 
                 int highestTaskIndex = 0;
                 // Finder den højeste indeks for opgaverne
@@ -98,8 +98,8 @@ public class ProjectController {
 
                 project.setWbs(newWBS); // Sætter WBS for den nye opgave
                 project.setTaskProjectName(project.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectName(mainProject.getProjectName()); // Sætter projektnavnet
-                project.setMainProjectName(mainProject.getProjectName()); // Sætter hovedprojektnavnet
+                project.setProjectName(mainProject.getProjectTaskName()); // Sætter projektnavnet
+                project.setMainProjectName(mainProject.getProjectTaskName()); // Sætter hovedprojektnavnet
                 projectService.saveTask(project); // Gemmer opgaven
                 redirectAttributes.addFlashAttribute("message",
                         "Task saved successfully. To add a subtask, <a href='addSub'>click here</a>"); // Success besked
@@ -145,7 +145,7 @@ public class ProjectController {
             if (mainTask != null) {
                 String mainProjectWBS = mainTask.getWbs(); // Henter WBS for hovedopgaven
 
-                List<Project> tasks = projectService.getTasks(mainTask.getProjectName()); // Henter opgaver tilhørende hovedopgaven
+                List<Project> tasks = projectService.getTasks(mainTask.getProjectTaskName()); // Henter opgaver tilhørende hovedopgaven
 
                 int highestSubtaskIndex = 0;
                 // Finder højeste indeks for underopgaver
@@ -173,7 +173,7 @@ public class ProjectController {
 
                 project.setWbs(newWBS); // Sætter WBS for den nye underopgave
                 project.setTaskProjectName(mainTask.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectName(mainTask.getProjectName()); // Sætter projektnavnet
+                project.setProjectName(mainTask.getProjectTaskName()); // Sætter projektnavnet
 
                 projectService.saveSubTask(project); // Gemmer underopgaven
                 redirectAttributes.addFlashAttribute("message", "Subtask saved successfully."); // Success besked

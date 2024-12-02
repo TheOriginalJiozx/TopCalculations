@@ -40,7 +40,7 @@
             <label for="main_project">Main Project (if exists):</label>
             <select id="main_project" th:field="*{mainProjectName}" class="form-control">
                 <option value="" th:text="'-- Select Main Project --'"></option>
-                <option th:each="project : ${projects}" th:value="${project.projectName}" th:text="${project.projectName}"></option>
+                <option th:each="project : ${projects}" th:value="${project.projectTaskName}" th:text="${project.projectTaskName}"></option>
             </select>
         </div>
 

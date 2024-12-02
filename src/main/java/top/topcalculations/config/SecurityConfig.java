@@ -61,9 +61,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    // OBS: Denne metode er duplikeret og bør sandsynligvis fjernes, da den ligner `dataSource`-metoden.
-    public DataSource h2dataSource(
-            @Value("") String dbUrl,
+    public DataSource prodDataSource(
+            @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej}") String dbUrl,
             @Value("${DB_USER}") String username,
             @Value("${DB_PASSWORD}") String password
     ) {

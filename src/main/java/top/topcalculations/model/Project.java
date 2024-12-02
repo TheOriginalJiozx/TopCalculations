@@ -20,7 +20,7 @@ public class Project {
         this.id = id;
     }
 
-    public String getProjectName() {
+    public String getProjectTaskName() {
         return projectName;
     }
 

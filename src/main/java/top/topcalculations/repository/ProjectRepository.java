@@ -26,7 +26,7 @@ public class ProjectRepository {
         }
 
         String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getProjectName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
 
     public void saveTask(Project project) {
@@ -36,7 +36,7 @@ public class ProjectRepository {
 
     public void saveSubTask(Project project) {
         String sql = "INSERT INTO projects (WBS, task_name, sub_task_name, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getSubTaskName(), project.getProjectName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getSubTaskName(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
 
     private String generateNewWBS() {
@@ -69,13 +69,13 @@ public class ProjectRepository {
         List<Project> projects = jdbcTemplate.query(sql, new ProjectRowMapper());
 
         for (Project project : projects) {
-            if (project.getProjectName() != null && !project.getProjectName().isEmpty() &&
+            if (project.getProjectTaskName() != null && !project.getProjectTaskName().isEmpty() &&
                     (project.getTaskProjectName() == null || project.getTaskProjectName().isEmpty())) {
-                project.setProjectName(project.getProjectName());
+                project.setProjectName(project.getProjectTaskName());
             } else {
                 project.setProjectName(project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()
                         ? project.getTaskProjectName()
-                        : project.getProjectName());
+                        : project.getProjectTaskName());
             }
         }
 
