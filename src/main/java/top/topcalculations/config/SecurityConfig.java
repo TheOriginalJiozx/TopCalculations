@@ -19,14 +19,17 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
+// Angiver, at dette er en konfigurationsklasse for sikkerhed og aktiverer metode- og web-sikkerhed.
 public class SecurityConfig {
 
     @Bean
+    // Definerer en bean til JdbcTemplate, som bruges til at udføre SQL-spørgsmål på databasen.
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
     }
 
     @Bean
+    // Definerer en bean til en MySQL-datasource med værdier hentet fra miljøvariabler.
     public DataSource dataSource(
             @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej?useSSL=false}") String dbUrl,
             @Value("${DB_USER}") String username,
@@ -40,12 +43,14 @@ public class SecurityConfig {
         return dataSource;
     }
 
+    // H2-databasen konfigureres med standardværdier for testformål.
     private String dbUrl = "jdbc:h2:~/test;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;INIT=runscript from 'classpath:h2init.sql'";
     private String dbUsername = "sa";
     private String dbPassword = "";
 
     @Bean
     @Profile("h2")
+    // Definerer en H2-datasource til testmiljøet. Bruges kun, når profilen "h2" er aktiv.
     public DataSource h2DataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
@@ -56,6 +61,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    // OBS: Denne metode er duplikeret og bør sandsynligvis fjernes, da den ligner `dataSource`-metoden.
     public DataSource h2dataSource(
             @Value("") String dbUrl,
             @Value("${DB_USER}") String username,
@@ -70,34 +76,36 @@ public class SecurityConfig {
     }
 
     @Bean
+    // Definerer en sikkerhedsfilterkæde, som håndterer autorisation og autentifikation for HTTP-forespørgsler.
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**", "/wishlist/reserve", "/project").permitAll()
                         .requestMatchers("/login", "/signup").anonymous()
-                        //.requestMatchers("/view-projects").hasRole("ADMIN")
+                        //.requestMatchers("/view-projects").hasRole("ADMIN") // Kommentarer indikerer mulig rollebaseret adgangskontrol.
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .loginPage("/login") // Angiver login-siden.
+                        .defaultSuccessUrl("/", true) // Angiver siden, der vises efter vellykket login.
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutUrl("/logout") // Angiver logout-URL.
+                        .logoutSuccessUrl("/login?logout") // Angiver siden efter logout.
                 )
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**")
+                        .ignoringRequestMatchers("/h2-console/**") // Deaktiverer CSRF-beskyttelse for H2-konsollen.
                 )
                 .headers(headers -> headers
-                        .frameOptions().sameOrigin()
-                        .httpStrictTransportSecurity(hsts -> hsts.disable())
+                        .frameOptions().sameOrigin() // Tillader iframe-indlejring fra samme oprindelse (for H2-konsolens skyld).
+                        .httpStrictTransportSecurity(hsts -> hsts.disable()) // Deaktiverer HSTS (anbefales ikke til produktion).
                 );
 
         return http.build();
     }
 
     @Bean
+    // Definerer en autentifikationsprovider, som bruger JdbcTemplate til at hente brugeroplysninger fra databasen.
     public DaoAuthenticationProvider authenticationProvider(JdbcTemplate jdbcTemplate) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(username -> {
@@ -110,17 +118,18 @@ public class SecurityConfig {
                 return org.springframework.security.core.userdetails.User.withUsername(user)
                         .password(password)
                         .accountLocked(!enabled)
-                        .authorities("USER")
-                        .roles(role)
+                        .authorities("USER") // Standardautorisation som "USER".
+                        .roles(role) // Roller hentes fra databasen.
                         .build();
             });
         });
 
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setPasswordEncoder(passwordEncoder()); // Sætter en BCrypt-password-encoder.
         return authProvider;
     }
 
     @Bean
+    // Definerer en password-encoder baseret på BCrypt.
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
