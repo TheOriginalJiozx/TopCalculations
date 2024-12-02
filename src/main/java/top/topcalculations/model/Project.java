@@ -11,7 +11,6 @@ public class Project {
     private String plannedFinishDate;
     private String assigned;
     private String subTaskName;
-    private boolean hasDotInWbs;
 
     public int getId() {
         return id;
@@ -19,14 +18,6 @@ public class Project {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public boolean isHasDotInWbs() {
-        return hasDotInWbs;
-    }
-
-    public void setHasDotInWbs(boolean hasDotInWbs) {
-        this.hasDotInWbs = hasDotInWbs;
     }
 
     public String getProjectTaskName() {

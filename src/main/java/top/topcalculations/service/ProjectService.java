@@ -25,6 +25,10 @@ public class ProjectService {
         projectRepository.saveSubTask(project);
     }
 
+    public void updateTask(int id, Project task) {
+        projectRepository.updateTask(id, task);
+    }
+
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }

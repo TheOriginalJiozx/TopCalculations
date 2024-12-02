@@ -202,4 +202,25 @@ public class ProjectController {
         model.addAttribute("task", new Project());  // Tilføjer en tom Project-objekt til modellen (for eksempel til en form til at tilføje en task)
         return "view-task";  // Returnerer viewet 'view-task', hvor taskens detaljer vil blive vist
     }
+
+    @GetMapping("/edit-task/{id}")
+    public String editTask(@PathVariable("id") Long id, Model model) {
+        addAuthenticatedUsernameToModel(model);  // Tilføjer det autentificerede brugernavn til modellen
+        List<Project> task = projectService.getTaskByID(id); // Fetch the task by id
+        model.addAttribute("task", task); // Add the task to the model
+        return "edit-task"; // Return the edit task view
+    }
+
+    // Handle the form submission for updating the task
+    @PostMapping("/update-task/{id}")
+    public String updateTask(@PathVariable("id") int id, @ModelAttribute Project task, Model model) {
+        System.out.println("Updating task with ID: " + id);
+        System.out.println("New Task Name: " + task.getTaskProjectName());
+        System.out.println("New Duration: " + task.getDuration());
+
+        task.setId(id);
+        projectService.updateTask(id, task);
+
+        return "redirect:/view-task/" + id;
+    }
 }

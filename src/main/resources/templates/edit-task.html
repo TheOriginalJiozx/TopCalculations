@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Task - TopCalculations</title>
+    <link rel="stylesheet" th:href="@{/css/view.css}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" th:href="@{/css/add.css}" />
+</head>
+<body>
+<nav class="navbar">
+    <div class="navbar-left">
+        <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+        <div class="navbar-links">
+            <a class="nav-link" th:href="@{/}">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
+            <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
+            <span class="nav-link" th:if="${username != 'Guest'}">
+                <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                </form>
+            </span>
+        </div>
+    </div>
+    <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+</nav>
+
+<h1>Edit Task</h1>
+
+<div class="body-wrapper">
+    <div class="container-custom-task">
+
+        <div th:each="task : ${task}">
+            <form th:action="@{/update-task/{id}(id=${task.id})}" method="post">
+                <div>
+                    <label for="WBS">WBS</label>
+                    <input type="text" id="WBS" name="WBS" th:value="${task.wbs}" required disabled/>
+                </div>
+                <div>
+                    <label for="taskName">Task Name</label>
+                    <input type="text" id="taskName" name="taskProjectName" th:value="${task.taskProjectName}" required />
+                </div>
+                <div>
+                    <label for="duration">Duration</label>
+                    <input type="text" id="duration" name="duration" th:value="${task.duration}" required />
+                </div>
+                <div>
+                    <label for="plannedStartDate">Planned Start Date</label>
+                    <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${task.plannedStartDate}" required />
+                </div>
+                <div>
+                    <label for="plannedFinishDate">Planned Finish Date</label>
+                    <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${task.plannedFinishDate}" required />
+                </div>
+                <div>
+                    <label for="assigned">Assigned</label>
+                    <input type="text" id="assigned" name="assigned" th:value="${task.assigned}" required disabled/>
+                </div>
+
+                <div>
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

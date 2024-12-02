@@ -38,6 +38,7 @@
                 <th>Planned Start Date</th>
                 <th>Planned Finish Date</th>
                 <th>Assigned</th>
+                <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -48,6 +49,9 @@
                 <td th:text="${project.plannedStartDate}"></td>
                 <td th:text="${project.plannedFinishDate}"></td>
                 <td th:text="${project.assigned}"></td>
+                <td>
+                    <a href="#" th:href="@{/edit-task/{id}(id=${project.id})}" class="btn-edit">Edit</a>
+                </td>
             </tr>
             </tbody>
         </table>
