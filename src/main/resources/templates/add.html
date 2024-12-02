@@ -16,6 +16,7 @@
             <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
             <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
             <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
+            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}">Add Subtask</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
                 <form th:action="@{/logout}" method="post" style="display: inline;">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
@@ -31,13 +32,13 @@
 <div class="container container-custom-task">
     <form th:action="@{/add}" th:object="${project}" method="post">
         <div class="form-group">
-            <label for="task_name">Name of Project or Task:</label>
-            <input type="text" id="task_name" th:field="*{taskName}" required class="form-control">
+            <label for="task_project_name">Name of Project or Task:</label>
+            <input type="text" id="task_project_name" th:field="*{taskProjectName}" required class="form-control">
         </div>
 
         <div class="form-group">
-            <label for="main_task">Main Project (if exists):</label>
-            <select id="main_task" th:field="*{mainProjectName}" class="form-control">
+            <label for="main_project">Main Project (if exists):</label>
+            <select id="main_project" th:field="*{mainProjectName}" class="form-control">
                 <option value="" th:text="'-- Select Main Project --'"></option>
                 <option th:each="project : ${projects}" th:value="${project.projectName}" th:text="${project.projectName}"></option>
             </select>

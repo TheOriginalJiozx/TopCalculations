@@ -1,8 +1,11 @@
 package top.topcalculations.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +24,49 @@ public class SecurityConfig {
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    public DataSource dataSource(
+            @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej?useSSL=false}") String dbUrl,
+            @Value("${DB_USER}") String username,
+            @Value("${DB_PASSWORD}") String password
+    ) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
+    }
+
+    private String dbUrl = "jdbc:h2:~/test;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;INIT=runscript from 'classpath:h2init.sql'";
+    private String dbUsername = "sa";
+    private String dbPassword = "";
+
+    @Bean
+    @Profile("h2")
+    public DataSource h2DataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUsername);
+        dataSource.setPassword(dbPassword);
+        return dataSource;
+    }
+
+    @Bean
+    public DataSource h2dataSource(
+            @Value("") String dbUrl,
+            @Value("${DB_USER}") String username,
+            @Value("${DB_PASSWORD}") String password
+    ) {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(username);
+        dataSource.setPassword(password);
+        return dataSource;
     }
 
     @Bean

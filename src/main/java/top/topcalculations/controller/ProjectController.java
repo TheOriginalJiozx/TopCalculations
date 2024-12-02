@@ -66,8 +66,8 @@ public class ProjectController {
             return "add"; // Retur til formularen
         }
 
-        if (project.getTaskName() != null && !project.getTaskName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainProject = projectService.getProjectByName(project.getTaskName()); // Henter hovedprojektet
+        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
+            Project mainProject = projectService.getProjectByName(project.getTaskProjectName()); // Henter hovedprojektet
 
             if (mainProject != null) {
                 String mainProjectWBS = mainProject.getWbs(); // Henter WBS (Work Breakdown Structure) for hovedprojekt
@@ -97,7 +97,7 @@ public class ProjectController {
                 }
 
                 project.setWbs(newWBS); // Sætter WBS for den nye opgave
-                project.setTaskName(project.getTaskName()); // Sætter opgavenavnet
+                project.setTaskProjectName(project.getTaskProjectName()); // Sætter opgavenavnet
                 project.setProjectName(mainProject.getProjectName()); // Sætter projektnavnet
                 project.setMainProjectName(mainProject.getProjectName()); // Sætter hovedprojektnavnet
                 projectService.saveTask(project); // Gemmer opgaven
@@ -108,8 +108,8 @@ public class ProjectController {
             }
         } else {
             // Hvis det er et nyt projekt og ikke en opgave
-            project.setProjectName(project.getTaskName());
-            project.setTaskName(null);
+            project.setProjectName(project.getTaskProjectName());
+            project.setTaskProjectName(null);
             project.setWbs(project.getWbs());
             projectService.saveProject(project); // Gemmer projektet
             redirectAttributes.addFlashAttribute("message", "Project saved successfully."); // Success besked
@@ -139,8 +139,8 @@ public class ProjectController {
             return "add"; // Retur til formularen
         }
 
-        if (project.getTaskName() != null && !project.getTaskName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainTask = projectService.getTaskByName(project.getTaskName()); // Henter hovedopgaven
+        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
+            Project mainTask = projectService.getTaskByName(project.getTaskProjectName()); // Henter hovedopgaven
 
             if (mainTask != null) {
                 String mainProjectWBS = mainTask.getWbs(); // Henter WBS for hovedopgaven
@@ -172,7 +172,7 @@ public class ProjectController {
                 }
 
                 project.setWbs(newWBS); // Sætter WBS for den nye underopgave
-                project.setTaskName(mainTask.getTaskName()); // Sætter opgavenavnet
+                project.setTaskProjectName(mainTask.getTaskProjectName()); // Sætter opgavenavnet
                 project.setProjectName(mainTask.getProjectName()); // Sætter projektnavnet
 
                 projectService.saveSubTask(project); // Gemmer underopgaven

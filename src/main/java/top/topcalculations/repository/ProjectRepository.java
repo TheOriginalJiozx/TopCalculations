@@ -20,7 +20,7 @@ public class ProjectRepository {
     }
 
     public void saveProject(Project project) {
-        if (project.getTaskName() == null || project.getTaskName().isEmpty()) {
+        if (project.getTaskProjectName() == null || project.getTaskProjectName().isEmpty()) {
             String newWBS = generateNewWBS();
             project.setWbs(newWBS);
         }
@@ -31,12 +31,12 @@ public class ProjectRepository {
 
     public void saveTask(Project project) {
         String sql = "INSERT INTO projects (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
 
     public void saveSubTask(Project project) {
         String sql = "INSERT INTO projects (WBS, task_name, sub_task_name, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getTaskName(), project.getSubTaskName(), project.getProjectName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getSubTaskName(), project.getProjectName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
 
     private String generateNewWBS() {
@@ -70,11 +70,11 @@ public class ProjectRepository {
 
         for (Project project : projects) {
             if (project.getProjectName() != null && !project.getProjectName().isEmpty() &&
-                    (project.getTaskName() == null || project.getTaskName().isEmpty())) {
+                    (project.getTaskProjectName() == null || project.getTaskProjectName().isEmpty())) {
                 project.setProjectName(project.getProjectName());
             } else {
-                project.setProjectName(project.getTaskName() != null && !project.getTaskName().isEmpty()
-                        ? project.getTaskName()
+                project.setProjectName(project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()
+                        ? project.getTaskProjectName()
                         : project.getProjectName());
             }
         }
@@ -106,7 +106,7 @@ public class ProjectRepository {
             project.setId(rs.getInt("id"));
             project.setWbs(rs.getString("WBS"));
             project.setProjectName(rs.getString("project_name"));
-            project.setTaskName(rs.getString("task_name"));
+            project.setTaskProjectName(rs.getString("task_name"));
             project.setSubTaskName(rs.getString("sub_task_name"));
             project.setDuration(rs.getString("duration"));
             project.setPlannedStartDate(rs.getString("planned_start_date"));

@@ -5,7 +5,7 @@ public class Project {
     private String wbs;
     private String projectName;
     private String mainProjectName;
-    private String taskName;
+    private String taskProjectName;
     private String duration;
     private String plannedStartDate;
     private String plannedFinishDate;
@@ -52,12 +52,12 @@ public class Project {
         this.mainProjectName = projectName;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getTaskProjectName() {
+        return taskProjectName;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setTaskProjectName(String taskProjectName) {
+        this.taskProjectName = taskProjectName;
     }
 
     public String getDuration() {
