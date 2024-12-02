@@ -47,10 +47,10 @@ public class ProjectRepository {
         return String.valueOf(newWBSValue);
     }
 
-    /*public List<Project> findTasks(String mainProjectName) {
+    public List<Project> findTasks(String mainProjectName) {
         String sql = "SELECT * FROM projects WHERE task_name = ?";
         return jdbcTemplate.query(sql, new Object[]{mainProjectName}, new ProjectRowMapper());
-    }*/
+    }
 
     public Project findProjectByName(String projectName) {
         String sql = "SELECT * FROM projects WHERE project_name = ?";
@@ -88,12 +88,11 @@ public class ProjectRepository {
         return jdbcTemplate.query(sql, new ProjectRowMapper());
     }
 
-    public List<Project> findTasks(String username) {
+    public List<Project> findTaskByID(Long id) {
         String sql = "SELECT p.id, p.wbs, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.sub_task_name " +
                 "FROM projects p " +
-                "JOIN users u ON p.assigned = u.username " +
-                "WHERE u.username = ? AND p.task_name IS NOT NULL AND p.task_name != ''";
-        return jdbcTemplate.query(sql, new TaskRowMapper(), username);
+                "WHERE p.id = ? AND p.task_name IS NOT NULL AND p.task_name != ''";  // Remove username condition
+        return jdbcTemplate.query(sql, new TaskRowMapper(), id);
     }
 
     public List<Project> findAllWithoutTasks() {

@@ -43,7 +43,22 @@
       <tbody>
       <tr th:each="project : ${projects}">
         <td th:text="${project.wbs}"></td>
-        <td th:text="${project.projectTaskName}"></td>
+        <td>
+          <!-- Link for a subtask -->
+          <a th:if="${project.subTaskName != null}"
+             th:href="@{'/view-subtask/' + ${project.id}}"
+             th:text="${project.projectTaskName}"></a>
+
+          <!-- Plain text for tasks that are numbers or don't match subtask conditions -->
+          <span th:if="${project.subTaskName == null and project.wbs.matches('[0-9]+')}">
+            <span th:text="${project.projectTaskName}"></span>
+        </span>
+
+          <!-- Link for tasks with a WBS containing a dot (and not a pure number) -->
+          <a th:if="${project.subTaskName == null and (project.wbs.contains('.') or not(project.wbs.matches('[0-9]+')))}"
+             th:href="@{'/view-task/' + ${project.id}}"
+             th:text="${project.projectTaskName}"></a>
+        </td>
         <td th:text="${project.duration}"></td>
         <td th:text="${project.plannedStartDate}"></td>
         <td th:text="${project.plannedFinishDate}"></td>

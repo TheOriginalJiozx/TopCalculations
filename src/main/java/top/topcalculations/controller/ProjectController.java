@@ -194,13 +194,12 @@ public class ProjectController {
         return "view-projects"; // Returnerer visning af projekter
     }
 
-    @GetMapping("/view-task")
-    public String viewTask(Model model) {
-        String authenticatedUsername = getAuthenticatedUsername();
-        addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
-        List<Project> projects = projectService.getTask(authenticatedUsername); // Henter alle opgaver
-        model.addAttribute("projects", projects); // Tilføjer opgaverne til modellen
-        model.addAttribute("project", new Project()); // Tilføjer en tom Project til modellen
-        return "view-task"; // Returnerer formularen til at tilføje subtask
+    @GetMapping("/view-task/{id}")
+    public String viewTask(@PathVariable("id") Long id, Model model) {
+        addAuthenticatedUsernameToModel(model);  // Tilføjer det autentificerede brugernavn til modellen
+        List<Project> projects = projectService.getTaskByID(id);  // Henter task (projekt) baseret på ID'et fra URL'en
+        model.addAttribute("tasks", projects);  // Tilføjer listen af tasks til modellen, som kan bruges i HTML-templates
+        model.addAttribute("task", new Project());  // Tilføjer en tom Project-objekt til modellen (for eksempel til en form til at tilføje en task)
+        return "view-task";  // Returnerer viewet 'view-task', hvor taskens detaljer vil blive vist
     }
 }
