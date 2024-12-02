@@ -28,7 +28,7 @@
 
 <div class="body-wrapper">
   <div class="container-custom-task">
-    <h1>Projects, Tasks and Subtasks</h1>
+    <h1><span th:text="${username}"></span>'s Task</h1>
     <table>
       <thead>
       <tr>
@@ -43,7 +43,7 @@
       <tbody>
       <tr th:each="project : ${projects}">
         <td th:text="${project.wbs}"></td>
-        <td th:text="${project.projectTaskName}"></td>
+        <td th:text="${project.taskName}"></td>
         <td th:text="${project.duration}"></td>
         <td th:text="${project.plannedStartDate}"></td>
         <td th:text="${project.plannedFinishDate}"></td>

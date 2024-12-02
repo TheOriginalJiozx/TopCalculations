@@ -3,9 +3,9 @@ package top.topcalculations.model;
 public class Project {
     private int id;
     private String wbs;
-    private String projectName;
+    private String projectTaskName;
     private String mainProjectName;
-    private String taskName;
+    private String taskProjectName;
     private String duration;
     private String plannedStartDate;
     private String plannedFinishDate;
@@ -20,12 +20,12 @@ public class Project {
         this.id = id;
     }
 
-    public String getProjectName() {
-        return projectName;
+    public String getProjectTaskName() {
+        return projectTaskName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setProjectTaskName(String projectTaskName) {
+        this.projectTaskName = projectTaskName;
     }
 
     public String getSubTaskName() {
@@ -52,12 +52,12 @@ public class Project {
         this.mainProjectName = projectName;
     }
 
-    public String getTaskName() {
-        return taskName;
+    public String getTaskProjectName() {
+        return taskProjectName;
     }
 
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
+    public void setTaskProjectName(String taskProjectName) {
+        this.taskProjectName = taskProjectName;
     }
 
     public String getDuration() {

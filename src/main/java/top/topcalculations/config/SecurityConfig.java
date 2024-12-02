@@ -61,8 +61,9 @@ public class SecurityConfig {
     }
 
     @Bean
+    // OBS: Denne metode er duplikeret og bør sandsynligvis fjernes, da den ligner `dataSource`-metoden.
     public DataSource prodDataSource(
-            @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej}") String dbUrl,
+            @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej?useSSL=false") String dbUrl,
             @Value("${DB_USER}") String username,
             @Value("${DB_PASSWORD}") String password
     ) {
@@ -79,7 +80,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**").permitAll()
+                        .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**", "/wishlist/reserve", "/project").permitAll()
                         .requestMatchers("/login", "/signup").anonymous()
                         //.requestMatchers("/view-projects").hasRole("ADMIN") // Kommentarer indikerer mulig rollebaseret adgangskontrol.
                         .anyRequest().authenticated()
