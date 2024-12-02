@@ -47,10 +47,10 @@ public class ProjectRepository {
         return String.valueOf(newWBSValue);
     }
 
-    public List<Project> findTasks(String mainProjectName) {
+    /*public List<Project> findTasks(String mainProjectName) {
         String sql = "SELECT * FROM projects WHERE task_name = ?";
         return jdbcTemplate.query(sql, new Object[]{mainProjectName}, new ProjectRowMapper());
-    }
+    }*/
 
     public Project findProjectByName(String projectName) {
         String sql = "SELECT * FROM projects WHERE project_name = ?";
@@ -88,6 +88,14 @@ public class ProjectRepository {
         return jdbcTemplate.query(sql, new ProjectRowMapper());
     }
 
+    public List<Project> findTasks(String username) {
+        String sql = "SELECT p.id, p.wbs, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.sub_task_name " +
+                "FROM projects p " +
+                "JOIN users u ON p.assigned = u.username " +
+                "WHERE u.username = ? AND p.task_name IS NOT NULL AND p.task_name != ''";
+        return jdbcTemplate.query(sql, new TaskRowMapper(), username);
+    }
+
     public List<Project> findAllWithoutTasks() {
         String sql = "SELECT * FROM projects WHERE task_name IS NULL";
         return jdbcTemplate.query(sql, new ProjectRowMapper());
@@ -113,6 +121,21 @@ public class ProjectRepository {
             project.setPlannedFinishDate(rs.getString("planned_finish_date"));
             project.setAssigned(rs.getString("assigned"));
             return project;
+        }
+    }
+
+    private static class TaskRowMapper implements RowMapper<Project> {
+        @Override
+        public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Project task = new Project();
+            task.setId(rs.getInt("id"));
+            task.setWbs(rs.getString("WBS"));
+            task.setTaskName(rs.getString("task_name"));
+            task.setDuration(rs.getString("duration"));
+            task.setPlannedStartDate(rs.getString("planned_start_date"));
+            task.setPlannedFinishDate(rs.getString("planned_finish_date"));
+            task.setAssigned(rs.getString("assigned"));
+            return task;
         }
     }
 }

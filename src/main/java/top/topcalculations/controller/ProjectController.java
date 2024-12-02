@@ -1,5 +1,6 @@
 package top.topcalculations.controller;
 
+import org.springframework.scheduling.config.Task;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -192,5 +193,15 @@ public class ProjectController {
         model.addAttribute("projects", projects); // Tilføjer projekterne til modellen
         addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
         return "view-projects"; // Returnerer visning af projekter
+    }
+
+    @GetMapping("/view-tasks")
+    public String viewTask(Model model) {
+        String authenticatedUsername = getAuthenticatedUsername();
+        addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
+        List<Project> projects = projectService.getTask(authenticatedUsername); // Henter alle opgaver
+        model.addAttribute("projects", projects); // Tilføjer opgaverne til modellen
+        model.addAttribute("project", new Project()); // Tilføjer en tom Project til modellen
+        return "view-tasks"; // Returnerer formularen til at tilføje subtask
     }
 }
