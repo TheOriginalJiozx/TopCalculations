@@ -1,8 +1,8 @@
 package top.topcalculations.controller;
 
+import org.springframework.scheduling.config.Task;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -67,13 +67,13 @@ public class ProjectController {
             return "add"; // Retur til formularen
         }
 
-        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainProject = projectService.getProjectByName(project.getTaskProjectName()); // Henter hovedprojektet
+        if (project.getTaskName() != null && !project.getTaskName().isEmpty()) { // Hvis opgavenavn er angivet
+            Project mainProject = projectService.getProjectByName(project.getTaskName()); // Henter hovedprojektet
 
             if (mainProject != null) {
                 String mainProjectWBS = mainProject.getWbs(); // Henter WBS (Work Breakdown Structure) for hovedprojekt
 
-                List<Project> tasks = projectService.getTasks(mainProject.getProjectTaskName()); // Henter opgaver relateret til hovedprojekt
+                List<Project> tasks = projectService.getTasks(mainProject.getProjectName()); // Henter opgaver relateret til hovedprojekt
 
                 int highestTaskIndex = 0;
                 // Finder den højeste indeks for opgaverne
@@ -98,9 +98,9 @@ public class ProjectController {
                 }
 
                 project.setWbs(newWBS); // Sætter WBS for den nye opgave
-                project.setTaskProjectName(project.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectName(mainProject.getProjectTaskName()); // Sætter projektnavnet
-                project.setMainProjectName(mainProject.getProjectTaskName()); // Sætter hovedprojektnavnet
+                project.setTaskName(project.getTaskName()); // Sætter opgavenavnet
+                project.setProjectName(mainProject.getProjectName()); // Sætter projektnavnet
+                project.setMainProjectName(mainProject.getProjectName()); // Sætter hovedprojektnavnet
                 projectService.saveTask(project); // Gemmer opgaven
                 redirectAttributes.addFlashAttribute("message",
                         "Task saved successfully. To add a subtask, <a href='addSub'>click here</a>"); // Success besked
@@ -109,8 +109,8 @@ public class ProjectController {
             }
         } else {
             // Hvis det er et nyt projekt og ikke en opgave
-            project.setProjectName(project.getTaskProjectName());
-            project.setTaskProjectName(null);
+            project.setProjectName(project.getTaskName());
+            project.setTaskName(null);
             project.setWbs(project.getWbs());
             projectService.saveProject(project); // Gemmer projektet
             redirectAttributes.addFlashAttribute("message", "Project saved successfully."); // Success besked
@@ -140,13 +140,13 @@ public class ProjectController {
             return "add"; // Retur til formularen
         }
 
-        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainTask = projectService.getTaskByName(project.getTaskProjectName()); // Henter hovedopgaven
+        if (project.getTaskName() != null && !project.getTaskName().isEmpty()) { // Hvis opgavenavn er angivet
+            Project mainTask = projectService.getTaskByName(project.getTaskName()); // Henter hovedopgaven
 
             if (mainTask != null) {
                 String mainProjectWBS = mainTask.getWbs(); // Henter WBS for hovedopgaven
 
-                List<Project> tasks = projectService.getTasks(mainTask.getProjectTaskName()); // Henter opgaver tilhørende hovedopgaven
+                List<Project> tasks = projectService.getTasks(mainTask.getProjectName()); // Henter opgaver tilhørende hovedopgaven
 
                 int highestSubtaskIndex = 0;
                 // Finder højeste indeks for underopgaver
@@ -173,8 +173,8 @@ public class ProjectController {
                 }
 
                 project.setWbs(newWBS); // Sætter WBS for den nye underopgave
-                project.setTaskProjectName(mainTask.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectName(mainTask.getProjectTaskName()); // Sætter projektnavnet
+                project.setTaskName(mainTask.getTaskName()); // Sætter opgavenavnet
+                project.setProjectName(mainTask.getProjectName()); // Sætter projektnavnet
 
                 projectService.saveSubTask(project); // Gemmer underopgaven
                 redirectAttributes.addFlashAttribute("message", "Subtask saved successfully."); // Success besked
@@ -195,47 +195,13 @@ public class ProjectController {
         return "view-projects"; // Returnerer visning af projekter
     }
 
-    // Vist for at se egen redigerbar task (er man admin kan man redigere alle tasks)
-    @GetMapping("/task")
-    public String viewTask(@ModelAttribute Project project, Model model) {
-        addAuthenticatedUsernameToModel(model);
-
-        String username = getAuthenticatedUsername();
-
-        if (username == null || username.equals("Guest")) {
-            model.addAttribute("errorMessage", "Please log in to view tasks.");
-            return "task";
-        }
-
-        if (project.getTaskName() == null || project.getTaskName().isEmpty()) {
-            model.addAttribute("errorMessage", "Task name cannot be null or empty.");
-            return "task";
-        }
-
-        Project task = projectService.getTaskByName(project.getTaskName());
-        if (task == null) {
-            model.addAttribute("errorMessage", "Task not found.");
-            return "task";
-        }
-
-        List<Project> tasks = projectService.getTask(task.getTaskName(), username);
-        if (tasks == null || tasks.isEmpty()) {
-            model.addAttribute("errorMessage", "No tasks found for this user.");
-            return "task";
-        }
-
-        model.addAttribute("tasks", tasks);
-        model.addAttribute("username", username);
-
-        return "task";
-    }
-
-    // Vist for at se egen redigerbar task (er man admin kan man redigere alle tasks)
-    /*@GetMapping("/subtask")
+    @GetMapping("/view-tasks")
     public String viewTask(Model model) {
-        List<Project> subtasks = projectService.getSubTask(); // Henter alle egne subtasks
-        model.addAttribute("subtasks", subtasks); // Tilføjer task til modellen
+        String authenticatedUsername = getAuthenticatedUsername();
         addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
-        return "subtasks"; // Returnerer visning af egen subtask (er man admin kan man redigere alle subtasks)
-    }*/
+        List<Project> projects = projectService.getTask(authenticatedUsername); // Henter alle opgaver
+        model.addAttribute("projects", projects); // Tilføjer opgaverne til modellen
+        model.addAttribute("project", new Project()); // Tilføjer en tom Project til modellen
+        return "view-tasks"; // Returnerer formularen til at tilføje subtask
+    }
 }
