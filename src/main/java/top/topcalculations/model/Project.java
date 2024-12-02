@@ -5,7 +5,6 @@ public class Project {
     private String wbs;
     private String projectName;
     private String mainProjectName;
-    private String taskProjectName;
     private String taskName;
     private String duration;
     private String plannedStartDate;
@@ -21,20 +20,12 @@ public class Project {
         this.id = id;
     }
 
-    public String getProjectTaskName() {
+    public String getProjectName() {
         return projectName;
     }
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
-    }
-
-    public String getTaskName() {
-        return taskName;
-    }
-
-    public void setTaskName(String taskName) {
-        this.taskName = taskName;
     }
 
     public String getSubTaskName() {
@@ -61,12 +52,12 @@ public class Project {
         this.mainProjectName = projectName;
     }
 
-    public String getTaskProjectName() {
-        return taskProjectName;
+    public String getTaskName() {
+        return taskName;
     }
 
-    public void setTaskProjectName(String taskProjectName) {
-        this.taskProjectName = taskProjectName;
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 
     public String getDuration() {
