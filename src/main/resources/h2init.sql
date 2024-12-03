@@ -25,4 +25,4 @@ CREATE TABLE projects (
 );
 
 INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, task_name, sub_task_name)
-VALUES ('1', 'Tester', '4 Dage', '2011-11-01', '2011-11-02', 'Omar', 'Test', 'Test');
+VALUES ('1', 'Tester', '4 Dage', '2011-11-01', '2011-11-02', 'Omar', 'Test', 'Lol');

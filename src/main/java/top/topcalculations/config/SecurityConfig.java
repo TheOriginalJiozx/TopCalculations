@@ -28,25 +28,29 @@ public class SecurityConfig {
         return new JdbcTemplate(dataSource);
     }
 
+    @Value("${MYSQL_URL}")
+    String mysqlUrl; // Miljøvariabel til MySQL-database-URL.
+    @Value("${MYSQL_USER}")
+    String mysqlUsername; // Miljøvariabel til MySQL-brugernavn.
+    @Value("${MYSQL_PASSWORD}")
+    String mysqlPassword; // Miljøvariabel til MySQL-adgangskode.
+
     @Bean
+    @Profile("prod")
     // Definerer en bean til en MySQL-datasource med værdier hentet fra miljøvariabler.
-    public DataSource dataSource(
-            @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej?useSSL=false}") String dbUrl,
-            @Value("${DB_USER}") String username,
-            @Value("${DB_PASSWORD}") String password
-    ) {
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl(dbUrl);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
+        dataSource.setUrl(mysqlUrl);
+        dataSource.setUsername(mysqlUsername);
+        dataSource.setPassword(mysqlPassword);
         return dataSource;
     }
 
     // H2-databasen konfigureres med standardværdier for testformål.
     private String dbUrl = "jdbc:h2:~/test;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;INIT=runscript from 'classpath:h2init.sql'";
-    private String dbUsername = "sa";
-    private String dbPassword = "";
+    private String dbUsername = "sa"; // Standard brugernavn for H2-databasen.
+    private String dbPassword = ""; // Standard adgangskode for H2-databasen.
 
     @Bean
     @Profile("h2")
@@ -61,29 +65,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    // OBS: Denne metode er duplikeret og bør sandsynligvis fjernes, da den ligner `dataSource`-metoden.
-    public DataSource prodDataSource(
-            @Value("${DB_URL:jdbc:mysql://localhost:3306/kalkulationsvaerktoej?useSSL=false") String dbUrl,
-            @Value("${DB_USER}") String username,
-            @Value("${DB_PASSWORD}") String password
-    ) {
-        DriverManagerDataSource dataSource = new DriverManagerDataSource();
-        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        dataSource.setUrl(dbUrl);
-        dataSource.setUsername(username);
-        dataSource.setPassword(password);
-        return dataSource;
-    }
-
-    @Bean
     // Definerer en sikkerhedsfilterkæde, som håndterer autorisation og autentifikation for HTTP-forespørgsler.
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**", "/wishlist/reserve", "/project").permitAll()
-                        .requestMatchers("/login", "/signup").anonymous()
+                        .requestMatchers("/login", "/signup").anonymous() // Tillader kun anonyme brugere at tilgå disse sider.
                         //.requestMatchers("/view-projects").hasRole("ADMIN") // Kommentarer indikerer mulig rollebaseret adgangskontrol.
-                        .anyRequest().authenticated()
+                        .anyRequest().authenticated() // Kræver autentifikation for alle andre forespørgsler.
                 )
                 .formLogin(form -> form
                         .loginPage("/login") // Angiver login-siden.
@@ -116,11 +105,11 @@ public class SecurityConfig {
                 boolean enabled = rs.getBoolean("enabled");
                 String role = rs.getString("role");
                 return org.springframework.security.core.userdetails.User.withUsername(user)
-                        .password(password)
-                        .accountLocked(!enabled)
+                        .password(password) // Indstiller brugerens krypterede adgangskode hentet fra databasen.
+                        .accountLocked(!enabled) // Låser kontoen, hvis brugeren ikke er aktiveret.
                         .authorities("USER") // Standardautorisation som "USER".
-                        .roles(role) // Roller hentes fra databasen.
-                        .build();
+                        .roles(role) // Roller, der bestemmer adgangsniveauet, hentes fra databasen.
+                        .build(); // Bygger en UserDetails-instans baseret på de specificerede oplysninger.
             });
         });
 
