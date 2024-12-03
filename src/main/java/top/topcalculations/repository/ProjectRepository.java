@@ -101,14 +101,13 @@ public class ProjectRepository {
         System.out.println("New Task Name: " + project.getTaskProjectName());
         System.out.println("New Duration: " + project.getDuration());
 
-        String sql = "UPDATE projects SET task_name = ?, duration = ?, planned_start_date = ?, planned_finish_date = ?, assigned = ? WHERE id = ?";
+        String sql = "UPDATE projects SET task_name = ?, duration = ?, planned_start_date = ?, planned_finish_date = ? WHERE id = ?";
 
         jdbcTemplate.update(sql,
                 project.getTaskProjectName(),
                 project.getDuration(),
                 project.getPlannedStartDate(),
                 project.getPlannedFinishDate(),
-                project.getAssigned(),
                 id);
     }
 
