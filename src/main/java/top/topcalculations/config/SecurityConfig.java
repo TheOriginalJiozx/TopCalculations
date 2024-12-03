@@ -104,7 +104,7 @@ public class SecurityConfig {
                 String password = rs.getString("password");
                 boolean enabled = rs.getBoolean("enabled");
                 String role = rs.getString("role");
-                return org.springframework.security.core.userdetails.User.withUsername(user)
+                return org.springframework.security.core.userdetails.User.withUsername(user) // Starter oprettelsen af en UserDetails-instans med det angivne brugernavn.
                         .password(password) // Indstiller brugerens krypterede adgangskode hentet fra databasen.
                         .accountLocked(!enabled) // Låser kontoen, hvis brugeren ikke er aktiveret.
                         .authorities("USER") // Standardautorisation som "USER".
