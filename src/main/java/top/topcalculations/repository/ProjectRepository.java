@@ -20,14 +20,15 @@ public class ProjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // Gemmer et projekt i databasen. Hvis projektet ikke har en WBS, genereres en ny.
     public void saveProject(Project project) {
         if (project.getTaskProjectName() == null || project.getTaskProjectName().isEmpty()) {
             String newWBS = generateNewWBS();  // Generer ny WBS
             project.setWbs(newWBS);  // Sæt den nye WBS for projektet
         }
 
-        // SQL-indsættelse af projektdata i databasen
+        // Log the project data
+        System.out.println("Saving project: " + project);
+
         String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
@@ -35,7 +36,7 @@ public class ProjectRepository {
     // Gemmer en opgave (task) i databasen
     public void saveTask(Project project) {
         String sql = "INSERT INTO projects (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
     }
 
     // Gemmer en delopgave (subtask) i databasen
@@ -139,7 +140,7 @@ public class ProjectRepository {
 
     // Finder projekter, der ikke har nogen opgaver
     public List<Project> findAllWithoutTasks() {
-        String sql = "SELECT * FROM projects WHERE task_name IS NULL";
+        String sql = "SELECT * FROM projects WHERE task_name IS NULL AND sub_task_name IS NULL";
         return jdbcTemplate.query(sql, new ProjectRowMapper());
     }
 
