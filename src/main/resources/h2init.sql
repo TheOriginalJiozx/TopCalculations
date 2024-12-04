@@ -21,8 +21,10 @@ CREATE TABLE projects (
   assigned varchar(255) DEFAULT NULL,
   task_name varchar(255) DEFAULT NULL,
   sub_task_name varchar(255) DEFAULT NULL,
+  time_spent int DEFAULT NULL,
+  expected_time_per_day int DEFAULT NULL,
   PRIMARY KEY (id)
 );
 
-INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, task_name, sub_task_name)
-VALUES ('1', 'Tester', '4 Dage', '2011-11-01', '2011-11-02', 'Omar', 'Test', 'Lol');
+INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, task_name, sub_task_name, time_spent, expected_time_per_day)
+VALUES ('1', 'Tester', '4 Dage', '2011-11-01', '2011-11-02', 'Omar', 'Test', 'Lol', '1', '1');
