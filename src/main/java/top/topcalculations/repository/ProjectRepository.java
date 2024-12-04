@@ -26,23 +26,22 @@ public class ProjectRepository {
             project.setWbs(newWBS);  // Sæt den nye WBS for projektet
         }
 
-        // Log the project data
         System.out.println("Saving project: " + project);
 
-        String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_per_day) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned(), project.getExpectedTimePerDay());
     }
 
     // Gemmer en opgave (task) i databasen
     public void saveTask(Project project) {
-        String sql = "INSERT INTO projects (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        String sql = "INSERT INTO projects (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_per_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned(), project.getExpectedTimePerDay());
     }
 
     // Gemmer en delopgave (subtask) i databasen
     public void saveSubTask(Project project) {
-        String sql = "INSERT INTO projects (WBS, task_name, sub_task_name, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getSubTaskName(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned());
+        String sql = "INSERT INTO projects (WBS, task_name, sub_task_name, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_per_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, project.getWbs(), project.getTaskProjectName(), project.getSubTaskName(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned(), project.getExpectedTimePerDay());
     }
 
     // Genererer en ny WBS ved at finde den højeste WBS-værdi og øge den
@@ -102,7 +101,7 @@ public class ProjectRepository {
 
     // Henter en opgave baseret på dens ID
     public List<Project> findTaskByID(Long id) {
-        String sql = "SELECT p.id, p.wbs, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.sub_task_name " +
+        String sql = "SELECT p.id, p.wbs, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.sub_task_name, p.time_spent " +
                 "FROM projects p " +
                 "WHERE p.id = ? AND p.task_name IS NOT NULL AND p.task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper(), id);
@@ -110,7 +109,7 @@ public class ProjectRepository {
 
     // Henter en opgave baseret på dens ID
     public List<Project> findSubTaskByID(Long id) {
-        String sql = "SELECT p.id, p.wbs, p.sub_task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.task_name " +
+        String sql = "SELECT p.id, p.wbs, p.sub_task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.task_name, p.time_spent " +
                 "FROM projects p " +
                 "WHERE p.id = ? AND p.sub_task_name IS NOT NULL AND p.sub_task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper(), id);
@@ -161,6 +160,8 @@ public class ProjectRepository {
             project.setProjectTaskName(rs.getString("project_name"));
             project.setTaskProjectName(rs.getString("task_name"));
             project.setSubTaskName(rs.getString("sub_task_name"));
+            project.setTimeSpent(rs.getInt("time_spent"));
+            project.setExpectedTimePerDay(rs.getInt("expected_time_per_day"));
             project.setDuration(rs.getString("duration"));
             project.setPlannedStartDate(rs.getString("planned_start_date"));
             project.setPlannedFinishDate(rs.getString("planned_finish_date"));
@@ -178,6 +179,8 @@ public class ProjectRepository {
             task.setWbs(rs.getString("WBS"));
             task.setTaskProjectName(rs.getString("task_name"));
             task.setSubTaskName(rs.getString("sub_task_name"));
+            task.setTimeSpent(rs.getInt("time_spent"));
+            task.setExpectedTimePerDay(rs.getInt("expected_time_per_day"));
             task.setDuration(rs.getString("duration"));
             task.setPlannedStartDate(rs.getString("planned_start_date"));
             task.setPlannedFinishDate(rs.getString("planned_finish_date"));

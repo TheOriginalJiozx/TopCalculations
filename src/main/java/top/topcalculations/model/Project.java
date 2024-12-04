@@ -11,6 +11,8 @@ public class Project {
     private String plannedFinishDate;
     private String assigned;
     private String subTaskName;
+    private int timeSpent;
+    private int expectedTimePerDay;
 
     public int getId() {
         return id;
@@ -34,6 +36,22 @@ public class Project {
 
     public void setSubTaskName(String subTaskName) {
         this.subTaskName = subTaskName;
+    }
+
+    public void setTimeSpent(int timeSpent) {
+        this.timeSpent = timeSpent;
+    }
+
+    public int getTimeSpent() {
+        return timeSpent;
+    }
+
+    public void setExpectedTimePerDay(int expectedTimePerDay) {
+        this.expectedTimePerDay = expectedTimePerDay;
+    }
+
+    public int getExpectedTimePerDay() {
+        return expectedTimePerDay;
     }
 
     public String getWbs() {

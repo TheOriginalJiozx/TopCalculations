@@ -60,7 +60,7 @@ public class ProjectController {
         Long userId = userService.getCurrentUserId(); // Gets the ID of the authenticated user
 
         if (userId == null) {
-            model.addAttribute("message", "Error: User not authenticated."); // Error if user not authenticated
+            model.addAttribute("messageTask", "Error: User not authenticated."); // Error if user not authenticated
             addAuthenticatedUsernameToModel(model);
             return "add"; // Return to the form
         }
@@ -70,7 +70,7 @@ public class ProjectController {
             project.setProjectTaskName(project.getTaskProjectName()); // Set projectTaskName as the entered taskProjectName
             project.setTaskProjectName(null); // Clear taskProjectName
             projectService.saveProject(project); // Save the project
-            redirectAttributes.addFlashAttribute("message", "Project saved successfully."); // Success message
+            redirectAttributes.addFlashAttribute("messageTask", "Project saved successfully."); // Success message
         } else {
             // Main project selected, save as a new task under the main project
             Project mainProject = projectService.getProjectByName(project.getMainProjectName()); // Gets the main project
@@ -110,9 +110,9 @@ public class ProjectController {
                 project.setProjectTaskName(mainProject.getProjectTaskName()); // Sets the project name
 
                 projectService.saveTask(project); // Saves the task
-                redirectAttributes.addFlashAttribute("message", "Task saved successfully."); // Success message
+                redirectAttributes.addFlashAttribute("messageTask", "Task saved successfully."); // Success message
             } else {
-                model.addAttribute("message", "Error: Main project not found."); // Error if main project not found
+                model.addAttribute("messageTask", "Error: Main project not found."); // Error if main project not found
                 addAuthenticatedUsernameToModel(model);
                 return "add"; // Return to the form
             }
@@ -137,7 +137,7 @@ public class ProjectController {
         Long userId = userService.getCurrentUserId(); // Henter id for den autentificerede bruger
 
         if (userId == null) {
-            model.addAttribute("message", "Error: User not authenticated."); // Fejl, hvis bruger ikke er autentificeret
+            model.addAttribute("messageSub", "Error: User not authenticated."); // Fejl, hvis bruger ikke er autentificeret
             addAuthenticatedUsernameToModel(model);
             return "add"; // Retur til formularen
         }
@@ -179,9 +179,9 @@ public class ProjectController {
                 project.setProjectTaskName(mainTask.getProjectTaskName()); // Sætter projektnavnet
 
                 projectService.saveSubTask(project); // Gemmer underopgaven
-                redirectAttributes.addFlashAttribute("message", "Subtask saved successfully."); // Success besked
+                redirectAttributes.addFlashAttribute("messageSub", "Subtask saved successfully."); // Success besked
             } else {
-                model.addAttribute("message", "Error: Main task not found."); // Fejl, hvis hovedopgave ikke findes
+                model.addAttribute("messageSub", "Error: Main task not found."); // Fejl, hvis hovedopgave ikke findes
             }
         }
 
