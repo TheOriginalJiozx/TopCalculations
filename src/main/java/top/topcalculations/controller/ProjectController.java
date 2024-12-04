@@ -156,3 +156,4 @@ public class ProjectController {
 
         return "redirect:/view-task/" + id;  // Omdirigerer til den side, hvor den opdaterede opgave vises
     }
+}
