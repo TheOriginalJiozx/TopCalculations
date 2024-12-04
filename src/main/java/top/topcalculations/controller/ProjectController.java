@@ -136,6 +136,16 @@ public class ProjectController {
         return "view-task";  // Returner visning for at vise opgavedetaljer
     }
 
+    // Vis en specifik opgave baseret på ID
+    @GetMapping("/view-subtask/{id}")
+    public String viewSubTask(@PathVariable("id") Long id, Model model) {
+        addAuthenticatedUsernameToModel(model);  // Tilføj autentificeret brugernavn
+        List<Project> projects = projectService.getSubTaskByID(id);  // Hent underopgave baseret på ID
+        model.addAttribute("subtasks", projects);  // Tilføj underopgaver til model
+        model.addAttribute("subtask", new Project());  // Tilføj et tomt Project-objekt til model
+        return "view-subtask";  // Returner visning for at vise underopgavedetaljer
+    }
+
     @GetMapping("/edit-task/{id}")
     public String editTask(@PathVariable("id") Long id, Model model) {
         addAuthenticatedUsernameToModel(model);  // Tilføjer det autentificerede brugernavn til modellen
@@ -143,7 +153,6 @@ public class ProjectController {
         model.addAttribute("task", task); // Tilføjer den hentede opgave til modellen, så den kan vises i viewet
         return "edit-task"; // Returnerer viewet til at redigere opgaven (f.eks. 'edit-task.html')
     }
-
 
     @PostMapping("/update-task/{id}")
     public String updateTask(@PathVariable("id") int id, @ModelAttribute Project task, Model model) {
@@ -155,5 +164,25 @@ public class ProjectController {
         projectService.updateTask(id, task);  // Kalder tjenesten for at opdatere opgaven med de nye data
 
         return "redirect:/view-task/" + id;  // Omdirigerer til den side, hvor den opdaterede opgave vises
+    }
+
+    @GetMapping("/edit-subtask/{id}")
+    public String editSubTask(@PathVariable("id") Long id, Model model) {
+        addAuthenticatedUsernameToModel(model);  // Tilføjer det autentificerede brugernavn til modellen
+        List<Project> subTask = projectService.getSubTaskByID(id); // Henter opgaven med det angivne ID
+        model.addAttribute("subTask", subTask); // Tilføjer den hentede opgave til modellen, så den kan vises i viewet
+        return "edit-subtask"; // Returnerer viewet til at redigere opgaven (f.eks. 'edit-task.html')
+    }
+
+    @PostMapping("/update-subtask/{id}")
+    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Project subtask, Model model) {
+        System.out.println("Opdaterer underopgave med ID: " + id);  // Printer ID'et på underopgaven, der opdateres (til debugging)
+        System.out.println("Nyt underopgavenavn: " + subtask.getSubTaskName());  // Printer det nye underopgavenavn (til debugging)
+        System.out.println("Ny varighed: " + subtask.getDuration());  // Printer den nye varighed (til debugging)
+
+        subtask.setId(id);  // Sætter ID'et for opgaven for at sikre, at den rigtige underopgave opdateres
+        projectService.updateSubTask(id, subtask);  // Kalder tjenesten for at opdatere underopgaven med de nye data
+
+        return "redirect:/view-subtask/" + id;  // Omdirigerer til den side, hvor den opdaterede underopgave vises
     }
 }

@@ -103,7 +103,15 @@ public class ProjectRepository {
     public List<Project> findTaskByID(Long id) {
         String sql = "SELECT p.id, p.wbs, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.sub_task_name " +
                 "FROM projects p " +
-                "WHERE p.id = ? AND p.task_name IS NOT NULL AND p.task_name != ''";  // Fjern brugernavn betingelse
+                "WHERE p.id = ? AND p.task_name IS NOT NULL AND p.task_name != ''";
+        return jdbcTemplate.query(sql, new TaskRowMapper(), id);
+    }
+
+    // Henter en opgave baseret på dens ID
+    public List<Project> findSubTaskByID(Long id) {
+        String sql = "SELECT p.id, p.wbs, p.sub_task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.task_name " +
+                "FROM projects p " +
+                "WHERE p.id = ? AND p.sub_task_name IS NOT NULL AND p.sub_task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper(), id);
     }
 
@@ -116,6 +124,17 @@ public class ProjectRepository {
                 project.getPlannedStartDate(),
                 project.getPlannedFinishDate(),
                 id);  // Opdater opgave med nye data
+    }
+
+    // Opdaterer en underopgave i databasen
+    public void updateSubTask(int id, Project project) {
+        String sql = "UPDATE projects SET sub_task_name = ?, duration = ?, planned_start_date = ?, planned_finish_date = ? WHERE id = ?";
+        jdbcTemplate.update(sql,
+                project.getSubTaskName(),
+                project.getDuration(),
+                project.getPlannedStartDate(),
+                project.getPlannedFinishDate(),
+                id);  // Opdater underopgave med nye data
     }
 
     // Finder projekter, der ikke har nogen opgaver
@@ -157,6 +176,7 @@ public class ProjectRepository {
             task.setId(rs.getInt("id"));
             task.setWbs(rs.getString("WBS"));
             task.setTaskProjectName(rs.getString("task_name"));
+            task.setSubTaskName(rs.getString("sub_task_name"));
             task.setDuration(rs.getString("duration"));
             task.setPlannedStartDate(rs.getString("planned_start_date"));
             task.setPlannedFinishDate(rs.getString("planned_finish_date"));

@@ -29,6 +29,10 @@ public class ProjectService {
         projectRepository.updateTask(id, task);
     }
 
+    public void updateSubTask(int id, Project subTask) {
+        projectRepository.updateSubTask(id, subTask);
+    }
+
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
@@ -43,6 +47,10 @@ public class ProjectService {
 
     public List<Project> getTaskByID(Long id) {
         return projectRepository.findTaskByID(id);
+    }
+
+    public List<Project> getSubTaskByID(Long id) {
+        return projectRepository.findSubTaskByID(id);
     }
 
     public List<Project> getTasks(String mainProjectName) {
