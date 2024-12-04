@@ -13,69 +13,69 @@ import top.topcalculations.service.UserService;
 import java.util.List;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/")  // Root URL for controlleren
 public class ProjectController {
-    private final ProjectService projectService; // Service til at håndtere projekter
-    private final UserService userService; // Service til at håndtere brugere
+    private final ProjectService projectService;  // Service til at håndtere projekter
+    private final UserService userService;  // Service til at håndtere brugere
 
-    // Konstruktor til at injectere dependencies
+    // Konstruktor til at injicere ProjectService og UserService afhængigheder
     public ProjectController(ProjectService projectService, UserService userService) {
         this.projectService = projectService;
         this.userService = userService;
     }
 
-    // Hjælpefunktion til at hente det autentificerede brugernavn
+    // Hjælpefunktion til at få den autentificerede brugers brugernavn
     private String getAuthenticatedUsername() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // Hvis brugeren er autentificeret, returneres brugernavnet, ellers returneres "Guest"
+        // Returner brugernavnet, hvis brugeren er autentificeret, ellers returner "Guest"
         return (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName()))
                 ? auth.getName() : "Guest";
     }
 
-    // Vist på startsiden, med brugernavn
+    // Vis index-siden med den autentificerede brugers brugernavn
     @GetMapping("/")
     public String showIndexPage(Model model) {
-        model.addAttribute("username", getAuthenticatedUsername()); // Tilføjer brugernavn til modellen
-        return "index"; // Returnerer index-siden
+        model.addAttribute("username", getAuthenticatedUsername());  // Tilføj brugernavn til model
+        return "index";  // Returner index-siden
     }
 
-    // Hjælpefunktion til at tilføje autentificeret brugernavn til modellen
+    // Hjælpefunktion til at tilføje den autentificerede brugers brugernavn til model
     private void addAuthenticatedUsernameToModel(Model model) {
         String authenticatedUsername = getAuthenticatedUsername();
-        model.addAttribute("username", authenticatedUsername); // Tilføjer brugernavn til modellen
+        model.addAttribute("username", authenticatedUsername);  // Tilføj brugernavn til model
     }
 
-    // Vist når man ønsker at tilføje et nyt projekt
+    // Vis formularen til at tilføje et nyt projekt
     @GetMapping("/add")
     public String showProjectForm(Model model) {
-        addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
-        List<Project> projects = projectService.getAllProjectsWithoutTasks(); // Henter projekter uden opgaver
-        model.addAttribute("projects", projects); // Tilføjer projekterne til modellen
-        model.addAttribute("project", new Project()); // Tilføjer en tom Project til modellen
-        return "add"; // Returnerer formularen til at tilføje projekt
+        addAuthenticatedUsernameToModel(model);  // Tilføj autentificeret brugernavn
+        List<Project> projects = projectService.getAllProjectsWithoutTasks();  // Hent alle projekter uden opgaver
+        model.addAttribute("projects", projects);  // Tilføj projekterne til model
+        model.addAttribute("project", new Project());  // Tilføj et tomt Project-objekt til model
+        return "add";  // Returner formularen til at tilføje et nyt projekt
     }
 
-    // Håndterer formindsendelse af nyt projekt eller opgave
+    // Håndter formularindsendelsen for at tilføje et nyt projekt eller opgave
     @PostMapping("/add")
     public String submitForm(@ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes) {
-        Long userId = userService.getCurrentUserId(); // Henter id for den aktuelt autentificerede bruger
+        Long userId = userService.getCurrentUserId();  // Hent den nuværende brugers ID
 
-        if (userId == null) {
-            model.addAttribute("message", "Error: User not authenticated."); // Fejl, hvis bruger ikke er autentificeret
+        if (userId == null) {  // Hvis brugeren ikke er autentificeret
+            model.addAttribute("message", "Error: User not authenticated.");  // Vis fejlnmessage
             addAuthenticatedUsernameToModel(model);
-            return "add"; // Retur til formularen
+            return "add";  // Returner til formularen
         }
 
-        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainProject = projectService.getProjectByName(project.getTaskProjectName()); // Henter hovedprojektet
+        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) {  // Hvis et opgavenavn er angivet
+            Project mainProject = projectService.getProjectByName(project.getTaskProjectName());  // Hent hovedprojektet
 
             if (mainProject != null) {
-                String mainProjectWBS = mainProject.getWbs(); // Henter WBS (Work Breakdown Structure) for hovedprojekt
+                String mainProjectWBS = mainProject.getWbs();  // Hent WBS for hovedprojektet
 
-                List<Project> tasks = projectService.getTasks(mainProject.getProjectTaskName()); // Henter opgaver relateret til hovedprojekt
+                List<Project> tasks = projectService.getTasks(mainProject.getProjectTaskName());  // Hent opgaver for hovedprojektet
 
                 int highestTaskIndex = 0;
-                // Finder den højeste indeks for opgaverne
+                // Find det højeste indeks blandt eksisterende opgaver
                 for (Project task : tasks) {
                     String[] wbsParts = task.getWbs().split("\\.");
                     if (wbsParts.length > 1) {
@@ -87,140 +87,73 @@ public class ProjectController {
                     }
                 }
 
-                // Skaber en ny WBS for opgaven
+                // Opret et nyt WBS for opgaven
                 String newWBS = mainProjectWBS + "." + (highestTaskIndex + 1);
 
-                // Tjekker om WBS allerede eksisterer og opdaterer, hvis nødvendigt
+                // Tjek om WBS allerede findes og opdater om nødvendigt
                 while (projectService.wbsExists(newWBS)) {
                     highestTaskIndex++;
                     newWBS = mainProjectWBS + "." + (highestTaskIndex + 1);
                 }
 
-                project.setWbs(newWBS); // Sætter WBS for den nye opgave
-                project.setTaskProjectName(project.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectTaskName(mainProject.getProjectTaskName()); // Sætter projektnavnet
-                project.setMainProjectName(mainProject.getProjectTaskName()); // Sætter hovedprojektnavnet
-                projectService.saveTask(project); // Gemmer opgaven
-                redirectAttributes.addFlashAttribute("message",
-                        "Task saved successfully. To add a subtask, <a href='addSub'>click here</a>"); // Success besked
+                project.setWbs(newWBS);  // Sæt WBS for den nye opgave
+                project.setTaskProjectName(project.getTaskProjectName());  // Sæt opgavenavn
+                project.setProjectTaskName(mainProject.getProjectTaskName());  // Sæt hovedprojektets opgavenavn
+                project.setMainProjectName(mainProject.getProjectTaskName());  // Sæt hovedprojektets navn
+                projectService.saveTask(project);  // Gem opgaven
+                redirectAttributes.addFlashAttribute("message", "Task saved successfully.");  // Success message
             } else {
-                model.addAttribute("message", "Error: Main project not found."); // Fejl, hvis hovedprojekt ikke findes
+                model.addAttribute("message", "Error: Main project not found.");  // Fejlmeddelelse hvis hovedprojektet ikke findes
             }
         } else {
-            // Hvis det er et nyt projekt og ikke en opgave
+            // Hvis det er et nyt projekt (ikke en opgave)
             project.setProjectTaskName(project.getTaskProjectName());
             project.setTaskProjectName(null);
             project.setWbs(project.getWbs());
-            projectService.saveProject(project); // Gemmer projektet
-            redirectAttributes.addFlashAttribute("message", "Project saved successfully."); // Success besked
+            projectService.saveProject(project);  // Gem projektet
+            redirectAttributes.addFlashAttribute("message", "Project saved successfully.");  // Success message
         }
 
-        return "redirect:/add"; // Omdirigerer til projektformularen
+        return "redirect:/add";  // Omdiriger tilbage til formularen
     }
 
-    // Vist når man ønsker at tilføje en subtask (underopgave)
-    @GetMapping("/addSub")
-    public String showSubForm(Model model) {
-        addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
-        List<Project> projects = projectService.getAllTasks(); // Henter alle opgaver
-        model.addAttribute("projects", projects); // Tilføjer opgaverne til modellen
-        model.addAttribute("project", new Project()); // Tilføjer en tom Project til modellen
-        return "addSub"; // Returnerer formularen til at tilføje subtask
-    }
-
-    // Håndterer formindsendelse af subtask
-    @PostMapping("/addSub")
-    public String submitSubForm(@ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes) {
-        Long userId = userService.getCurrentUserId(); // Henter id for den autentificerede bruger
-
-        if (userId == null) {
-            model.addAttribute("message", "Error: User not authenticated."); // Fejl, hvis bruger ikke er autentificeret
-            addAuthenticatedUsernameToModel(model);
-            return "add"; // Retur til formularen
-        }
-
-        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainTask = projectService.getTaskByName(project.getTaskProjectName()); // Henter hovedopgaven
-
-            if (mainTask != null) {
-                String mainProjectWBS = mainTask.getWbs(); // Henter WBS for hovedopgaven
-
-                List<Project> tasks = projectService.getTasks(mainTask.getProjectTaskName()); // Henter opgaver tilhørende hovedopgaven
-
-                int highestSubtaskIndex = 0;
-                // Finder højeste indeks for underopgaver
-                for (Project task : tasks) {
-                    if (task.getWbs().startsWith(mainProjectWBS + ".")) {
-                        String[] wbsParts = task.getWbs().split("\\.");
-                        if (wbsParts.length > 2) {
-                            try {
-                                int subtaskIndex = Integer.parseInt(wbsParts[2]);
-                                highestSubtaskIndex = Math.max(highestSubtaskIndex, subtaskIndex);
-                            } catch (NumberFormatException e) {
-                            }
-                        }
-                    }
-                }
-
-                // Skaber en ny WBS for underopgaven
-                String newWBS = mainProjectWBS + "." + (highestSubtaskIndex + 1);
-
-                // Tjekker om WBS allerede eksisterer og opdaterer, hvis nødvendigt
-                while (projectService.wbsExists(newWBS)) {
-                    highestSubtaskIndex++;
-                    newWBS = mainProjectWBS + "." + (highestSubtaskIndex + 1);
-                }
-
-                project.setWbs(newWBS); // Sætter WBS for den nye underopgave
-                project.setTaskProjectName(mainTask.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectTaskName(mainTask.getProjectTaskName()); // Sætter projektnavnet
-
-                projectService.saveSubTask(project); // Gemmer underopgaven
-                redirectAttributes.addFlashAttribute("message", "Subtask saved successfully."); // Success besked
-            } else {
-                model.addAttribute("message", "Error: Main task not found."); // Fejl, hvis hovedopgave ikke findes
-            }
-        }
-
-        return "redirect:/addSub"; // Omdirigerer til formularen for underopgave
-    }
-
-    // Vist for at se alle projekter
+    // Vis alle projekter
     @GetMapping("/view-projects")
     public String viewProject(Model model) {
-        List<Project> projects = projectService.getAllProjects(); // Henter alle projekter
-        model.addAttribute("projects", projects); // Tilføjer projekterne til modellen
-        addAuthenticatedUsernameToModel(model); // Tilføjer autentificeret brugernavn
-        return "view-projects"; // Returnerer visning af projekter
+        List<Project> projects = projectService.getAllProjects();  // Hent alle projekter
+        model.addAttribute("projects", projects);  // Tilføj projekter til model
+        addAuthenticatedUsernameToModel(model);  // Tilføj autentificeret brugernavn
+        return "view-projects";  // Returner visning for at vise projekterne
     }
 
+    // Vis en specifik opgave baseret på ID
     @GetMapping("/view-task/{id}")
     public String viewTask(@PathVariable("id") Long id, Model model) {
-        addAuthenticatedUsernameToModel(model);  // Tilføjer det autentificerede brugernavn til modellen
-        List<Project> projects = projectService.getTaskByID(id);  // Henter task (projekt) baseret på ID'et fra URL'en
-        model.addAttribute("tasks", projects);  // Tilføjer listen af tasks til modellen, som kan bruges i HTML-templates
-        model.addAttribute("task", new Project());  // Tilføjer en tom Project-objekt til modellen (for eksempel til en form til at tilføje en task)
-        return "view-task";  // Returnerer viewet 'view-task', hvor taskens detaljer vil blive vist
+        addAuthenticatedUsernameToModel(model);  // Tilføj autentificeret brugernavn
+        List<Project> projects = projectService.getTaskByID(id);  // Hent opgave baseret på ID
+        model.addAttribute("tasks", projects);  // Tilføj opgaver til model
+        model.addAttribute("task", new Project());  // Tilføj et tomt Project-objekt til model
+        return "view-task";  // Returner visning for at vise opgavedetaljer
     }
 
     @GetMapping("/edit-task/{id}")
     public String editTask(@PathVariable("id") Long id, Model model) {
         addAuthenticatedUsernameToModel(model);  // Tilføjer det autentificerede brugernavn til modellen
-        List<Project> task = projectService.getTaskByID(id); // Fetch the task by id
-        model.addAttribute("task", task); // Add the task to the model
-        return "edit-task"; // Return the edit task view
+        List<Project> task = projectService.getTaskByID(id); // Henter opgaven med det angivne ID
+        model.addAttribute("task", task); // Tilføjer den hentede opgave til modellen, så den kan vises i viewet
+        return "edit-task"; // Returnerer viewet til at redigere opgaven (f.eks. 'edit-task.html')
     }
 
-    // Handle the form submission for updating the task
+
     @PostMapping("/update-task/{id}")
     public String updateTask(@PathVariable("id") int id, @ModelAttribute Project task, Model model) {
-        System.out.println("Updating task with ID: " + id);
-        System.out.println("New Task Name: " + task.getTaskProjectName());
-        System.out.println("New Duration: " + task.getDuration());
+        System.out.println("Opdaterer opgave med ID: " + id);  // Printer ID'et på opgaven, der opdateres (til debugging)
+        System.out.println("Nyt opgavenavn: " + task.getTaskProjectName());  // Printer det nye opgavenavn (til debugging)
+        System.out.println("Ny varighed: " + task.getDuration());  // Printer den nye varighed (til debugging)
 
-        task.setId(id);
-        projectService.updateTask(id, task);
+        task.setId(id);  // Sætter ID'et for opgaven for at sikre, at den rigtige opgave opdateres
+        projectService.updateTask(id, task);  // Kalder tjenesten for at opdatere opgaven med de nye data
 
-        return "redirect:/view-task/" + id;
+        return "redirect:/view-task/" + id;  // Omdirigerer til den side, hvor den opdaterede opgave vises
     }
 }
