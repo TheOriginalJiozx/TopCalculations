@@ -17,7 +17,7 @@ CREATE TABLE projects (
   expected_time_in_total int DEFAULT NULL,
   time_to_spend double DEFAULT NULL,
   PRIMARY KEY (id)
-)
+);
 
 DROP TABLE IF EXISTS subtasks;
 CREATE TABLE subtasks (
@@ -33,7 +33,7 @@ CREATE TABLE subtasks (
   time_spent double DEFAULT NULL,
   time_to_spend double DEFAULT NULL,
   PRIMARY KEY (id)
-)
+);
 
 CREATE TABLE tasks (
   id int NOT NULL AUTO_INCREMENT,
@@ -48,7 +48,7 @@ CREATE TABLE tasks (
   time_to_spend double DEFAULT NULL,
   sub_task_name varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
-)
+);
 
 CREATE TABLE users (
   id int NOT NULL AUTO_INCREMENT,
@@ -58,7 +58,7 @@ CREATE TABLE users (
   role varchar(255) DEFAULT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY username (username)
-)
+);
 
 INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, time_spent, expected_time_in_total)
 VALUES ('1', 'Tester', '1', '2011-11-01', '2011-11-02', 'Omar', '1', '1');
