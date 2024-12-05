@@ -12,7 +12,10 @@ public class Project {
     private String assigned;
     private String subTaskName;
     private int timeSpent;
-    private int expectedTimePerDay;
+    private Double expectedTimeInTotal;  // Use Double instead of primitive double
+    private Double timeToSpend;  // Use Double instead of primitive double
+
+    // Getters and setters
 
     public int getId() {
         return id;
@@ -46,12 +49,20 @@ public class Project {
         return timeSpent;
     }
 
-    public void setExpectedTimePerDay(int expectedTimePerDay) {
-        this.expectedTimePerDay = expectedTimePerDay;
+    public void setExpectedTimeInTotal(Double expectedTimeInTotal) {  // Set as Double
+        this.expectedTimeInTotal = expectedTimeInTotal;
     }
 
-    public int getExpectedTimePerDay() {
-        return expectedTimePerDay;
+    public Double getExpectedTimeInTotal() {  // Return as Double
+        return expectedTimeInTotal;
+    }
+
+    public void setTimeToSpend(Double timeToSpend) {  // Set as Double
+        this.timeToSpend = timeToSpend;
+    }
+
+    public Double getTimeToSpend() {  // Return as Double
+        return timeToSpend;
     }
 
     public String getWbs() {

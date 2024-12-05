@@ -40,6 +40,8 @@
                 <th>Planned Start Date</th>
                 <th>Planned Finish Date</th>
                 <th>Assigned</th>
+                <th>Time to Spend on Subtask (estimated in hours)</th>
+                <th>Time Spent on Subtask (in hours)</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -51,6 +53,8 @@
                 <td th:text="${project.plannedStartDate}"></td>
                 <td th:text="${project.plannedFinishDate}"></td>
                 <td th:text="${project.assigned}"></td>
+                <td th:text="${project.timeToSpend}"></td>
+                <td th:text="${project.timeSpent}"></td>
                 <td>
                     <a href="#" th:href="@{/edit-subtask/{id}(id=${project.id})}" class="btn-edit">Edit</a>
                 </td>

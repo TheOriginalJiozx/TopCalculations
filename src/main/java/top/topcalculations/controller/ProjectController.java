@@ -57,68 +57,46 @@ public class ProjectController {
 
     @PostMapping("/add")
     public String submitAddForm(@ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes) {
-        Long userId = userService.getCurrentUserId(); // Henter ID'et for den autentificerede bruger
+        Long userId = userService.getCurrentUserId(); // Hent den autentificerede brugers ID
 
         if (userId == null) {
-            model.addAttribute("messageTask", "Fejl: Bruger ikke autentificeret."); // Fejlmeddelelse, hvis brugeren ikke er autentificeret
-            addAuthenticatedUsernameToModel(model); // Tilføjer den autentificerede brugers brugernavn til modellen
-            return "add"; // Returnerer formularen til at tilføje projekt/opgave
+            model.addAttribute("messageTask", "Fejl: Bruger ikke autentificeret."); // Fejlbesked hvis bruger ikke er autentificeret
+            addAuthenticatedUsernameToModel(model); // Tilføj autentificeret brugernavn til model
+            return "add"; // Returner formularen til at tilføje projekt/opgave
         }
 
         if (project.getMainProjectName() == null || project.getMainProjectName().isEmpty()) {
-            // Hvis der ikke er valgt et hovedprojekt, gemmes det som et nyt projekt
-            project.setProjectTaskName(project.getTaskProjectName()); // Sætter projectTaskName som den indtastede taskProjectName
-            project.setTaskProjectName(null); // Tømmer taskProjectName
-            projectService.saveProject(project); // Gemmer projektet
-            redirectAttributes.addFlashAttribute("messageTask", "Projekt gemt succesfuldt."); // Success besked
+            // Hvis intet hovedprojekt er valgt, gem det som et nyt projekt
+            project.setProjectTaskName(project.getTaskProjectName()); // Sæt projectTaskName som den indtastede taskProjectName
+            project.setTaskProjectName(null); // Ryd taskProjectName
+            projectService.saveProject(project); // Gem projektet
+            redirectAttributes.addFlashAttribute("messageTask", "Projekt gemt."); // Succesbesked
         } else {
-            // Hvis der er valgt et hovedprojekt, gemmes det som en ny opgave under hovedprojektet
-            Project mainProject = projectService.getProjectByName(project.getMainProjectName()); // Henter hovedprojektet
+            Project mainProject = projectService.getProjectByName(project.getMainProjectName()); // Hent hovedprojektet
 
             if (mainProject != null) {
-                String mainProjectWBS = mainProject.getWbs(); // Henter WBS (Work Breakdown Structure) for hovedprojektet
+                String mainProjectWBS = mainProject.getWbs(); // Hent WBS for hovedprojektet
 
-                List<Project> tasks = projectService.getTasks(mainProject.getProjectTaskName()); // Henter opgaver tilknyttet hovedprojektet
+                // Hent det højeste WBS indeks fra projekter og opgaver tabellerne
+                int highestTaskIndex = projectService.getHighestWbsIndex(mainProjectWBS);
 
-                int highestTaskIndex = 0;
-                // Finder den højeste index for opgaverne
-                for (Project task : tasks) {
-                    if (task.getWbs().startsWith(mainProjectWBS + ".")) {
-                        String[] wbsParts = task.getWbs().split("\\.");
-                        if (wbsParts.length > 1) {
-                            try {
-                                int taskIndex = Integer.parseInt(wbsParts[1]);
-                                highestTaskIndex = Math.max(highestTaskIndex, taskIndex);
-                            } catch (NumberFormatException e) {
-                                // Håndterer undtagelse, hvis WBS-delen ikke er et tal
-                            }
-                        }
-                    }
-                }
-
-                // Opretter et nyt WBS for opgaven
+                // Generer en ny WBS for opgaven
                 String newWBS = mainProjectWBS + "." + (highestTaskIndex + 1);
 
-                // Tjekker om WBS allerede findes og opdaterer hvis nødvendigt
-                while (projectService.wbsExists(newWBS)) {
-                    highestTaskIndex++;
-                    newWBS = mainProjectWBS + "." + (highestTaskIndex + 1);
-                }
+                project.setWbs(newWBS); // Sæt WBS for den nye opgave
+                project.setTaskProjectName(project.getTaskProjectName()); // Sæt opgavens navn
+                project.setProjectTaskName(mainProject.getProjectTaskName()); // Sæt projektopgavets navn
 
-                project.setWbs(newWBS); // Sætter WBS for den nye opgave
-                project.setTaskProjectName(project.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectTaskName(mainProject.getProjectTaskName()); // Sætter projektets opgavenavn
-
-                projectService.saveTask(project); // Gemmer opgaven
-                redirectAttributes.addFlashAttribute("messageTask", "Opgave gemt succesfuldt."); // Success besked
+                projectService.saveTask(project); // Gem opgaven
+                redirectAttributes.addFlashAttribute("messageTask", "Opgave gemt."); // Succesbesked
             } else {
-                model.addAttribute("messageTask", "Fejl: Hovedprojektet blev ikke fundet."); // Fejlmeddelelse, hvis hovedprojektet ikke findes
-                addAuthenticatedUsernameToModel(model); // Tilføjer den autentificerede brugers brugernavn til modellen
-                return "add"; // Returnerer formularen til at tilføje projekt/opgave
+                model.addAttribute("messageTask", "Fejl: Hovedprojekt ikke fundet."); // Fejlbesked hvis hovedprojekt ikke findes
+                addAuthenticatedUsernameToModel(model); // Tilføj autentificeret brugernavn til model
+                return "add"; // Returner formularen til at tilføje projekt/opgave
             }
         }
 
-        return "redirect:/add"; // Omdirigerer tilbage til formularen for at tilføje projekt/opgave
+        return "redirect:/add"; // Omdiriger tilbage til formularen til at tilføje projekt/opgave
     }
 
     // Vist når man ønsker at tilføje en subtask (underopgave)
@@ -131,70 +109,49 @@ public class ProjectController {
         return "addSub"; // Returnerer formularen til at tilføje subtask
     }
 
-    // Håndterer formindsendelse af subtask
     @PostMapping("/addSub")
     public String submitSubForm(@ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes) {
-        Long userId = userService.getCurrentUserId(); // Henter id for den autentificerede bruger
+        Long userId = userService.getCurrentUserId(); // Get the authenticated user's ID
 
         if (userId == null) {
-            model.addAttribute("messageSub", "Error: User not authenticated."); // Fejl, hvis bruger ikke er autentificeret
-            addAuthenticatedUsernameToModel(model);
-            return "add"; // Retur til formularen
+            model.addAttribute("messageSub", "Error: User not authenticated."); // Error message if user is not authenticated
+            addAuthenticatedUsernameToModel(model); // Add authenticated username to model
+            return "add"; // Return the add subtask form
         }
 
-        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // Hvis opgavenavn er angivet
-            Project mainTask = projectService.getTaskByName(project.getTaskProjectName()); // Henter hovedopgaven
+        if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) { // If task name is provided
+            Project mainTask = projectService.getTaskByName(project.getTaskProjectName()); // Get the main task
 
             if (mainTask != null) {
-                String mainProjectWBS = mainTask.getWbs(); // Henter WBS for hovedopgaven
+                String mainTaskWBS = mainTask.getWbs(); // Get the WBS for the main task
 
-                List<Project> tasks = projectService.getTasks(mainTask.getProjectTaskName()); // Henter opgaver tilhørende hovedopgaven
+                // Get the highest WBS index for subtasks
+                int highestSubtaskIndex = projectService.getHighestWbsIndexForSubtasks(mainTaskWBS);
 
-                int highestSubtaskIndex = 0;
-                // Finder højeste indeks for underopgaver
-                for (Project task : tasks) {
-                    if (task.getWbs().startsWith(mainProjectWBS + ".")) {
-                        String[] wbsParts = task.getWbs().split("\\.");
-                        if (wbsParts.length > 2) {
-                            try {
-                                int subtaskIndex = Integer.parseInt(wbsParts[2]);
-                                highestSubtaskIndex = Math.max(highestSubtaskIndex, subtaskIndex);
-                            } catch (NumberFormatException e) {
-                            }
-                        }
-                    }
-                }
+                // Generate a new WBS for the subtask
+                String newWBS = mainTaskWBS + "." + (highestSubtaskIndex + 1);
 
-                // Skaber en ny WBS for underopgaven
-                String newWBS = mainProjectWBS + "." + (highestSubtaskIndex + 1);
+                project.setWbs(newWBS); // Set the WBS for the new subtask
+                project.setTaskProjectName(mainTask.getTaskProjectName()); // Set the task name
+                project.setProjectTaskName(mainTask.getProjectTaskName()); // Set the project task name
 
-                // Tjekker om WBS allerede eksisterer og opdaterer, hvis nødvendigt
-                while (projectService.wbsExists(newWBS)) {
-                    highestSubtaskIndex++;
-                    newWBS = mainProjectWBS + "." + (highestSubtaskIndex + 1);
-                }
-
-                project.setWbs(newWBS); // Sætter WBS for den nye underopgave
-                project.setTaskProjectName(mainTask.getTaskProjectName()); // Sætter opgavenavnet
-                project.setProjectTaskName(mainTask.getProjectTaskName()); // Sætter projektnavnet
-
-                projectService.saveSubTask(project); // Gemmer underopgaven
-                redirectAttributes.addFlashAttribute("messageSub", "Subtask saved successfully."); // Success besked
+                projectService.saveSubTask(project); // Save the subtask
+                redirectAttributes.addFlashAttribute("messageSub", "Subtask saved successfully."); // Success message
             } else {
-                model.addAttribute("messageSub", "Error: Main task not found."); // Fejl, hvis hovedopgave ikke findes
+                model.addAttribute("messageSub", "Error: Main task not found."); // Error message if main task is not found
             }
         }
 
-        return "redirect:/addSub"; // Omdirigerer til formularen for underopgave
+        return "redirect:/addSub"; // Redirect back to the add subtask form
     }
 
     // Vis alle projekter
-    @GetMapping("/view-projects")
+    @GetMapping("/view")
     public String viewProject(Model model) {
-        List<Project> projects = projectService.getAllProjects();  // Hent alle projekter
+        List<Object> projects = projectService.getAll();  // Hent alle projekter
         model.addAttribute("projects", projects);  // Tilføj projekter til model
         addAuthenticatedUsernameToModel(model);  // Tilføj autentificeret brugernavn
-        return "view-projects";  // Returner visning for at vise projekterne
+        return "view";  // Returner visning for at vise projekterne
     }
 
     // Vis en specifik opgave baseret på ID

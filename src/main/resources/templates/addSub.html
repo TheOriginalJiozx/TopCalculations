@@ -47,11 +47,6 @@
         </div>
 
         <div class="form-group">
-            <label for="duration">Duration:</label>
-            <input type="text" id="duration" th:field="*{duration}" required class="form-control">
-        </div>
-
-        <div class="form-group">
             <label for="planned_start_date">Planned Start Date:</label>
             <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" required class="form-control">
         </div>
@@ -63,7 +58,7 @@
 
         <div class="form-group">
             <label for="expected_time_per_day">Expected Spending Time Per Day (in hours):</label>
-            <input type="number" id="expected_time_per_day" th:field="*{expectedTimePerDay}" required class="form-control">
+            <input type="number" id="expected_time_per_day" th:field="*{expectedTimeInTotal}" required class="form-control">
         </div>
 
         <div class="form-group">

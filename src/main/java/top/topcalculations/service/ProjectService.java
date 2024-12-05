@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import top.topcalculations.model.Project;
 import top.topcalculations.repository.ProjectRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service // Markerer klassen som en Spring Service, som kan bruges til at håndtere forretningslogik
@@ -38,14 +39,28 @@ public class ProjectService {
         projectRepository.updateSubTask(id, subTask); // Kald til repository-metode for at opdatere underopgaven
     }
 
-    // Henter alle projekter fra databasen
-    public List<Project> getAllProjects() {
-        return projectRepository.findAll(); // Kald til repository-metode for at hente alle projekter
+    public List<Object> getAll() {
+        // Hent alle projekter fra repository
+        List<Project> projects = projectRepository.getAllProjects();
+        // Hent alle opgaver (tasks) fra repository
+        List<Project> tasks = projectRepository.getAllTasks();
+        // Hent alle delopgaver (subtasks) fra repository
+        List<Project> subtasks = projectRepository.getAllSubTasks();
+        // Opret en liste til at indeholde alle data (projekter, opgaver og delopgaver)
+        List<Object> allData = new ArrayList<>();
+        // Tilføj alle projekter til listen
+        allData.addAll(projects);
+        // Tilføj alle opgaver til listen
+        allData.addAll(tasks);
+        // Tilføj alle delopgaver til listen
+        allData.addAll(subtasks);
+        // Returner den kombinerede liste med alle data
+        return allData;
     }
 
     // Henter alle hovedprojekter (uden opgaver) fra databasen
     public List<Project> getAllProjectsWithoutTasks() {
-        return projectRepository.findAllWithoutTasks(); // Kald til repository-metode for at hente projekter uden opgaver
+        return projectRepository.findAllProjects(); // Kald til repository-metode for at hente projekter uden opgaver
     }
 
     // Henter alle opgaver fra databasen
@@ -78,8 +93,19 @@ public class ProjectService {
         return projectRepository.findTaskByName(taskName); // Kald til repository-metode for at hente opgave baseret på navn
     }
 
-    // Tjekker om en WBS (Work Breakdown Structure) allerede findes i databasen
-    public boolean wbsExists(String wbs) {
-        return projectRepository.wbsExists(wbs); // Kald til repository-metode for at tjekke om WBS findes
+    public int getHighestWbsIndex(String mainProjectWBS) {
+        // Hent det højeste WBS-indeks fra projekter-tabellen og opgaver-tabellen
+        int highestIndexFromProjects = projectRepository.getHighestWbsIndexFromProjects(mainProjectWBS);
+        int highestIndexFromTasks = projectRepository.getHighestWbsIndexFromTasks(mainProjectWBS);
+        // Returner det højeste af de to indekser
+        return Math.max(highestIndexFromProjects, highestIndexFromTasks);
+    }
+
+    public int getHighestWbsIndexForSubtasks(String mainTaskWBS) {
+        // Get the highest WBS index from tasks and subtasks tables
+        int highestIndexFromTasks = projectRepository.getHighestWbsIndexFromTasks(mainTaskWBS);
+        int highestIndexFromSubTasks = projectRepository.getHighestWbsIndexFromSubTasks(mainTaskWBS);
+        // Return the highest of the two indexes
+        return Math.max(highestIndexFromTasks, highestIndexFromSubTasks);
     }
 }
