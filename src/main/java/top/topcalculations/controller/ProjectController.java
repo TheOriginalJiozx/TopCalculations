@@ -60,7 +60,7 @@ public class ProjectController {
         Long userId = userService.getCurrentUserId(); // Hent den autentificerede brugers ID
 
         if (userId == null) {
-            model.addAttribute("messageTask", "Fejl: Bruger ikke autentificeret."); // Fejlbesked hvis bruger ikke er autentificeret
+            model.addAttribute("messageTask", "Error: User not authenticated."); // Fejlbesked hvis bruger ikke er autentificeret
             addAuthenticatedUsernameToModel(model); // Tilføj autentificeret brugernavn til model
             return "add"; // Returner formularen til at tilføje projekt/opgave
         }
@@ -70,7 +70,7 @@ public class ProjectController {
             project.setProjectTaskName(project.getTaskProjectName()); // Sæt projectTaskName som den indtastede taskProjectName
             project.setTaskProjectName(null); // Ryd taskProjectName
             projectService.saveProject(project); // Gem projektet
-            redirectAttributes.addFlashAttribute("messageTask", "Projekt gemt."); // Succesbesked
+            redirectAttributes.addFlashAttribute("messageTask", "Project saved successfully."); // Succesbesked
         } else {
             Project mainProject = projectService.getProjectByName(project.getMainProjectName()); // Hent hovedprojektet
 
@@ -86,11 +86,12 @@ public class ProjectController {
                 project.setWbs(newWBS); // Sæt WBS for den nye opgave
                 project.setTaskProjectName(project.getTaskProjectName()); // Sæt opgavens navn
                 project.setProjectTaskName(mainProject.getProjectTaskName()); // Sæt projektopgavets navn
-
+                project.setResource_name(project.getResource_name());
+                project.setId(project.getId());
                 projectService.saveTask(project); // Gem opgaven
-                redirectAttributes.addFlashAttribute("messageTask", "Opgave gemt."); // Succesbesked
+                redirectAttributes.addFlashAttribute("messageTask", "Task saved successfully."); // Succesbesked
             } else {
-                model.addAttribute("messageTask", "Fejl: Hovedprojekt ikke fundet."); // Fejlbesked hvis hovedprojekt ikke findes
+                model.addAttribute("messageTask", "Error: Main project not found."); // Fejlbesked hvis hovedprojekt ikke findes
                 addAuthenticatedUsernameToModel(model); // Tilføj autentificeret brugernavn til model
                 return "add"; // Returner formularen til at tilføje projekt/opgave
             }
@@ -134,6 +135,8 @@ public class ProjectController {
                 project.setWbs(newWBS); // Set the WBS for the new subtask
                 project.setTaskProjectName(mainTask.getTaskProjectName()); // Set the task name
                 project.setProjectTaskName(mainTask.getProjectTaskName()); // Set the project task name
+                project.setResource_name(project.getResource_name());
+                project.setId(project.getId());
 
                 projectService.saveSubTask(project); // Save the subtask
                 redirectAttributes.addFlashAttribute("messageSub", "Subtask saved successfully."); // Success message

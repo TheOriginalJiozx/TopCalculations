@@ -71,7 +71,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/header.html", "/footer.html", "/h2-console/**", "/css/**", "/wishlist/reserve", "/project").permitAll()
                         .requestMatchers("/login", "/signup").anonymous() // Tillader kun anonyme brugere at tilgå disse sider.
-                        //.requestMatchers("/view-projects").hasRole("ADMIN") // Kommentarer indikerer mulig rollebaseret adgangskontrol.
+                        //.requestMatchers("/view").hasRole("ADMIN") // Kommentarer indikerer mulig rollebaseret adgangskontrol.
                         .anyRequest().authenticated() // Kræver autentifikation for alle andre forespørgsler.
                 )
                 .formLogin(form -> form

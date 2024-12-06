@@ -8,8 +8,6 @@ import top.topcalculations.model.Project;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 
@@ -31,45 +29,81 @@ public class ProjectRepository {
             project.setWbs(newWBS);  // Sæt den nye WBS for projektet
         }
 
-        // Beregn varighed og formater som "x Dag(e)"
-        LocalDate startDate = LocalDate.parse(project.getPlannedStartDate());
-        LocalDate endDate = LocalDate.parse(project.getPlannedFinishDate());
-        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-        String duration = daysBetween == 1 ? "1 Dag" : daysBetween + " Dage";
-        project.setDuration(duration); // Sæt den beregnede varighed i projektet
-
         System.out.println("Saving project: " + project);
 
-        String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_in_total) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getDuration(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned(), project.getExpectedTimeInTotal());
+        String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_in_total) VALUES (?, ?, DATEDIFF(?, ?), ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getPlannedFinishDate(), project.getPlannedStartDate(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned(), project.getExpectedTimeInTotal());
     }
 
     public void saveTask(Project task) {
-        LocalDate startDate = LocalDate.parse(task.getPlannedStartDate());
-        LocalDate endDate = LocalDate.parse(task.getPlannedFinishDate());
-        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-        task.setDuration(String.valueOf(daysBetween)); // Set the numeric duration (as a String for now)
-
+        // Udskriver hvilken opgave der gemmes
         System.out.println("Saving task: " + task);
 
-        String sql = "INSERT INTO tasks (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, task.getWbs(), task.getTaskProjectName(), task.getProjectTaskName(), task.getDuration(), task.getPlannedStartDate(), task.getPlannedFinishDate(), task.getAssigned());
+        // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
+        String sql = "INSERT INTO tasks (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) " +
+                "VALUES (?, ?, ?, DATEDIFF(?, ?), ?, ?, ?)";
+        // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
+        jdbcTemplate.update(sql, task.getWbs(), task.getTaskProjectName(), task.getProjectTaskName(),
+                task.getPlannedFinishDate(), task.getPlannedStartDate(),
+                task.getPlannedStartDate(), task.getPlannedFinishDate(), task.getAssigned());
 
+        // SQL-spørgsmål for at finde ID'et for den gemte opgave
+        String findTaskIdQuery = "SELECT id FROM tasks WHERE WBS = ? AND task_name = ?";
+        // Henter ID'et for opgaven baseret på WBS og task_name
+        Long taskId = jdbcTemplate.queryForObject(findTaskIdQuery, Long.class, task.getWbs(), task.getProjectTaskName());
+
+        // Hvis taskId ikke er gyldigt, kastes en undtagelse
+        if (taskId == null || taskId <= 0) {
+            throw new IllegalStateException("Failed to retrieve valid task ID after insert.");
+        }
+
+        // Udskriver det fundne task ID
+        System.out.println("Task ID: " + taskId);
+
+        // SQL-spørgsmål for at indsætte relationen mellem opgaven og ressourcen i resources_tasks-tabellen
+        String sql2 = "INSERT INTO resources_tasks (resource_name, task_id) VALUES (?, ?)";
+        // Gemmer ressourcen for opgaven i databasen
+        jdbcTemplate.update(sql2, task.getResource_name(), taskId);
+
+        // Kalder en metode til at tilføje tid til opgaven
         addTimeToSpendTask(task);
     }
 
     // Gemmer en delopgave (subtask) i databasen
     public void saveSubTask(Project subTask) {
-        LocalDate startDate = LocalDate.parse(subTask.getPlannedStartDate());
-        LocalDate endDate = LocalDate.parse(subTask.getPlannedFinishDate());
-        long daysBetween = ChronoUnit.DAYS.between(startDate, endDate);
-        subTask.setDuration(String.valueOf(daysBetween)); // Set the numeric duration (as a String for now)
 
-        System.out.println("Saving task: " + subTask);
+        // Udskriver hvilken delopgave der gemmes
+        System.out.println("Saving subtask: " + subTask);
 
-        String sql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, duration, planned_start_date, planned_finish_date, assigned) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getSubTaskName(), subTask.getProjectTaskName(), subTask.getDuration(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(), subTask.getAssigned());
+        // Justeret SQL-spørgsmål: Sørg for, at DATEDIFF beregner varigheden korrekt
+        String sql = "INSERT INTO subtasks (WBS, task_name, duration, sub_task_name, project_name, planned_start_date, planned_finish_date, assigned) " +
+                "VALUES (?, ?, DATEDIFF(?, ?), ?, ?, ?, ?, ?)";
 
+        // Udfører SQL-spørgsmålet og gemmer delopgaven i databasen
+        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getPlannedStartDate(),
+                subTask.getPlannedFinishDate(), subTask.getSubTaskName(), subTask.getProjectTaskName(),
+                subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(),
+                subTask.getAssigned());
+
+        // SQL-spørgsmål for at finde ID'et for den gemte delopgave
+        String findSubTaskIdQuery = "SELECT id FROM subtasks WHERE WBS = ? AND sub_task_name = ?";
+        // Henter ID'et for delopgaven baseret på WBS og sub_task_name
+        Long subTaskId = jdbcTemplate.queryForObject(findSubTaskIdQuery, Long.class, subTask.getWbs(), subTask.getSubTaskName());
+
+        // Hvis subTaskId ikke er gyldigt, kastes en undtagelse
+        if (subTaskId == null || subTaskId <= 0) {
+            throw new IllegalStateException("Failed to retrieve valid subtask ID after insert.");
+        }
+
+        // Udskriver det fundne subtask ID
+        System.out.println("Subtask ID: " + subTaskId);
+
+        // SQL-spørgsmål for at indsætte relationen mellem delopgaven og ressourcen i resources_subtasks-tabellen
+        String sql2 = "INSERT INTO resources_subtasks (resource_name, sub_task_id) VALUES (?, ?)\n";
+        // Gemmer ressourcen for delopgaven i databasen
+        jdbcTemplate.update(sql2, subTask.getResource_name(), subTaskId);
+
+        // Kalder en metode til at tilføje tid til delopgaven
         addTimeToSpendSubTask(subTask);
     }
 

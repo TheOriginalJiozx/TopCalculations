@@ -12,8 +12,9 @@ public class Project {
     private String assigned;
     private String subTaskName;
     private int timeSpent;
-    private Double expectedTimeInTotal;  // Use Double instead of primitive double
-    private Double timeToSpend;  // Use Double instead of primitive double
+    private Double expectedTimeInTotal;
+    private Double timeToSpend;
+    private String resource_name;
 
     // Getters and setters
 
@@ -119,5 +120,13 @@ public class Project {
 
     public void setAssigned(String assigned) {
         this.assigned = assigned;
+    }
+
+    public void setResource_name(String resource_name) {
+        this.resource_name = resource_name;
+    }
+
+    public String getResource_name() {
+        return resource_name;
     }
 }
