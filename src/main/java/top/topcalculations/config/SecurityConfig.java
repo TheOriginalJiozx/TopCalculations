@@ -1,4 +1,4 @@
-package top.topcalculations.config;
+/*package top.topcalculations.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -122,4 +122,4 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-}
+}*/

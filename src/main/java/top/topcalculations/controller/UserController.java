@@ -1,58 +1,68 @@
 package top.topcalculations.controller;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import top.topcalculations.model.User;
 import top.topcalculations.service.UserService;
 
 @Controller
 public class UserController {
-    private final UserService userService; // Service til at håndtere brugere
+    private final UserService userService;
 
-    // Konstruktor til at injectere dependencies
     public UserController(UserService userService) {
         this.userService = userService;
     }
 
-    // Vist loginformularen
+    // Håndterer GET-anmodning til login-siden
     @GetMapping("/login")
-    public String login(Model model) {
-        model.addAttribute("username", getAuthenticatedUsername()); // Tilføjer brugernavnet til modellen
-        return "login"; // Returnerer login-siden
+    public String login(Model model, HttpSession session) {
+        // Henter brugernavn fra sessionen
+        if (session.getAttribute("user") != null) {
+            return "redirect:/";  // Omdirigerer til forsiden, hvis brugeren allerede er logget ind
+        }
+        String username = userService.getAuthenticatedUsername(session);
+        model.addAttribute("username", username);  // Tilføjer brugernavn til modellen
+        return "login";  // Returnerer login-siden
     }
 
-    // Håndterer login-formularens indsendelse
+    // Håndterer POST-anmodning til login-siden
     @PostMapping("/login")
-    public String doLogin(@RequestParam String username, @RequestParam String password) {
-        return "redirect:/"; // Omdirigerer til startsiden efter login
+    public String login(@RequestParam String username, @RequestParam String password, Model model, HttpSession session) {
+        User user = userService.authenticate(username, password);
+
+        if (user != null) {
+            session.setAttribute("user", user);  // Sætter bruger i sessionen, hvis autentificering er succesfuld
+            return "redirect:/";  // Omdirigerer til forsiden
+        } else {
+            model.addAttribute("error", "Invalid username or password.");  // Tilføjer fejlmeddelelse til modellen
+            return "login";  // Forbliver på login-siden
+        }
     }
 
-    // Hjælpefunktion til at hente det autentificerede brugernavn
-    private String getAuthenticatedUsername() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        // Hvis brugeren er autentificeret, returneres brugernavnet, ellers returneres "Guest"
-        return (auth != null && auth.isAuthenticated() && !"anonymousUser".equals(auth.getName()))
-                ? auth.getName() : "Guest";
-    }
-
-    // Vist signupformularen
+    // Håndterer GET-anmodning til signup-siden
     @GetMapping("/signup")
-    public String showSignupForm(Model model) {
-        model.addAttribute("username", getAuthenticatedUsername()); // Tilføjer brugernavnet til modellen
-        model.addAttribute("user", new User()); // Tilføjer en ny tom User til modellen
-        return "signup"; // Returnerer signup-siden
+    public String showSignupForm(Model model, HttpSession session) {
+        if (session.getAttribute("user") != null) {
+            return "redirect:/";  // Omdirigerer til forsiden, hvis brugeren allerede er logget ind
+        }
+
+        model.addAttribute("username", userService.getAuthenticatedUsername(session));  // Viser brugernavn fra sessionen
+        model.addAttribute("user", new User());  // Tilføjer en ny bruger til modellen
+        return "signup";  // Returnerer signup-siden
     }
 
-    // Håndterer signup-formularens indsendelse og registrerer brugeren
+    // Håndterer POST-anmodning til signup-siden
     @PostMapping("/signup")
     public String registerUser(@ModelAttribute User user, Model model) {
-        userService.signUp(user, model); // Kalder signUp-metoden fra UserService til at oprette brugeren
-        return "redirect:/login"; // Omdirigerer til login-siden efter registrering
+        return userService.signUp(user, model);  // Kalder signUp-metoden fra UserService
+    }
+
+    // Håndterer POST-anmodning til logout
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();  // Invaliderer sessionen (logger brugeren ud)
+        return "redirect:/";  // Omdirigerer til forsiden efter logout
     }
 }

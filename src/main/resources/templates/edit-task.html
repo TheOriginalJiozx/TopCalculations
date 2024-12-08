@@ -10,19 +10,19 @@
     <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar" aria-label="Main navigation">
     <div class="navbar-left">
-        <a href="/" th:href="@{/}" class="navbar-logo">TopCalculations</a>
+        <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
         <div class="navbar-links">
-            <a class="nav-link" th:href="@{/}">Home</a>
-            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
-            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
-            <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
-            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
-            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}">Add Subtask</a>
+            <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Signup</a>
+            <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
+            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
                 <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
                 </form>
             </span>
         </div>
@@ -33,37 +33,34 @@
 <h1>Edit Task</h1>
 
 <div class="body-wrapper">
-    <div class="container-custom-task">
+    <div class="container-custom-add" aria-labelledby="edit-task-heading">
+        <h1 id="edit-task-heading">Edit Task</h1>
 
         <div th:each="task : ${task}">
-            <form th:action="@{/update-task/{id}(id=${task.id})}" method="post">
+            <form th:action="@{/update-task/{id}(id=${task.id})}" method="post" aria-labelledby="edit-task-form">
                 <div>
                     <label for="WBS">WBS</label>
-                    <input type="text" id="WBS" name="WBS" th:value="${task.wbs}" required disabled/>
+                    <input type="text" id="WBS" name="WBS" th:value="${task.wbs}" required disabled aria-labelledby="WBS"/>
                 </div>
                 <div>
                     <label for="taskName">Task Name</label>
-                    <input type="text" id="taskName" name="taskProjectName" th:value="${task.taskProjectName}" required />
-                </div>
-                <div>
-                    <label for="duration">Duration</label>
-                    <input type="text" id="duration" name="duration" th:value="${task.duration}" required />
+                    <input type="text" id="taskName" name="taskProjectName" th:value="${task.taskProjectName}" required aria-labelledby="taskName"/>
                 </div>
                 <div>
                     <label for="plannedStartDate">Planned Start Date</label>
-                    <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${task.plannedStartDate}" required />
+                    <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${task.plannedStartDate}" required aria-labelledby="plannedStartDate"/>
                 </div>
                 <div>
                     <label for="plannedFinishDate">Planned Finish Date</label>
-                    <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${task.plannedFinishDate}" required />
+                    <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${task.plannedFinishDate}" required aria-labelledby="plannedFinishDate"/>
                 </div>
                 <div>
                     <label for="assigned">Assigned</label>
-                    <input type="text" id="assigned" name="assigned" th:value="${task.assigned}" required disabled/>
+                    <input type="text" id="assigned" name="assigned" th:value="${task.assigned}" required disabled aria-labelledby="assigned"/>
                 </div>
 
                 <div>
-                    <button type="submit">Save Changes</button>
+                    <button type="submit" aria-label="Save Changes">Save Changes</button>
                 </div>
             </form>
         </div>

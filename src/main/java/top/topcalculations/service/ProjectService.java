@@ -78,11 +78,6 @@ public class ProjectService {
         return projectRepository.findSubTaskByID(id); // Kald til repository-metode for at hente underopgave baseret på ID
     }
 
-    // Henter opgaver for et bestemt hovedprojekt
-    public List<Project> getTasks(String mainProjectName) {
-        return projectRepository.findTasks(mainProjectName); // Kald til repository-metode for at hente opgaver for et hovedprojekt
-    }
-
     // Henter et projekt baseret på navnet
     public Project getProjectByName(String projectName) {
         return projectRepository.findProjectByName(projectName); // Kald til repository-metode for at hente projekt baseret på navn

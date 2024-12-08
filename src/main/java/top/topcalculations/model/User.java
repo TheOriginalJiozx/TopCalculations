@@ -5,7 +5,7 @@ public class User {
     private String username;
     private String password;
     private boolean enabled;
-    private boolean isAdmin;
+    private String role;
 
     public Long getId() {
         return id;
@@ -13,6 +13,14 @@ public class User {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public String getUsername() {
@@ -37,13 +45,5 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public void setIsAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
-    }
-
-    public boolean getIsAdmin() {
-        return isAdmin;
     }
 }

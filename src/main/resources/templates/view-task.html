@@ -9,55 +9,55 @@
     <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar" aria-label="Main navigation">
     <div class="navbar-left">
-        <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+        <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
         <div class="navbar-links">
-            <a class="nav-link" th:href="@{/}">Home</a>
-            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
-            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
-            <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
-            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
-            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}">Add Subtask</a>
+            <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Signup</a>
+            <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
+            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
-                <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
                 </form>
             </span>
         </div>
     </div>
-    <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+    <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
 <div class="body-wrapper">
-    <div class="container-custom-task">
-        <h1><span th:text="${username}"></span>'s Task</h1>
-        <table>
+    <div class="container-custom-add">
+        <h1 id="task-header"><span th:text="${username}"></span>'s Task</h1>
+        <table aria-labelledby="task-header" aria-describedby="task-description">
             <thead>
             <tr>
-                <th>WBS</th>
-                <th>Name</th>
-                <th>Duration</th>
-                <th>Planned Start Date</th>
-                <th>Planned Finish Date</th>
-                <th>Assigned</th>
-                <th>Time to Spend on Task (estimated in hours)</th>
-                <th>Time Spent on Task (in hours)</th>
-                <th>Actions</th>
+                <th scope="col">WBS</th>
+                <th scope="col">Name</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Planned Start Date</th>
+                <th scope="col">Planned Finish Date</th>
+                <th scope="col">Assigned</th>
+                <th scope="col">Time to Spend on Task (estimated in hours)</th>
+                <th scope="col">Time Spent on Task (in hours)</th>
+                <th scope="col">Actions</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="project : ${tasks}">
-                <td th:text="${project.wbs}"></td>
-                <td th:text="${project.taskProjectName}"></td>
-                <td th:text="${project.duration}"></td>
-                <td th:text="${project.plannedStartDate}"></td>
-                <td th:text="${project.plannedFinishDate}"></td>
-                <td th:text="${project.assigned}"></td>
-                <td th:text="${project.timeToSpend}"></td>
-                <td th:text="${project.timeSpent}"></td>
+                <td th:text="${project.wbs}" aria-label="WBS number"></td>
+                <td th:text="${project.taskProjectName}" aria-label="Task project name"></td>
+                <td th:text="${project.duration}" aria-label="Duration of the task"></td>
+                <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
+                <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
+                <td th:text="${project.assigned}" aria-label="Assigned to"></td>
+                <td th:text="${project.timeToSpend}" aria-label="Estimated time to complete task"></td>
+                <td th:text="${project.timeSpent}" aria-label="Time spent on task"></td>
                 <td>
-                    <a href="#" th:href="@{/edit-task/{id}(id=${project.id})}" class="btn-edit">Edit</a>
+                    <a href="#" th:href="@{/edit-task/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
                 </td>
             </tr>
             </tbody>
@@ -65,6 +65,6 @@
     </div>
 </div>
 
-<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
+<div id="footer-placeholder" th:replace="fragments/footer :: footer" aria-labelledby="footer-placeholder"></div>
 </body>
 </html>

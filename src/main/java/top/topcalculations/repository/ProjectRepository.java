@@ -32,7 +32,9 @@ public class ProjectRepository {
         System.out.println("Saving project: " + project);
 
         String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_in_total) VALUES (?, ?, DATEDIFF(?, ?), ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getPlannedFinishDate(), project.getPlannedStartDate(), project.getPlannedStartDate(), project.getPlannedFinishDate(), project.getAssigned(), project.getExpectedTimeInTotal());
+        jdbcTemplate.update(sql, project.getWbs(), project.getProjectTaskName(), project.getPlannedFinishDate(),
+                project.getPlannedStartDate(), project.getPlannedStartDate(), project.getPlannedFinishDate(),
+                project.getAssigned(), project.getExpectedTimeInTotal());
     }
 
     public void saveTask(Project task) {
@@ -43,14 +45,14 @@ public class ProjectRepository {
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned) " +
                 "VALUES (?, ?, ?, DATEDIFF(?, ?), ?, ?, ?)";
         // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-        jdbcTemplate.update(sql, task.getWbs(), task.getTaskProjectName(), task.getProjectTaskName(),
+        jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), task.getTaskProjectName(),
                 task.getPlannedFinishDate(), task.getPlannedStartDate(),
                 task.getPlannedStartDate(), task.getPlannedFinishDate(), task.getAssigned());
 
         // SQL-spørgsmål for at finde ID'et for den gemte opgave
         String findTaskIdQuery = "SELECT id FROM tasks WHERE WBS = ? AND task_name = ?";
         // Henter ID'et for opgaven baseret på WBS og task_name
-        Long taskId = jdbcTemplate.queryForObject(findTaskIdQuery, Long.class, task.getWbs(), task.getProjectTaskName());
+        Long taskId = jdbcTemplate.queryForObject(findTaskIdQuery, Long.class, task.getWbs(), task.getTaskProjectName());
 
         // Hvis taskId ikke er gyldigt, kastes en undtagelse
         if (taskId == null || taskId <= 0) {
@@ -80,8 +82,8 @@ public class ProjectRepository {
                 "VALUES (?, ?, DATEDIFF(?, ?), ?, ?, ?, ?, ?)";
 
         // Udfører SQL-spørgsmålet og gemmer delopgaven i databasen
-        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getPlannedStartDate(),
-                subTask.getPlannedFinishDate(), subTask.getSubTaskName(), subTask.getProjectTaskName(),
+        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getPlannedFinishDate(),
+                subTask.getPlannedStartDate(), subTask.getSubTaskName(), subTask.getProjectTaskName(),
                 subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(),
                 subTask.getAssigned());
 
@@ -287,7 +289,7 @@ public class ProjectRepository {
 
     // Henter en opgave baseret på dens ID
     public List<Project> findTaskByID(Long id) {
-        String sql = "SELECT p.id, p.wbs, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.sub_task_name, p.time_spent " +
+        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_to_spend, p.task_name, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.time_spent " +
                 "FROM tasks p " +
                 "WHERE p.id = ? AND p.task_name IS NOT NULL AND p.task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper(), id);
@@ -364,14 +366,11 @@ public class ProjectRepository {
             project.setId(rs.getInt("id"));
             project.setWbs(rs.getString("WBS"));
             project.setProjectTaskName(rs.getString("project_name"));
-            project.setTaskProjectName(rs.getString("task_name"));
-            project.setSubTaskName(rs.getString("sub_task_name"));
             project.setTimeSpent(rs.getInt("time_spent"));
             project.setExpectedTimeInTotal(rs.getDouble("expected_time_in_total"));
             project.setDuration(rs.getString("duration"));
             project.setPlannedStartDate(rs.getString("planned_start_date"));
             project.setPlannedFinishDate(rs.getString("planned_finish_date"));
-            project.setTimeToSpend(rs.getDouble("time_to_spend"));
             project.setAssigned(rs.getString("assigned"));
             return project;  // Returner det mapperede Project-objekt
         }
@@ -386,7 +385,6 @@ public class ProjectRepository {
             task.setWbs(rs.getString("WBS"));
             task.setMainProjectName(rs.getString("project_name"));
             task.setTaskProjectName(rs.getString("task_name"));
-            task.setSubTaskName(rs.getString("sub_task_name"));
             task.setTimeSpent(rs.getInt("time_spent"));
             task.setDuration(rs.getString("duration"));
             task.setTimeToSpend(rs.getDouble("time_to_spend"));

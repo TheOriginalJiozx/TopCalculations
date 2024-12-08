@@ -9,66 +9,66 @@
   <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar" aria-label="Main navigation">
   <div class="navbar-left">
-    <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+    <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
     <div class="navbar-links">
-      <a class="nav-link" th:href="@{/}">Home</a>
-      <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
-      <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
-      <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
-      <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
-      <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}">Add Subtask</a>
+      <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
+      <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
+      <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Signup</a>
+      <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
+      <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
+      <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
       <span class="nav-link" th:if="${username != 'Guest'}">
-                <form action="#" th:action="@{/logout}" method="post" style="display: inline;">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
-                </form>
-            </span>
+        <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
+          <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
+        </form>
+      </span>
     </div>
   </div>
-  <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+  <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
 <div class="body-wrapper">
-  <div class="container-custom-task">
-    <h1>Projects, Tasks and Subtasks</h1>
-    <table>
+  <div class="container-custom-add">
+    <h1 id="projects-tasks-header">Projects, Tasks and Subtasks</h1>
+    <table aria-labelledby="projects-tasks-header" aria-describedby="projects-tasks-description">
       <thead>
       <tr>
-        <th>WBS</th>
-        <th>Name</th>
-        <th>Duration</th>
-        <th>Planned Start Date</th>
-        <th>Planned Finish Date</th>
-        <th>Assigned</th>
+        <th scope="col">WBS</th>
+        <th scope="col">Name</th>
+        <th scope="col">Duration</th>
+        <th scope="col">Planned Start Date</th>
+        <th scope="col">Planned Finish Date</th>
+        <th scope="col">Assigned</th>
       </tr>
       </thead>
       <tbody>
       <tr th:each="project : ${projects}">
-        <td th:text="${project.wbs}"></td>
+        <td th:text="${project.wbs}" aria-label="WBS number"></td>
         <td>
           <a th:if="${project.subTaskName != null}"
              th:href="@{'/view-subtask/' + ${project.id}}"
-             th:text="${project.projectTaskName}"></a>
+             th:text="${project.projectTaskName}" aria-label="View subtask details"></a>
 
           <span th:if="${project.subTaskName == null and project.wbs.matches('[0-9]+')}">
-            <span th:text="${project.projectTaskName}"></span>
-        </span>
+              <span th:text="${project.projectTaskName}" aria-label="Project task name"></span>
+            </span>
 
           <a th:if="${project.subTaskName == null and (project.wbs.contains('.') or not(project.wbs.matches('[0-9]+')))}"
              th:href="@{'/view-task/' + ${project.id}}"
-             th:text="${project.projectTaskName}"></a>
+             th:text="${project.projectTaskName}" aria-label="View task details"></a>
         </td>
-        <td th:text="${project.duration}"></td>
-        <td th:text="${project.plannedStartDate}"></td>
-        <td th:text="${project.plannedFinishDate}"></td>
-        <td th:text="${project.assigned}"></td>
+        <td th:text="${project.duration}" aria-label="Duration of the task/project"></td>
+        <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
+        <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
+        <td th:text="${project.assigned}" aria-label="Assigned to"></td>
       </tr>
       </tbody>
     </table>
   </div>
 </div>
 
-<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
+<div id="footer-placeholder" th:replace="fragments/footer :: footer" aria-labelledby="footer-placeholder"></div>
 </body>
 </html>

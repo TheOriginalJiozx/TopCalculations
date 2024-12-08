@@ -15,6 +15,7 @@ public class Project {
     private Double expectedTimeInTotal;
     private Double timeToSpend;
     private String resource_name;
+    private boolean isTask;
 
     // Getters and setters
 
@@ -88,6 +89,10 @@ public class Project {
 
     public void setTaskProjectName(String taskProjectName) {
         this.taskProjectName = taskProjectName;
+    }
+
+    public boolean isTask() {
+        return isTask;
     }
 
     public String getDuration() {
