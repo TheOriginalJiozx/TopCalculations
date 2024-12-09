@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS projects (
   sub_task_name varchar(255) DEFAULT NULL,
   time_spent int DEFAULT NULL,
   expected_time_in_total int DEFAULT NULL,
-  time_to_spend double DEFAULT NULL,
   PRIMARY KEY (id)
 );
 

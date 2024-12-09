@@ -4,8 +4,6 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.topcalculations.model.Project;
 import top.topcalculations.model.User;
@@ -48,7 +46,7 @@ public class ProjectController {
 
         User user = (User) session.getAttribute("user");
         model.addAttribute("username", user.getUsername());
-        List<Project> projects = projectService.getAllProjectsWithoutTasks();  // Hent alle hovedprojekter
+        List<Project> projects = projectService.getAllProjects();  // Hent alle hovedprojekter
         model.addAttribute("projects", projects);  // Tilføj projekter til model
         model.addAttribute("project", new Project());  // Tilføj et nyt tomt projekt til model
         return "add";  // Returner formularen til tilføjelse af projekt
@@ -56,46 +54,54 @@ public class ProjectController {
 
     @PostMapping("/add")
     public String submitAddForm(@ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-        // Check if the user is logged in, otherwise redirect to login
+        // Tjek om brugeren er logget ind, ellers omdiriger til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect to login page
+            return "redirect:/login";  // Omdiriger til login siden
         }
 
+        // Hent brugeren fra sessionen og tilføj brugernavnet til modellen
         User user = (User) session.getAttribute("user");
         model.addAttribute("username", user.getUsername());
 
+        // Hvis hovedprojektet ikke er valgt, behandl som et nyt projekt
         if (project.getMainProjectName() == null || project.getMainProjectName().isEmpty()) {
-            // Handle case where no main project is selected, save as a new project
-            project.setProjectTaskName(project.getTaskProjectName());  // Set projectTaskName as the entered taskProjectName
-            project.setTaskProjectName(null);  // Clear taskProjectName
-            projectService.saveProject(project);  // Save the project
-            redirectAttributes.addFlashAttribute("message", "Project added successfully.");  // Success message
+            // Indstil projectTaskName som taskProjectName og ryd taskProjectName
+            project.setProjectTaskName(project.getTaskProjectName());  // Sæt projectTaskName som den indtastede taskProjectName
+            project.setTaskProjectName(null);  // Ryd taskProjectName
+            projectService.saveProject(project);  // Gem projektet
+            redirectAttributes.addFlashAttribute("message", "Project added successfully.");  // Success meddelelse
         } else {
-            Project mainProject = projectService.getProjectByName(project.getMainProjectName());  // Get main project by name
+            // Hent hovedprojektet ved navn
+            Project mainProject = projectService.getProjectByName(project.getMainProjectName());  // Få hovedprojektet efter navn
 
+            // Tjek om hovedprojektet findes
             if (mainProject != null) {
-                String mainProjectWBS = mainProject.getWbs();  // Get WBS of the main project
+                // Hent WBS (Work Breakdown Structure) for hovedprojektet
+                String mainProjectWBS = mainProject.getWbs();  // Få WBS for hovedprojektet
 
-                // Get the highest WBS index from projects and tasks tables
+                // Hent den højeste WBS indeks fra projekter og opgave tabeller
                 int highestTaskIndex = projectService.getHighestWbsIndex(mainProjectWBS);
 
-                // Generate a new WBS for the task
+                // Generer en ny WBS for opgaven
                 String newWBS = mainProjectWBS + "." + (highestTaskIndex + 1);
 
-                project.setWbs(newWBS);  // Set WBS for the new task
-                project.setTaskProjectName(project.getTaskProjectName());  // Set taskProjectName
-                project.setProjectTaskName(mainProject.getProjectTaskName());  // Set projectTaskName
-                project.setResource_name(project.getResource_name());
-                project.setId(project.getId());
-                projectService.saveTask(project);  // Save the task
-                redirectAttributes.addFlashAttribute("message", "Task added successfully.");  // Success message
+                // Sæt WBS for den nye opgave
+                project.setWbs(newWBS);  // Sæt WBS for den nye opgave
+                project.setTaskProjectName(project.getTaskProjectName());  // Sæt taskProjectName
+                project.setProjectTaskName(mainProject.getProjectTaskName());  // Sæt projectTaskName fra hovedprojektet
+                project.setResource_name(project.getResource_name());  // Sæt resource_name
+                project.setId(project.getId());  // Sæt ID
+                projectService.saveTask(project);  // Gem opgaven
+                redirectAttributes.addFlashAttribute("message", "Task added successfully.");  // Success meddelelse
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Error: Main project not found.");  // Error message
-                return "redirect:/add";  // Redirect back to the form
+                // Hvis hovedprojektet ikke findes, vis en fejlmeddelelse
+                redirectAttributes.addFlashAttribute("errorMessage", "Error: Main project not found.");  // Fejlmeddelelse
+                return "redirect:/add";  // Omdiriger tilbage til formularen
             }
         }
 
-        return "redirect:/add";  // Redirect back to the form for adding a project/task
+        // Omdiriger tilbage til formularen for at tilføje et projekt/opgave
+        return "redirect:/add";  // Omdiriger tilbage til formularen for at tilføje et projekt/opgave
     }
 
     // Vis formularen til at tilføje en underopgave
@@ -152,9 +158,9 @@ public class ProjectController {
         return "redirect:/addSub";  // Redirect tilbage til formularen for underopgave
     }
 
-    // Vis alle projekter
+    // Viser et view over alle projekter, tasks og subtasks
     @GetMapping("/view")
-    public String viewProject(Model model, HttpSession session) {
+    public String view(Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -165,8 +171,8 @@ public class ProjectController {
         } else {
             model.addAttribute("username", "Guest");
         }
-        List<Object> projects = projectService.getAll();  // Hent alle projekter
-        model.addAttribute("projects", projects);  // Tilføj projekter til model
+        List<Object> projects = projectService.getAll();  // Hent alle projekter, tasks og subtasks
+        model.addAttribute("projects", projects);  // Tilføj projekter, og tasks samt subtasks, som er en del af et project, til model
         return "view";  // Returner view til visning af projekter
     }
 
@@ -185,7 +191,6 @@ public class ProjectController {
         }
         List<Project> projects = projectService.getTaskByID(id);  // Hent opgave efter ID
         model.addAttribute("tasks", projects);  // Tilføj opgaver til model
-        model.addAttribute("task", new Project());  // Tilføj et nyt tomt projekt til model
         return "view-task";  // Returner view til visning af opgavedetaljer
     }
 
@@ -204,7 +209,6 @@ public class ProjectController {
         }
         List<Project> projects = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
         model.addAttribute("subtasks", projects);  // Tilføj underopgaver til model
-        model.addAttribute("subtask", new Project());  // Tilføj et nyt tomt projekt til model
         return "view-subtask";  // Returner view til visning af underopgavedetaljer
     }
 

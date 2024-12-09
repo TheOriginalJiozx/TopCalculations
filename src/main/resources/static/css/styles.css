@@ -37,6 +37,10 @@ body {
     color: #555;
 }
 
+.form-wrapper {
+    width: 100%;
+}
+
 .form-control {
     width: 100%;
     padding: 10px;
@@ -45,6 +49,7 @@ body {
     font-size: 16px;
     color: #333;
     transition: border-color 0.3s ease;
+    box-sizing: border-box;
 }
 
 .form-control:focus {

@@ -32,6 +32,7 @@
 <h1 id="add-project-task-heading">Add Project or Task</h1>
 
 <div class="container container-custom-add">
+    <div class="form-wrapper">
     <form th:action="@{/add}" th:object="${project}" method="post" aria-labelledby="add-project-task-heading">
         <fieldset>
             <legend class="sr-only">Add Project or Task Form</legend>
@@ -87,12 +88,13 @@
         </fieldset>
     </form>
 
-    <div th:if="${message}" class="alert alert-success" role="alert">
-        <p th:text="${message}"></p>
-    </div>
+        <div th:if="${message}" class="alert alert-success" role="alert">
+            <p th:text="${message}"></p>
+        </div>
 
-    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-        <p th:text="${errorMessage}"></p>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
     </div>
 </div>
 

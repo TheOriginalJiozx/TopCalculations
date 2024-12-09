@@ -59,7 +59,7 @@ public class ProjectService {
     }
 
     // Henter alle hovedprojekter (uden opgaver) fra databasen
-    public List<Project> getAllProjectsWithoutTasks() {
+    public List<Project> getAllProjects() {
         return projectRepository.findAllProjects(); // Kald til repository-metode for at hente projekter uden opgaver
     }
 
