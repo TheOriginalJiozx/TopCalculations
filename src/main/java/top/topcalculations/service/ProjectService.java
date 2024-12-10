@@ -30,13 +30,33 @@ public class ProjectService {
     }
 
     // Opdaterer en opgave i databasen
-    public void updateTask(int id, Project task) {
-        projectRepository.updateTask(id, task); // Kald til repository-metode for at opdatere opgaven
+    public void updateTask(int id, Project task, String oldTaskName) {
+        projectRepository.updateTask(id, task, oldTaskName); // Kald til repository-metode for at opdatere opgaven
     }
 
     // Opdaterer en underopgave i databasen
     public void updateSubTask(int id, Project subTask) {
         projectRepository.updateSubTask(id, subTask); // Kald til repository-metode for at opdatere underopgaven
+    }
+
+    // Opdaterer et projekt i databasen
+    public void updateProject(int id, Project project) {
+        projectRepository.updateProject(id, project); // Kald til repository-metode for at opdatere underopgaven
+    }
+
+    // Sletter et projekt i databasen
+    public void deleteProject(int id) {
+        projectRepository.deleteProject(id);
+    }
+
+    // Sletter en opgave i databasen
+    public void deleteTask(int id) {
+        projectRepository.deleteTask(id);
+    }
+
+    // Sletter en underopgave i databasen
+    public void deleteSubTask(int id) {
+        projectRepository.deleteSubTask(id);
     }
 
     public List<Object> getAll() {
@@ -71,6 +91,11 @@ public class ProjectService {
     // Henter opgaver baseret på ID fra databasen
     public List<Project> getTaskByID(Long id) {
         return projectRepository.findTaskByID(id); // Kald til repository-metode for at hente opgave baseret på ID
+    }
+
+    // Henter opgaver baseret på ID fra databasen
+    public List<Project> getProjectByID(Long id) {
+        return projectRepository.findProjectByID(id); // Kald til repository-metode for at hente opgave baseret på ID
     }
 
     // Henter underopgaver baseret på ID fra databasen

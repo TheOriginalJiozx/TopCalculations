@@ -176,6 +176,57 @@ public class ProjectController {
         return "view";  // Returner view til visning af projekter
     }
 
+    // Vis et specifikt projekt ved ID
+    @GetMapping("/view-project/{id}")
+    public String viewProject(@PathVariable("id") Long id, Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+        } else {
+            model.addAttribute("username", "Guest");
+        }
+        List<Project> projects = projectService.getProjectByID(id);  // Hent projekt efter ID
+        model.addAttribute("projects", projects);  // Tilføj projekter til model
+        return "view-project";  // Returner view til visning af underopgavedetaljer
+    }
+
+    @GetMapping("/edit-project/{id}")
+    public String editProject(@PathVariable("id") Long id, Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+        } else {
+            model.addAttribute("username", "Guest");
+        }
+        List<Project> project = projectService.getProjectByID(id); // Henter projektet med det angivne ID
+        model.addAttribute("project", project); // Tilføjer det hentede projekt til modellen
+        return "edit-project"; // Returnerer viewet til at redigere projektet
+    }
+
+    @PostMapping("/update-project/{id}")
+    public String updateProject(@PathVariable("id") int id, @ModelAttribute Project project, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        System.out.println("Opdaterer projekt med ID: " + id);
+        System.out.println("Nyt projektnavn: " + project.getProjectTaskName());
+        System.out.println("Ny varighed: " + project.getDuration());
+
+        project.setId(id);  // Sætter ID for projektet
+        projectService.updateProject(id, project);  // Opdater projektet
+
+        return "redirect:/view-project/" + id;  // Redirect til visning af projektet
+    }
+
     // Vis en specifik opgave ved ID
     @GetMapping("/view-task/{id}")
     public String viewTask(@PathVariable("id") Long id, Model model, HttpSession session) {
@@ -192,24 +243,6 @@ public class ProjectController {
         List<Project> projects = projectService.getTaskByID(id);  // Hent opgave efter ID
         model.addAttribute("tasks", projects);  // Tilføj opgaver til model
         return "view-task";  // Returner view til visning af opgavedetaljer
-    }
-
-    // Vis en specifik underopgave ved ID
-    @GetMapping("/view-subtask/{id}")
-    public String viewSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-        } else {
-            model.addAttribute("username", "Guest");
-        }
-        List<Project> projects = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
-        model.addAttribute("subtasks", projects);  // Tilføj underopgaver til model
-        return "view-subtask";  // Returner view til visning af underopgavedetaljer
     }
 
     @GetMapping("/edit-task/{id}")
@@ -230,7 +263,7 @@ public class ProjectController {
     }
 
     @PostMapping("/update-task/{id}")
-    public String updateTask(@PathVariable("id") int id, @ModelAttribute Project task, Model model, HttpSession session) {
+    public String updateTask(@PathVariable("id") int id, @ModelAttribute Project task, HttpSession session, String oldTaskName) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -240,9 +273,27 @@ public class ProjectController {
         System.out.println("Ny varighed: " + task.getDuration());
 
         task.setId(id);  // Sætter ID for opgaven
-        projectService.updateTask(id, task);  // Opdater opgaven
+        projectService.updateTask(id, task, oldTaskName);  // Opdater opgaven
 
         return "redirect:/view-task/" + id;  // Redirect til visning af opgaven
+    }
+
+    // Vis en specifik underopgave ved ID
+    @GetMapping("/view-subtask/{id}")
+    public String viewSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+        } else {
+            model.addAttribute("username", "Guest");
+        }
+        List<Project> projects = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
+        model.addAttribute("subtasks", projects);  // Tilføj underopgaver til model
+        return "view-subtask";  // Returner view til visning af underopgavedetaljer
     }
 
     @GetMapping("/edit-subtask/{id}")
@@ -259,7 +310,7 @@ public class ProjectController {
     }
 
     @PostMapping("/update-subtask/{id}")
-    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Project subtask, Model model, HttpSession session) {
+    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Project subtask, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -272,5 +323,47 @@ public class ProjectController {
         projectService.updateSubTask(id, subtask);  // Opdater underopgave
 
         return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
+    }
+
+    @PostMapping("/delete-project/{id}")
+    public String deleteProject(@PathVariable("id") int id, @ModelAttribute Project project, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        System.out.println("Sletter projekt med ID: " + id);
+        System.out.println("Projekt med navn: " + project.getMainProjectName() + " er blevet slettet.");
+
+        projectService.deleteProject(id);
+
+        return "/view";
+    }
+
+    @PostMapping("/delete-task/{id}")
+    public String deleteTask(@PathVariable("id") int id, @ModelAttribute Project task, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        System.out.println("Sletter opgave med ID: " + id);
+        System.out.println("Opgave med navn: " + task.getTaskProjectName() + " er blevet slettet.");
+
+        projectService.deleteTask(id);
+
+        return "/view";
+    }
+
+    @PostMapping("/delete-subtask/{id}")
+    public String deleteSubTask(@PathVariable("id") int id, @ModelAttribute Project subTask, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";
+        }
+
+        System.out.println("Sletter underopgave med ID: " + id);
+        System.out.println("Underoppgave med navn: " + subTask.getSubTaskName() + " er blevet slettet.");
+
+        projectService.deleteSubTask(id);
+
+        return "/view";
     }
 }

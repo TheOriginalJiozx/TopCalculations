@@ -51,18 +51,6 @@
             </div>
 
             <div class="form-group">
-                <label for="planned_start_date">Planned Start Date:</label>
-                <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" required class="form-control" aria-describedby="planned-start-date-desc">
-                <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the subtask.</span>
-            </div>
-
-            <div class="form-group">
-                <label for="planned_finish_date">Planned Finish Date:</label>
-                <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" required class="form-control" aria-describedby="planned-finish-date-desc">
-                <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the subtask.</span>
-            </div>
-
-            <div class="form-group">
                 <label for="resources_name">Resources:</label>
                 <input type="text" id="resources_name" th:field="*{resource_name}" required class="form-control" aria-describedby="resources-desc">
                 <span id="resources-desc" class="sr-only">Enter the resource required for the subtask.</span>

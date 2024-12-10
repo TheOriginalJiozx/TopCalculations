@@ -51,9 +51,9 @@
              th:href="@{'/view-subtask/' + ${project.id}}"
              th:text="${project.projectTaskName}" aria-label="View subtask details"></a>
 
-          <span th:if="${project.subTaskName == null and project.wbs.matches('[0-9]+')}">
-              <span th:text="${project.projectTaskName}" aria-label="Project task name"></span>
-            </span>
+          <a th:if="${project.subTaskName == null and project.wbs.matches('[0-9]+')}"
+             th:href="@{'/view-project/' + ${project.id}}"
+             th:text="${project.projectTaskName}" aria-label="Project task name"></a>
 
           <a th:if="${project.subTaskName == null and (project.wbs.contains('.') or not(project.wbs.matches('[0-9]+')))}"
              th:href="@{'/view-task/' + ${project.id}}"

@@ -30,30 +30,45 @@
     <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
-<h1>Edit Subtask</h1>
+<h1>Edit Project</h1>
 
 <div class="body-wrapper">
     <div class="container-custom-add">
-        <div th:each="subTask : ${subTask}">
-            <form th:action="@{/update-subtask/{id}(id=${subTask.id})}" method="post" aria-labelledby="edit-subtask-form">
+        <div th:each="project : ${project}">
+            <form th:action="@{/update-project/{id}(id=${project.id})}" method="post" aria-labelledby="edit-project-form">
                 <fieldset>
-                    <legend id="edit-subtask-form" class="sr-only">Edit Subtask Form</legend>
+                    <legend id="edit-project-form" class="sr-only">Edit Project Form</legend>
                     <div>
                         <label for="WBS" aria-label="WBS">WBS</label>
-                        <input type="text" id="WBS" name="WBS" th:value="${subTask.wbs}" required disabled />
+                        <input type="text" id="WBS" name="WBS" th:value="${project.wbs}" required disabled />
                     </div>
                     <div>
-                        <label for="subTaskName" aria-label="Subtask Name">Subtask Name</label>
-                        <input type="text" id="subTaskName" name="subTaskName" th:value="${subTask.subTaskName}" required aria-describedby="subtask-name-desc" />
-                        <span id="subtask-name-desc" class="sr-only">Enter the name of the subtask.</span>
+                        <label for="projectTaskName" aria-label="Project Name">Project Name</label>
+                        <input type="text" id="projectTaskName" name="projectTaskName" th:value="${project.projectTaskName}" required aria-describedby="project-name-desc" />
+                        <span id="project-name-desc" class="sr-only">Enter the name of the project.</span>
+                    </div>
+                    <div>
+                        <label for="plannedStartDate" aria-label="Planned Start Date">Planned Start Date</label>
+                        <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${project.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-start-date-desc" />
+                        <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the subtask.</span>
+                    </div>
+                    <div>
+                        <label for="plannedFinishDate" aria-label="Planned Finish Date">Planned Finish Date</label>
+                        <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${project.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-finish-date-desc" />
+                        <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the subtask.</span>
+                    </div>
+                    <div>
+                        <label for="expectedTimeInTotal" aria-label="Expected time You will Spend in Total">Expected spending time in total (hours)</label>
+                        <input type="text" id="expectedTimeInTotal" name="expectedTimeInTotal" th:value="${project.expectedTimeInTotal}" required aria-describedby="expectedTimeInTotal-desc" />
+                        <span id="expectedTimeInTotal-desc" class="sr-only">Enter how many hours you expect to spend on the project.</span>
                     </div>
                     <div>
                         <label for="assigned" aria-label="Assigned To">Assigned</label>
-                        <input type="text" id="assigned" name="assigned" th:value="${subTask.assigned}" required disabled />
+                        <input type="text" id="assigned" name="assigned" th:value="${project.assigned}" required disabled />
                     </div>
                     <div>
                         <button type="submit" name="action" value="save" aria-label="Save changes">Save Changes</button>
-                        <button type="submit" name="action" value="delete" formaction="@{/deleteSubtask/{id}(id=${subTask.id})}" aria-label="Delete subtask">Delete Subtask</button>
+                        <button type="submit" name="action" value="delete" formaction="@{/deleteProject/{id}(id=${project.id})}" aria-label="Delete project">Delete Project</button>
                     </div>
                 </fieldset>
             </form>

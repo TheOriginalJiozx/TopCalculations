@@ -55,7 +55,7 @@ public class Project {
         this.expectedTimeInTotal = expectedTimeInTotal;
     }
 
-    public Double getExpectedTimeInTotal() {  // Return as Double
+    public Double getExpectedTimeInTotal() {
         return expectedTimeInTotal;
     }
 

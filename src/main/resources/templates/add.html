@@ -54,13 +54,13 @@
 
             <div class="form-group">
                 <label for="planned_start_date">Planned Start Date:</label>
-                <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" required class="form-control" aria-describedby="planned-start-date-desc">
+                <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-start-date-desc">
                 <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the project or task.</span>
             </div>
 
             <div class="form-group">
                 <label for="planned_finish_date">Planned Finish Date:</label>
-                <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" required class="form-control" aria-describedby="planned-finish-date-desc">
+                <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-finish-date-desc">
                 <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the project or task.</span>
             </div>
 

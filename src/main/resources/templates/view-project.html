@@ -2,10 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>TopCalculations - Edit Subtask</title>
+    <title>TopCalculations - View Projects and Tasks</title>
     <link rel="stylesheet" th:href="@{/css/view.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <link rel="stylesheet" th:href="@{/css/add.css}" />
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
@@ -30,34 +29,39 @@
     <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
-<h1>Edit Subtask</h1>
-
 <div class="body-wrapper">
     <div class="container-custom-add">
-        <div th:each="subTask : ${subTask}">
-            <form th:action="@{/update-subtask/{id}(id=${subTask.id})}" method="post" aria-labelledby="edit-subtask-form">
-                <fieldset>
-                    <legend id="edit-subtask-form" class="sr-only">Edit Subtask Form</legend>
-                    <div>
-                        <label for="WBS" aria-label="WBS">WBS</label>
-                        <input type="text" id="WBS" name="WBS" th:value="${subTask.wbs}" required disabled />
-                    </div>
-                    <div>
-                        <label for="subTaskName" aria-label="Subtask Name">Subtask Name</label>
-                        <input type="text" id="subTaskName" name="subTaskName" th:value="${subTask.subTaskName}" required aria-describedby="subtask-name-desc" />
-                        <span id="subtask-name-desc" class="sr-only">Enter the name of the subtask.</span>
-                    </div>
-                    <div>
-                        <label for="assigned" aria-label="Assigned To">Assigned</label>
-                        <input type="text" id="assigned" name="assigned" th:value="${subTask.assigned}" required disabled />
-                    </div>
-                    <div>
-                        <button type="submit" name="action" value="save" aria-label="Save changes">Save Changes</button>
-                        <button type="submit" name="action" value="delete" formaction="@{/deleteSubtask/{id}(id=${subTask.id})}" aria-label="Delete subtask">Delete Subtask</button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+        <h1 id="task-header"><span th:text="${username}"></span>'s Project</h1>
+        <table aria-labelledby="task-header" aria-describedby="task-description">
+            <thead>
+            <tr>
+                <th scope="col">WBS</th>
+                <th scope="col">Name</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Planned Start Date</th>
+                <th scope="col">Planned Finish Date</th>
+                <th scope="col">Assigned</th>
+                <th scope="col">Estimated to Spend on Project  (estimated in hours)</th>
+                <th scope="col">Time Spent on Task (in hours)</th>
+                <th scope="col">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="project : ${projects}">
+                <td th:text="${project.wbs}" aria-label="WBS number"></td>
+                <td th:text="${project.projectTaskName}" aria-label="Project name"></td>
+                <td th:text="${project.duration}" aria-label="Duration of the project"></td>
+                <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
+                <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
+                <td th:text="${project.assigned}" aria-label="Assigned to"></td>
+                <td th:text="${project.expectedTimeInTotal}" aria-label="Estimated time to complete task"></td>
+                <td th:text="${project.timeSpent}" aria-label="Time spent on project"></td>
+                <td>
+                    <a href="#" th:href="@{/edit-project/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 

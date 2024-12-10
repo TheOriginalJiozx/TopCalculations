@@ -37,9 +37,6 @@
             <tr>
                 <th scope="col">WBS</th>
                 <th scope="col">Name</th>
-                <th scope="col">Duration</th>
-                <th scope="col">Planned Start Date</th>
-                <th scope="col">Planned Finish Date</th>
                 <th scope="col">Assigned</th>
                 <th scope="col">Time to Spend on Task (estimated in hours)</th>
                 <th scope="col">Time Spent on Task (in hours)</th>
@@ -50,9 +47,6 @@
             <tr th:each="project : ${tasks}">
                 <td th:text="${project.wbs}" aria-label="WBS number"></td>
                 <td th:text="${project.taskProjectName}" aria-label="Task project name"></td>
-                <td th:text="${project.duration}" aria-label="Duration of the task"></td>
-                <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
-                <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
                 <td th:text="${project.assigned}" aria-label="Assigned to"></td>
                 <td th:text="${project.timeToSpend}" aria-label="Estimated time to complete task"></td>
                 <td th:text="${project.timeSpent}" aria-label="Time spent on task"></td>
