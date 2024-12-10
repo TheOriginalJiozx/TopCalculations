@@ -38,10 +38,12 @@
             <legend class="sr-only">Add Project or Task Form</legend>
 
             <div class="form-group">
-                <label for="task_name">Name of Project or Task:</label>
-                <input type="text" id="task_name" th:field="*{taskProjectName}" required class="form-control" aria-describedby="task-name-desc">
-                <span id="task-name-desc" class="sr-only">Enter the name of the project or task.</span>
+                <label for="project_or_task_name">Name of Project or Task:</label>
+                <input type="text" id="project_or_task_name" th:field="*{taskProjectName}" required class="form-control" aria-describedby="task-name-desc">
+                <span id="project-or-task-name-desc" class="sr-only">Enter the name of the project or task.</span>
             </div>
+
+            <!-- checkbox -->
 
             <div class="form-group">
                 <label for="main_task">Main Project (if exists):</label>
@@ -65,9 +67,9 @@
             </div>
 
             <div class="form-group">
-                <label for="expected_time_per_day">Expected Spending Time In Total (in hours):</label>
-                <input type="number" id="expected_time_per_day" th:field="*{expectedTimeInTotal}" required class="form-control" aria-describedby="expected-time-desc">
-                <span id="expected-time-desc" class="sr-only">Enter the expected total time (in hours) for the project or task.</span>
+                <label for="time_to_spend">Expected Time to Spend on Task (in hours):</label>
+                <input type="number" id="time_to_spend" th:field="*{timeToSpend}" required class="form-control" aria-describedby="time-to-spend-desc" step="0.1">
+                <span id="time-to-spend-desc" class="sr-only">Enter the expected time (in hours) you expect to use on the task.</span>
             </div>
 
             <div class="form-group">

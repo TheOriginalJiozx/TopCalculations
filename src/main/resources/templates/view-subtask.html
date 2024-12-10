@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>TopCalculations - View Subtasks</title>
+    <title>TopCalculations - View Subtask</title>
     <link rel="stylesheet" th:href="@{/css/view.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
@@ -30,7 +30,7 @@
 </nav>
 
 <div class="body-wrapper">
-    <div class="container-custom-add">
+    <div class="container container-custom-view">
         <h1 id="subtask-header"><span th:text="${username}"></span>'s Task</h1>
         <table aria-labelledby="subtask-header" aria-describedby="subtask-description">
             <thead>
@@ -44,14 +44,14 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="project : ${subtasks}">
-                <td th:text="${project.wbs}" aria-label="WBS number"></td>
-                <td th:text="${project.subTaskName}" aria-label="Subtask name"></td>
-                <td th:text="${project.assigned}" aria-label="Assigned to"></td>
-                <td th:text="${project.timeToSpend}" aria-label="Estimated time to complete subtask"></td>
-                <td th:text="${project.timeSpent}" aria-label="Time spent on subtask"></td>
+            <tr th:each="subtask : ${subtasks}">
+                <td th:text="${subtask.wbs}" aria-label="WBS number"></td>
+                <td th:text="${subtask.subTaskName}" aria-label="Subtask name"></td>
+                <td th:text="${subtask.assigned}" aria-label="Assigned to"></td>
+                <td th:text="${subtask.timeToSpend}" aria-label="Estimated time to complete subtask"></td>
+                <td th:text="${subtask.timeSpent}" aria-label="Time spent on subtask"></td>
                 <td>
-                    <a href="#" th:href="@{/edit-subtask/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit subtask">Edit</a>
+                    <a href="#" th:href="@{/edit-subtask/{id}(id=${subtask.id})}" class="btn-edit" aria-label="Edit subtask">Edit</a>
                 </td>
             </tr>
             </tbody>

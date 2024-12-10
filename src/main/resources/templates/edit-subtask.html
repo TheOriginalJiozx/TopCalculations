@@ -5,7 +5,7 @@
     <title>TopCalculations - Edit Subtask</title>
     <link rel="stylesheet" th:href="@{/css/view.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
-    <link rel="stylesheet" th:href="@{/css/add.css}" />
+    <link rel="stylesheet" th:href="@{/css/edit.css}" />
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
@@ -27,40 +27,51 @@
             </span>
         </div>
     </div>
-    <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
+    <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>! </span>
 </nav>
-
 <h1>Edit Subtask</h1>
-
-<div class="body-wrapper">
-    <div class="container-custom-add">
-        <div th:each="subTask : ${subTask}">
-            <form th:action="@{/update-subtask/{id}(id=${subTask.id})}" method="post" aria-labelledby="edit-subtask-form">
-                <fieldset>
-                    <legend id="edit-subtask-form" class="sr-only">Edit Subtask Form</legend>
-                    <div>
-                        <label for="WBS" aria-label="WBS">WBS</label>
-                        <input type="text" id="WBS" name="WBS" th:value="${subTask.wbs}" required disabled />
-                    </div>
-                    <div>
-                        <label for="subTaskName" aria-label="Subtask Name">Subtask Name</label>
-                        <input type="text" id="subTaskName" name="subTaskName" th:value="${subTask.subTaskName}" required aria-describedby="subtask-name-desc" />
-                        <span id="subtask-name-desc" class="sr-only">Enter the name of the subtask.</span>
-                    </div>
-                    <div>
-                        <label for="assigned" aria-label="Assigned To">Assigned</label>
-                        <input type="text" id="assigned" name="assigned" th:value="${subTask.assigned}" required disabled />
-                    </div>
-                    <div>
-                        <button type="submit" name="action" value="save" aria-label="Save changes">Save Changes</button>
-                        <button type="submit" name="action" value="delete" formaction="@{/deleteSubtask/{id}(id=${subTask.id})}" aria-label="Delete subtask">Delete Subtask</button>
-                    </div>
-                </fieldset>
-            </form>
-        </div>
+<div class="container container-custom-edit">
+    <div th:each="subTask : ${subTask}">
+        <form th:action="@{/update-subtask/{id}(id=${subTask.id})}" method="post" aria-labelledby="edit-subtask-form">
+            <fieldset>
+                <legend id="edit-subtask-form" class="sr-only">Edit Subtask Form</legend>
+                <div class="form-group">
+                    <label for="WBS" aria-label="WBS">WBS</label>
+                    <input type="text" id="WBS" name="WBS" th:value="${subTask.wbs}" required disabled aria-labelledby="wbs-desc" />
+                    <span id="wbs-desc" class="sr-only">Work Breakdown Structure.</span>
+                </div>
+                <div>
+                    <label for="taskName" aria-labelledby="Task Name">Task Name</label>
+                    <input type="text" id="taskName" name="taskProjectName" th:value="${subTask.taskProjectName}" required disabled aria-labelledby="task-name-desc" />
+                    <span id="task-name-desc" class="sr-only">Enter the name of the task.</span>
+                </div>
+                <div class="form-group">
+                    <label for="subTaskName" aria-label="Subtask Name">New Subtask Name</label>
+                    <input type="text" id="subTaskName" name="subTaskName" th:value="${subTask.subTaskName}" required aria-describedby="subtask-name-desc" />
+                    <span id="subtask-name-desc" class="sr-only">Enter the new name of the subtask.</span>
+                </div>
+                <div class="form-group">
+                    <label for="todaysDate">Date of Today</label>
+                    <input type="text" id="todaysDate" name="todaysDate" th:value="${#dates.format(#dates.createNow(), 'yyyy/MM/dd')}" required disabled aria-labelledby="date-of-today-desc" />
+                    <span id="date-of-today-desc" class="sr-only">Date of today.</span>
+                </div>
+                <div class="form-group">
+                    <label for="timeSpent">Time spent on Subtask today</label>
+                    <input type="number" id="timeSpent" name="timeSpent" step="0.1" required aria-labelledby="spent-time-today-desc" />
+                    <span id="spent-time-today-desc" class="sr-only">Enter how many hours you have spent on this subtask today.</span>
+                </div>
+                <div class="form-group">
+                    <label for="assigned" aria-label="Assigned To">Assigned</label>
+                    <input type="text" id="assigned" name="assigned" th:value="${subTask.assigned}" required disabled aria-labelledby="assigned"/>
+                    <span id="assigned-desc" class="sr-only">Enter the name of the person assigned to this subtask.</span>
+                </div>
+                <div>
+                    <button type="submit" name="action" value="save" aria-label="Save changes">Save Changes</button>
+                </div>
+            </fieldset>
+        </form>
     </div>
 </div>
-
 <div id="footer-placeholder" th:replace="fragments/footer :: footer" aria-labelledby="footer-placeholder"></div>
 </body>
 </html>

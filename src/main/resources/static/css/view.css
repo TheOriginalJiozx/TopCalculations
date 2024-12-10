@@ -28,7 +28,7 @@ tbody tr:nth-child(odd) {
     background-color: #ffffff;
 }
 
-.container-custom-task {
+.container-custom-view {
     max-width: 900px;
     padding: 20px;
     background-color: #ffffff;

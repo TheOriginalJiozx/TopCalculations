@@ -268,10 +268,6 @@ public class ProjectController {
             return "redirect:/login";  // Redirect til login-siden
         }
 
-        System.out.println("Opdaterer opgave med ID: " + id);
-        System.out.println("Nyt opgavenavn: " + task.getTaskProjectName());
-        System.out.println("Ny varighed: " + task.getDuration());
-
         task.setId(id);  // Sætter ID for opgaven
         projectService.updateTask(id, task, oldTaskName);  // Opdater opgaven
 
@@ -291,8 +287,8 @@ public class ProjectController {
         } else {
             model.addAttribute("username", "Guest");
         }
-        List<Project> projects = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
-        model.addAttribute("subtasks", projects);  // Tilføj underopgaver til model
+        List<Project> subtasks = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
+        model.addAttribute("subtasks", subtasks);  // Tilføj underopgaver til model
         return "view-subtask";  // Returner view til visning af underopgavedetaljer
     }
 
@@ -323,47 +319,5 @@ public class ProjectController {
         projectService.updateSubTask(id, subtask);  // Opdater underopgave
 
         return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
-    }
-
-    @PostMapping("/delete-project/{id}")
-    public String deleteProject(@PathVariable("id") int id, @ModelAttribute Project project, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
-
-        System.out.println("Sletter projekt med ID: " + id);
-        System.out.println("Projekt med navn: " + project.getMainProjectName() + " er blevet slettet.");
-
-        projectService.deleteProject(id);
-
-        return "/view";
-    }
-
-    @PostMapping("/delete-task/{id}")
-    public String deleteTask(@PathVariable("id") int id, @ModelAttribute Project task, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
-
-        System.out.println("Sletter opgave med ID: " + id);
-        System.out.println("Opgave med navn: " + task.getTaskProjectName() + " er blevet slettet.");
-
-        projectService.deleteTask(id);
-
-        return "/view";
-    }
-
-    @PostMapping("/delete-subtask/{id}")
-    public String deleteSubTask(@PathVariable("id") int id, @ModelAttribute Project subTask, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";
-        }
-
-        System.out.println("Sletter underopgave med ID: " + id);
-        System.out.println("Underoppgave med navn: " + subTask.getSubTaskName() + " er blevet slettet.");
-
-        projectService.deleteSubTask(id);
-
-        return "/view";
     }
 }

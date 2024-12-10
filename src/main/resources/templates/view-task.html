@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>TopCalculations - View Tasks</title>
+    <title>TopCalculations - View Task</title>
     <link rel="stylesheet" th:href="@{/css/view.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
@@ -30,7 +30,7 @@
 </nav>
 
 <div class="body-wrapper">
-    <div class="container-custom-add">
+    <div class="container container-custom-view">
         <h1 id="task-header"><span th:text="${username}"></span>'s Task</h1>
         <table aria-labelledby="task-header" aria-describedby="task-description">
             <thead>
@@ -44,14 +44,14 @@
             </tr>
             </thead>
             <tbody>
-            <tr th:each="project : ${tasks}">
-                <td th:text="${project.wbs}" aria-label="WBS number"></td>
-                <td th:text="${project.taskProjectName}" aria-label="Task project name"></td>
-                <td th:text="${project.assigned}" aria-label="Assigned to"></td>
-                <td th:text="${project.timeToSpend}" aria-label="Estimated time to complete task"></td>
-                <td th:text="${project.timeSpent}" aria-label="Time spent on task"></td>
+            <tr th:each="task : ${tasks}">
+                <td th:text="${task.wbs}" aria-label="WBS number"></td>
+                <td th:text="${task.taskProjectName}" aria-label="Task project name"></td>
+                <td th:text="${task.assigned}" aria-label="Assigned to"></td>
+                <td th:text="${task.timeToSpend}" aria-label="Estimated time to complete task"></td>
+                <td th:text="${task.timeSpent}" aria-label="Time spent on task"></td>
                 <td>
-                    <a href="#" th:href="@{/edit-task/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
+                    <a href="#" th:href="@{/edit-task/{id}(id=${task.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
                 </td>
             </tr>
             </tbody>

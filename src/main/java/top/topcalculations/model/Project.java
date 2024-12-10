@@ -6,7 +6,7 @@ public class Project {
     private String projectTaskName;
     private String mainProjectName;
     private String taskProjectName;
-    private String duration;
+    private int duration;
     private String plannedStartDate;
     private String plannedFinishDate;
     private String assigned;
@@ -15,9 +15,6 @@ public class Project {
     private Double expectedTimeInTotal;
     private Double timeToSpend;
     private String resource_name;
-    private boolean isTask;
-
-    // Getters and setters
 
     public int getId() {
         return id;
@@ -51,7 +48,7 @@ public class Project {
         return timeSpent;
     }
 
-    public void setExpectedTimeInTotal(Double expectedTimeInTotal) {  // Set as Double
+    public void setExpectedTimeInTotal(Double expectedTimeInTotal) {
         this.expectedTimeInTotal = expectedTimeInTotal;
     }
 
@@ -59,11 +56,11 @@ public class Project {
         return expectedTimeInTotal;
     }
 
-    public void setTimeToSpend(Double timeToSpend) {  // Set as Double
+    public void setTimeToSpend(Double timeToSpend) {
         this.timeToSpend = timeToSpend;
     }
 
-    public Double getTimeToSpend() {  // Return as Double
+    public Double getTimeToSpend() {
         return timeToSpend;
     }
 
@@ -91,15 +88,11 @@ public class Project {
         this.taskProjectName = taskProjectName;
     }
 
-    public boolean isTask() {
-        return isTask;
-    }
-
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
