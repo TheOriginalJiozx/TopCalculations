@@ -2,22 +2,19 @@ package top.topcalculations;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.test.context.ActiveProfiles;
 import top.topcalculations.model.Project;
 import top.topcalculations.repository.ProjectRepository;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
-@Transactional
+@ActiveProfiles("h2")
 public class ProjectRepositoryIntegrationTest {
 
     @Autowired
@@ -28,7 +25,9 @@ public class ProjectRepositoryIntegrationTest {
 
     @Test
     public void testSaveTask() {
-        // Arrange: Opret en task med nødvendige data
+        String projectSql = "INSERT INTO projects (project_name) VALUES (?)";
+        jdbcTemplate.update(projectSql, "Test Project");
+
         Project task = new Project();
         task.setWbs("WBS-123");
         task.setProjectTaskName("Test Project");
@@ -39,14 +38,8 @@ public class ProjectRepositoryIntegrationTest {
         task.setPlannedFinishDate(String.valueOf(LocalDate.of(2024, 1, 10)));
         task.setResource_name("Resource 1");
 
-        // Konverter LocalDate til java.sql.Date
-        Date plannedStartDate = Date.valueOf(task.getPlannedStartDate());
-        Date plannedFinishDate = Date.valueOf(task.getPlannedFinishDate());
-
-        // Act: Gem tasken i databasen
         projectRepository.saveTask(task);
 
-        // Assert: Kontroller, at dataene blev gemt korrekt
         String sql = "SELECT COUNT(*) FROM tasks WHERE WBS = ? AND task_name = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, task.getWbs(), task.getTaskProjectName());
         assertNotNull(count);

@@ -10,6 +10,7 @@ import top.topcalculations.model.User;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @Repository
 public class UserRepository {
@@ -45,6 +46,7 @@ public class UserRepository {
             }
 
             user.setEnabled(true);
+            user.setRole("User");
             // Hasher adgangskoden (brug en stærkere algoritme som bcrypt i produktion)
             String hashedPassword = hashPassword(user.getPassword());
 
@@ -62,6 +64,11 @@ public class UserRepository {
             e.printStackTrace();
             return "signup";
         }
+    }
+
+    public List<String> getAllUsers() {
+        String usersSql = "SELECT username FROM users";
+        return jdbcTemplate.queryForList(usersSql, String.class);
     }
 
     // Metode til at mappe en ResultSet til et User-objekt
@@ -89,5 +96,20 @@ public class UserRepository {
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e); // Smider en undtagelse, hvis algoritmen ikke findes
         }
+    }
+
+    public List<String> getProjectsForUser(String username) {
+        String projectSql = "SELECT project_name FROM projects WHERE assigned = ?";
+        return jdbcTemplate.queryForList(projectSql, String.class, username);
+    }
+
+    public List<String> getTasksForUser(String username) {
+        String taskSql = "SELECT task_name FROM tasks WHERE assigned = ?";
+        return jdbcTemplate.queryForList(taskSql, String.class, username);
+    }
+
+    public List<String> getSubTasksForUser(String username) {
+        String subTaskSql = "SELECT sub_task_name FROM subtasks WHERE assigned = ?";
+        return jdbcTemplate.queryForList(subTaskSql, String.class, username);
     }
 }

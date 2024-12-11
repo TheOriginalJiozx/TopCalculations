@@ -8,6 +8,7 @@ import top.topcalculations.model.Project;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -47,7 +48,7 @@ public class ProjectRepository {
 
         // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                "VALUES (?, ?, ?, ?, ?, DATEDIFF(?,?), ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?,?), ?, ?)";
         // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
         jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), task.getTaskProjectName(),
                 task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
@@ -174,6 +175,7 @@ public class ProjectRepository {
         return tasks.isEmpty() ? null : tasks.get(0);  // Returner opgaven eller null, hvis ikke fundet
     }
 
+    // Henter alle projekter fra databasen
     public List<Project> getAllProjects() {
         String sql = "SELECT * FROM projects";
         List<Project> projects = jdbcTemplate.query(sql, new ProjectRowMapper());
@@ -192,7 +194,7 @@ public class ProjectRepository {
         return projects;
     }
 
-    // Henter alle projekter fra databasen
+    // Henter alle opgaver fra databasen
     public List<Project> getAllTasks() {
         String sql = "SELECT * FROM tasks";
         List<Project> tasks = jdbcTemplate.query(sql, new TaskRowMapper());
@@ -211,7 +213,7 @@ public class ProjectRepository {
         return tasks;
     }
 
-    // Henter alle projekter fra databasen
+    // Henter alle underopgaver fra databasen
     public List<Project> getAllSubTasks() {
         String sql = "SELECT * FROM subtasks";
         List<Project> subTasks = jdbcTemplate.query(sql, new SubTaskRowMapper());
@@ -244,6 +246,7 @@ public class ProjectRepository {
         return jdbcTemplate.query(sql, new TaskRowMapper(), id);
     }
 
+    // Henter en opgave baseret på dens ID (specifik opgave)
     public Project findTaskByIDForStatus(Long id) {
         String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date, t.status " +
                 "FROM tasks t " +
@@ -253,20 +256,49 @@ public class ProjectRepository {
 
     // Henter et projekt baseret på dens ID
     public List<Project> findProjectByID(Long id) {
-        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total " +
+        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total, status " +
                 "FROM projects p " +
                 "WHERE p.id = ? AND p.project_name IS NOT NULL AND p.project_name != ''";
         return jdbcTemplate.query(sql, new ProjectRowMapper(), id);
     }
 
-    // Henter en opgave baseret på dens ID
+    // Henter et projekt baseret på dens ID (specifikt projekt)
+    public Project findProjectByIDForStatus(Long id) {
+        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total, status " +
+                "FROM projects p " +
+                "WHERE p.id = ? AND p.project_name IS NOT NULL AND p.project_name != ''";
+        return jdbcTemplate.queryForObject(sql, new ProjectRowMapper(), id);
+    }
+
+    // Henter en underopgave baseret på dens ID
     public List<Project> findSubTaskByID(Long id) {
-        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date " +
+        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
                 "FROM subtasks st " +
                 "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
         return jdbcTemplate.query(sql, new SubTaskRowMapper(), id);
     }
 
+    // Henter en underopgave baseret på dens ID (specifik underopgave)
+    public Project findSubTaskByIDForStatus(Long id) {
+        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
+                "FROM subtasks st " +
+                "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
+        return jdbcTemplate.queryForObject(sql, new SubTaskRowMapper(), id);
+    }
+
+    // Opdaterer et projekts status
+    public void updateProjectStatusByID(Long id, String status) {
+        Project project = findProjectByIDForStatus(id);
+        if (project != null) {
+            project.setStatus(status);
+            String sql = "UPDATE projects SET status = ? WHERE id = ?";
+            jdbcTemplate.update(sql, status, id);
+        } else {
+            throw new RuntimeException("Project with ID " + id + " not found");
+        }
+    }
+
+    // Opdaterer en opgaves status
     public void updateTaskStatusByID(Long id, String status) {
         Project task = findTaskByIDForStatus(id);
         if (task != null) {
@@ -278,6 +310,19 @@ public class ProjectRepository {
         }
     }
 
+    // Opdaterer en underopgaves status
+    public void updateSubTaskStatusByID(Long id, String status) {
+        Project subTask = findSubTaskByIDForStatus(id);
+        if (subTask != null) {
+            subTask.setStatus(status);
+            String sql = "UPDATE subtasks SET status = ? WHERE id = ?";
+            jdbcTemplate.update(sql, status, id);
+        } else {
+            throw new RuntimeException("Subtask with ID " + id + " not found");
+        }
+    }
+
+    // Opdaterer en opgave i databasen
     public void updateTask(int id, Project task, String oldTaskName) {
         String updateSubtaskSql = "UPDATE subtasks SET task_name = ?, time_spent = time_spent + ? WHERE task_name = ?";
         jdbcTemplate.update(updateSubtaskSql, task.getTaskProjectName(), task.getTimeSpent(), oldTaskName);
@@ -308,7 +353,7 @@ public class ProjectRepository {
         jdbcTemplate.update(insertIntoTimeSpentSubTasks, subtask.getTimeSpent(), subtask.getSubTaskName());
     }
 
-    // Opdater projektnavnet og dets detaljer
+    // Opdaterer et projekt i databasen
     public void updateProject(int id, Project project) {
         String updateProjectSql = "UPDATE projects SET project_name = ?, duration = DATEDIFF(?, ?), planned_start_date = ?, planned_finish_date = ?, expected_time_in_total = ? WHERE id = ?";
         jdbcTemplate.update(updateProjectSql,
@@ -323,21 +368,90 @@ public class ProjectRepository {
 
     // Sletter et projekt i databasen
     public void deleteProject(int id) {
-        String sql = "DELETE * FROM projects WHERE id = ?";
+        String sql = "DELETE FROM projects WHERE id = ?";
         jdbcTemplate.update(sql, id);
+
+        updateProjectsTable();
     }
 
-    // Sletter et projekt i databasen
+    // Opdaterer IDs i projects tabellen
+    public void updateProjectsTable() {
+        String sql = "SELECT * FROM projects ORDER BY id";
+        List<Map<String, Object>> projects = jdbcTemplate.queryForList(sql);
+
+        int newId = 1;
+        for (Map<String, Object> project : projects) {
+            int originalID = (int) project.get("id");
+
+            String updateSql = "UPDATE projects SET id = ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, newId, originalID);
+
+            newId++;
+        }
+    }
+
+    // Sletter en task i databasen
     public void deleteTask(int id) {
-        String sql = "DELETE * FROM tasks WHERE id = ?";
+        String sql = "DELETE FROM tasks WHERE id = ?";
         jdbcTemplate.update(sql, id);
+
+        updateTasksTable();
     }
 
-    // Sletter et projekt i databasen
-    public void deleteSubTask(int id) {
-        String sql = "DELETE * FROM subtasks WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+    // Opdaterer IDs i tasks tabellen
+    public void updateTasksTable() {
+        String sql = "SELECT * FROM tasks ORDER BY id";
+        List<Map<String, Object>> tasks = jdbcTemplate.queryForList(sql);
+
+        int newId = 1;
+        for (Map<String, Object> task : tasks) {
+            int originalID = (int) task.get("id");
+
+            String updateSql = "UPDATE tasks SET id = ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, newId, originalID);
+
+            String updateSql2 = "UPDATE resources_tasks SET task_id = ? WHERE task_id = ?";
+            jdbcTemplate.update(updateSql2, newId, originalID);
+
+            newId++;
+        }
     }
+
+    // Sletter en subtask i databasen
+    public void deleteSubTask(int id) {
+        String sql = "DELETE FROM subtasks WHERE id = ?";
+        jdbcTemplate.update(sql, id);
+
+        updateSubTasksTable();
+    }
+
+    // Opdaterer IDs i subtasks tabellen
+    public void updateSubTasksTable() {
+        String sql = "SELECT * FROM subtasks ORDER BY id";
+        List<Map<String, Object>> subtasks = jdbcTemplate.queryForList(sql);
+
+        int newId = 1;
+        for (Map<String, Object> subtask : subtasks) {
+            int originalID = (int) subtask.get("id");
+
+            String updateSql = "UPDATE subtasks SET id = ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, newId, originalID);
+
+            String updateSql2 = "UPDATE resources_subtasks SET sub_task_id = ? WHERE sub_task_id = ?";
+            jdbcTemplate.update(updateSql2, newId, originalID);
+
+            newId++;
+        }
+    }
+
+    /*private String updateWBS(String originalWBS, int newId) {
+        String[] parts = originalWBS.split("\\.");
+        if (parts.length == 3) {
+            parts[2] = String.valueOf(newId);
+        }
+
+        return String.join(".", parts);
+    }*/
 
     // Finder projekter
     public List<Project> findAllProjects() {

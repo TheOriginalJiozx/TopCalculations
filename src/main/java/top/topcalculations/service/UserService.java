@@ -7,6 +7,8 @@ import org.springframework.ui.Model;
 import top.topcalculations.model.User;
 import top.topcalculations.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 public class UserService {
 
@@ -17,6 +19,11 @@ public class UserService {
     // Metode til at oprette en ny bruger
     public String signUp(User user, Model model) {
         return userRepository.signUp(user, model);  // Overlad håndtering af password til repository
+    }
+
+    // Metode til at finde alle oprettede brugere
+    public List<String> getAllUsers() {
+        return userRepository.getAllUsers();
     }
 
     // Metode til at autentificere en bruger ved login
@@ -58,5 +65,17 @@ public class UserService {
         } else {
             return "Guest";  // If no user found, return "Guest"
         }
+    }
+
+    public List<String> getProjectsForUser(String username) {
+        return userRepository.getProjectsForUser(username);
+    }
+
+    public List<String> getTasksForUser(String username) {
+        return userRepository.getTasksForUser(username);
+    }
+
+    public List<String> getSubTasksForUser(String username) {
+        return userRepository.getSubTasksForUser(username);
     }
 }
