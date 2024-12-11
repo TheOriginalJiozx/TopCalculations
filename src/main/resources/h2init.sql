@@ -1,3 +1,12 @@
+DROP TABLE IF EXISTS resources_subtasks;
+DROP TABLE IF EXISTS resources_tasks;
+DROP TABLE IF EXISTS time_spent_tasks;
+DROP TABLE IF EXISTS time_spent_subtasks;
+DROP TABLE IF EXISTS subtasks;
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS projects;
+DROP TABLE IF EXISTS users;
+
 -- Create the projects table first
 CREATE TABLE IF NOT EXISTS projects (
   id int NOT NULL AUTO_INCREMENT,

@@ -48,7 +48,7 @@ public class ProjectRepository {
 
         // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                "VALUES (?, ?, ?, ?, ?, DATEDIFF(?,?), ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?,?), ?, ?)";
         // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
         jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), task.getTaskProjectName(),
                 task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
