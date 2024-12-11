@@ -20,7 +20,7 @@ public class UserRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    // Method to find user by username
+    // Method to find user by username.
     public User findByUsername(String username) {
         String sql = "SELECT * FROM users WHERE username = ?";
         try {
