@@ -425,7 +425,7 @@ public class ProjectRepository {
             subTask.setPlannedStartDate(rs.getString("planned_start_date"));
             subTask.setPlannedFinishDate(rs.getString("planned_finish_date"));
             subTask.setAssigned(rs.getString("assigned"));
-            return subTask;
+            return subTask; // Returner det mapperede Subtask-objekt
         }
     }
 }
