@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>TopCalculations - View Task</title>
+    <title>TopCalculations - View Subtask</title>
     <link rel="stylesheet" th:href="@{/css/view.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
@@ -32,42 +32,41 @@
 
 <div class="body-wrapper">
     <div class="container container-custom-view">
-        <h1 id="task-header"><span th:text="${username}"></span>'s Task</h1>
-        <table aria-labelledby="task-header" aria-describedby="task-description">
+        <h1 id="subtask-header"><span th:text="${username}"></span>'s Task</h1>
+        <table aria-labelledby="subtask-header" aria-describedby="subtask-description">
             <thead>
             <tr>
                 <th scope="col">WBS</th>
                 <th scope="col">Name</th>
                 <th scope="col">Assigned</th>
-                <th scope="col">Time to Spend on Task (estimated in hours)</th>
-                <th scope="col">Time Spent on Task (in hours)</th>
+                <th scope="col">Time to Spend on Subtask (estimated in hours)</th>
+                <th scope="col">Time Spent on Subtask (in hours)</th>
                 <th scope="col">Actions</th>
-                <th scope="col">Task status</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="task : ${tasks}">
-                <td th:text="${task.wbs}" aria-label="WBS number"></td>
-                <td th:text="${task.taskProjectName}" aria-label="Task project name"></td>
-                <td th:text="${task.assigned}" aria-label="Assigned to"></td>
-                <td th:text="${task.timeToSpend}" aria-label="Estimated time to complete task"></td>
-                <td th:text="${task.timeSpent}" aria-label="Time spent on task"></td>
+            <tr th:each="subtask : ${subtasks}">
+                <td th:text="${subtask.wbs}" aria-label="WBS number"></td>
+                <td th:text="${subtask.subTaskName}" aria-label="Subtask name"></td>
+                <td th:text="${subtask.assigned}" aria-label="Assigned to"></td>
+                <td th:text="${subtask.timeToSpend}" aria-label="Estimated time to complete subtask"></td>
+                <td th:text="${subtask.timeSpent}" aria-label="Time spent on subtask"></td>
                 <td>
-                    <a href="#" th:href="@{/edit-task/{id}(id=${task.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
-                    <form th:action="@{/delete-task/{id}(id=${task.id})}" class="btn-delete" aria-label="Delete task" method="post">
+                    <a href="#" th:href="@{/edit-subtask/{id}(id=${subtask.id})}" class="btn-edit" aria-label="Edit subtask">Edit</a>
+                    <form th:action="@{/delete-subtask/{id}(id=${subtask.id})}" class="btn-delete" aria-label="Delete subtask" method="post">
                         <button type="submit" class="btn-delete">Delete</button>
                     </form>
                 </td>
                 <td>
-                    <form th:action="@{/update-task-status/{id}/{status}(id=${task.id}, status='in-progress')}" method="post">
+                    <form th:action="@{/update-subtask-status/{id}/{status}(id=${subtask.id}, status='in-progress')}" method="post">
                         <button type="submit" class="btn-status">Set In Progress</button>
                     </form>
 
-                    <form th:action="@{/update-task-status/{id}/{status}(id=${task.id}, status='delayed')}" method="post">
+                    <form th:action="@{/update-subtask-status/{id}/{status}(id=${subtask.id}, status='delayed')}" method="post">
                         <button type="submit" class="btn-status">Set Delayed</button>
                     </form>
 
-                    <form th:action="@{/update-task-status/{id}/{status}(id=${task.id}, status='done')}" method="post">
+                    <form th:action="@{/update-subtask-status/{id}/{status}(id=${subtask.id}, status='done')}" method="post">
                         <button type="submit" class="btn-status">Set Done</button>
                     </form>
                 </td>

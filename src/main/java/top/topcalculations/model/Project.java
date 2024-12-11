@@ -6,11 +6,16 @@ public class Project {
     private String projectTaskName;
     private String mainProjectName;
     private String taskProjectName;
-    private String duration;
+    private int duration;
     private String plannedStartDate;
     private String plannedFinishDate;
     private String assigned;
     private String subTaskName;
+    private double timeSpent;
+    private Double expectedTimeInTotal;
+    private Double timeToSpend;
+    private String resource_name;
+    private String status;
 
     public int getId() {
         return id;
@@ -34,6 +39,30 @@ public class Project {
 
     public void setSubTaskName(String subTaskName) {
         this.subTaskName = subTaskName;
+    }
+
+    public void setTimeSpent(double timeSpent) {
+        this.timeSpent = timeSpent;
+    }
+
+    public double getTimeSpent() {
+        return timeSpent;
+    }
+
+    public void setExpectedTimeInTotal(Double expectedTimeInTotal) {
+        this.expectedTimeInTotal = expectedTimeInTotal;
+    }
+
+    public Double getExpectedTimeInTotal() {
+        return expectedTimeInTotal;
+    }
+
+    public void setTimeToSpend(Double timeToSpend) {
+        this.timeToSpend = timeToSpend;
+    }
+
+    public Double getTimeToSpend() {
+        return timeToSpend;
     }
 
     public String getWbs() {
@@ -60,11 +89,11 @@ public class Project {
         this.taskProjectName = taskProjectName;
     }
 
-    public String getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(String duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -90,5 +119,21 @@ public class Project {
 
     public void setAssigned(String assigned) {
         this.assigned = assigned;
+    }
+
+    public void setResource_name(String resource_name) {
+        this.resource_name = resource_name;
+    }
+
+    public String getResource_name() {
+        return resource_name;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

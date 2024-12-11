@@ -5,72 +5,90 @@
     <title>TopCalculations - Add Subtask</title>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
     <link rel="stylesheet" th:href="@{/css/add.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
 <body>
-<nav class="navbar">
+<nav class="navbar" aria-label="Main navigation">
     <div class="navbar-left">
-        <a href="/" th:href="@{/}" class="navbar-logo">Calculations</a>
+        <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
         <div class="navbar-links">
-            <a class="nav-link" th:href="@{/}">Home</a>
-            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
-            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
-            <a class="nav-link" th:href="@{/view-projects}" th:if="${username != 'Guest'}">View Projects</a>
-            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}">Add Project/Task</a>
-            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}">Add Subtask</a>
+            <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Signup</a>
+            <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
+            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
+            <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
-                <form th:action="@{/logout}" method="post" style="display: inline;">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link">Logout</a>
+                <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
+                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
                 </form>
             </span>
         </div>
     </div>
-    <span class="welcome-message" th:if="${username != 'Guest'}">Welcome, <span th:text="${username}"></span>!</span>
+    <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
-<h1>Add Subtask</h1>
+<h1 id="add-subtask-heading">Add Subtask</h1>
 
-<div class="container container-custom-task">
-    <form th:action="@{/addSub}" th:object="${project}" method="post">
-        <div class="form-group">
-            <label for="sub_task_name">Name of Subtask:</label>
-            <input type="text" id="sub_task_name" th:field="*{subTaskName}" required class="form-control">
-        </div>
+<div class="container container-custom-add">
+    <form th:action="@{/addSub}" th:object="${project}" method="post" aria-labelledby="add-subtask-heading">
+        <fieldset>
+            <legend class="sr-only">Add Subtask Form</legend>
+            <div class="form-group">
+                <label for="sub_task_name">Name of Subtask:</label>
+                <input type="text" id="sub_task_name" th:field="*{subTaskName}" required class="form-control" aria-describedby="subtask-name-desc">
+                <span id="subtask-name-desc" class="sr-only">Enter the name of the subtask.</span>
+            </div>
 
-        <div class="form-group">
-            <label for="main_task">Main Task: </label>
-            <select id="main_task" th:field="*{taskProjectName}" class="form-control">
-                <option value="" th:text="'-- Select Main Task --'"></option>
-                <option th:each="project : ${projects}" th:value="${project.taskProjectName}" th:text="${project.taskProjectName}"></option>
-            </select>
-        </div>
+            <div class="form-group">
+                <label for="main_task">Main Task:</label>
+                <select id="main_task" th:field="*{taskProjectName}" class="form-control" aria-describedby="main-task-desc">
+                    <option value="" th:text="'-- Select Main Task --'"></option>
+                    <option th:each="project : ${projects}" th:value="${project.taskProjectName}" th:text="${project.taskProjectName}"></option>
+                </select>
+                <span id="main-task-desc" class="sr-only">Select the main task for the subtask.</span>
+            </div>
 
-        <div class="form-group">
-            <label for="duration">Duration:</label>
-            <input type="text" id="duration" th:field="*{duration}" required class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="planned_start_date">Planned Start Date:</label>
+                <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-start-date-desc">
+                <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the subtask.</span>
+            </div>
 
-        <div class="form-group">
-            <label for="planned_start_date">Planned Start Date:</label>
-            <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" required class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="planned_finish_date">Planned Finish Date:</label>
+                <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-finish-date-desc">
+                <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the subtask.</span>
+            </div>
 
-        <div class="form-group">
-            <label for="planned_finish_date">Planned Finish Date:</label>
-            <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" required class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="time_to_spend">Expected Time to Spend on Subtask (in hours):</label>
+                <input type="number" id="time_to_spend" th:field="*{timeToSpend}" required class="form-control" aria-describedby="time-to-spend-desc" step="0.1">
+                <span id="time-to-spend-desc" class="sr-only">Enter the expected time (in hours) you expect to use on the subtask.</span>
+            </div>
 
-        <div class="form-group">
-            <label for="assigned">Assigned:</label>
-            <input type="text" id="assigned" th:field="*{assigned}" required class="form-control">
-        </div>
+            <div class="form-group">
+                <label for="resources_name">Resources:</label>
+                <input type="text" id="resources_name" th:field="*{resource_name}" required class="form-control" aria-describedby="resources-desc">
+                <span id="resources-desc" class="sr-only">Enter the resource required for the subtask.</span>
+            </div>
 
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Save</button>
-        </div>
+            <div class="form-group">
+                <label for="assigned">Assigned:</label>
+                <input type="text" id="assigned" th:field="*{assigned}" required class="form-control" aria-describedby="assigned-desc">
+                <span id="assigned-desc" class="sr-only">Enter the name of the person assigned to this subtask.</span>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary" aria-label="Save subtask">Save</button>
+            </div>
+        </fieldset>
     </form>
 
-    <div th:if="${message}" class="alert alert-success">
-        <p th:utext="${message}"></p>
+    <div th:if="${messageSub}" class="alert alert-success" role="alert">
+        <p th:text="${messageSub}"></p>
     </div>
 </div>
 
