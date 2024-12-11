@@ -44,6 +44,7 @@
                 <th scope="col">Assigned</th>
                 <th scope="col">Estimated to Spend on Project  (estimated in hours)</th>
                 <th scope="col">Time Spent on Task (in hours)</th>
+                <th scope="col">Project status</th>
                 <th scope="col">Actions</th>
             </tr>
             </thead>
@@ -61,6 +62,19 @@
                     <a href="#" th:href="@{/edit-project/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit project">Edit</a>
                     <form th:action="@{/delete-project/{id}(id=${project.id})}" class="btn-delete" aria-label="Delete project" method="post">
                         <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </td>
+                <td>
+                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='in-progress')}" method="post">
+                        <button type="submit" class="btn-status">Set In Progress</button>
+                    </form>
+
+                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='delayed')}" method="post">
+                        <button type="submit" class="btn-status">Set Delayed</button>
+                    </form>
+
+                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='done')}" method="post">
+                        <button type="submit" class="btn-status">Set Done</button>
                     </form>
                 </td>
             </tr>

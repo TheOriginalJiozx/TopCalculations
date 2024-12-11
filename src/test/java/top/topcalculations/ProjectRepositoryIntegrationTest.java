@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import top.topcalculations.model.Project;
 import top.topcalculations.repository.ProjectRepository;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -38,10 +37,6 @@ public class ProjectRepositoryIntegrationTest {
         task.setPlannedStartDate(String.valueOf(LocalDate.of(2024, 1, 1)));
         task.setPlannedFinishDate(String.valueOf(LocalDate.of(2024, 1, 10)));
         task.setResource_name("Resource 1");
-
-        // Konverter LocalDate til java.sql.Date
-        Date plannedStartDate = Date.valueOf(task.getPlannedStartDate());
-        Date plannedFinishDate = Date.valueOf(task.getPlannedFinishDate());
 
         // Act: Gem tasken i databasen
         projectRepository.saveTask(task);

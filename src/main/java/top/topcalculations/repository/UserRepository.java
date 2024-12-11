@@ -46,6 +46,7 @@ public class UserRepository {
             }
 
             user.setEnabled(true);
+            user.setRole("User");
             // Hasher adgangskoden (brug en stærkere algoritme som bcrypt i produktion)
             String hashedPassword = hashPassword(user.getPassword());
 

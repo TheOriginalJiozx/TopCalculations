@@ -12,8 +12,6 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
-import static com.fasterxml.jackson.databind.type.LogicalType.Map;
-
 @Repository
 public class ProjectRepository {
     private JdbcTemplate jdbcTemplate;
@@ -258,10 +256,18 @@ public class ProjectRepository {
 
     // Henter et projekt baseret på dens ID
     public List<Project> findProjectByID(Long id) {
-        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total " +
+        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total, status " +
                 "FROM projects p " +
                 "WHERE p.id = ? AND p.project_name IS NOT NULL AND p.project_name != ''";
         return jdbcTemplate.query(sql, new ProjectRowMapper(), id);
+    }
+
+    // Henter et projekt baseret på dens ID (specifikt projekt)
+    public Project findProjectByIDForStatus(Long id) {
+        String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total, status " +
+                "FROM projects p " +
+                "WHERE p.id = ? AND p.project_name IS NOT NULL AND p.project_name != ''";
+        return jdbcTemplate.queryForObject(sql, new ProjectRowMapper(), id);
     }
 
     // Henter en underopgave baseret på dens ID
@@ -278,6 +284,18 @@ public class ProjectRepository {
                 "FROM subtasks st " +
                 "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
         return jdbcTemplate.queryForObject(sql, new SubTaskRowMapper(), id);
+    }
+
+    // Opdaterer et projekts status
+    public void updateProjectStatusByID(Long id, String status) {
+        Project project = findProjectByIDForStatus(id);
+        if (project != null) {
+            project.setStatus(status);
+            String sql = "UPDATE projects SET status = ? WHERE id = ?";
+            jdbcTemplate.update(sql, status, id);
+        } else {
+            throw new RuntimeException("Project with ID " + id + " not found");
+        }
     }
 
     // Opdaterer en opgaves status

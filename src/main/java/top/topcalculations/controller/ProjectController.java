@@ -474,6 +474,18 @@ public class ProjectController {
     }
 
     // Opdaterer en tasks status
+    @PostMapping("/update-project-status/{id}/{status}")
+    public String updateProjectStatus(@PathVariable("id") Long id,
+                                   @PathVariable("status") String status, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        projectService.updateProjectStatus(id, status);
+        return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
+    }
+
+    // Opdaterer en tasks status
     @PostMapping("/update-task-status/{id}/{status}")
     public String updateTaskStatus(@PathVariable("id") Long id,
                                    @PathVariable("status") String status, HttpSession session) {
