@@ -19,6 +19,7 @@
             <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
             <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
             <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
+            <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
                 <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
@@ -57,7 +58,10 @@
                 <td th:text="${project.expectedTimeInTotal}" aria-label="Estimated time to complete task"></td>
                 <td th:text="${project.timeSpent}" aria-label="Time spent on project"></td>
                 <td>
-                    <a href="#" th:href="@{/edit-project/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
+                    <a href="#" th:href="@{/edit-project/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit project">Edit</a>
+                    <form th:action="@{/delete-project/{id}(id=${project.id})}" class="btn-delete" aria-label="Delete project" method="post">
+                        <button type="submit" class="btn-delete">Delete</button>
+                    </form>
                 </td>
             </tr>
             </tbody>

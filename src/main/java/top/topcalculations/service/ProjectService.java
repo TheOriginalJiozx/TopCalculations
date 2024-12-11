@@ -34,6 +34,7 @@ public class ProjectService {
         projectRepository.updateTask(id, task, oldTaskName); // Kald til repository-metode for at opdatere opgaven
     }
 
+    // Opdaterer en opgaves status i databasen
     public void updateTaskStatus(Long id, String status) {
         projectRepository.updateTaskStatusByID(id, status);
     }
@@ -41,6 +42,10 @@ public class ProjectService {
     // Opdaterer en underopgave i databasen
     public void updateSubTask(int id, Project subTask, String oldSubTaskName) {
         projectRepository.updateSubTask(id, subTask, oldSubTaskName); // Kald til repository-metode for at opdatere underopgaven
+    }
+
+    public void updateSubTaskStatus(Long id, String status) {
+        projectRepository.updateSubTaskStatusByID(id, status);
     }
 
     // Opdaterer et projekt i databasen

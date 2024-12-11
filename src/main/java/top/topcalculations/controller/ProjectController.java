@@ -30,10 +30,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
-        return "index"; // Thymeleaf vil rendre index.html
+        return "index"; // Thymeleaf will render index.html
     }
 
     // Vis formularen til at tilføje et projekt eller en opgave
@@ -45,7 +52,19 @@ public class ProjectController {
         }
 
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+        }
+
         List<Project> projects = projectService.getAllProjects();  // Hent alle hovedprojekter
         model.addAttribute("projects", projects);  // Tilføj projekter til model
         model.addAttribute("project", new Project());  // Tilføj et nyt tomt projekt til model
@@ -61,7 +80,18 @@ public class ProjectController {
 
         // Hent brugeren fra sessionen og tilføj brugernavnet til modellen
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+        }
 
         // Hvis hovedprojektet ikke er valgt, behandl som et nyt projekt
         if (project.getMainProjectName() == null || project.getMainProjectName().isEmpty()) {
@@ -113,7 +143,19 @@ public class ProjectController {
         }
 
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+        }
+
         List<Project> projects = projectService.getAllTasks();  // Hent alle opgaver
         model.addAttribute("projects", projects);  // Tilføj opgaver til model
         model.addAttribute("project", new Project());  // Tilføj et nyt tomt projekt til model
@@ -128,7 +170,18 @@ public class ProjectController {
         }
 
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+        }
 
         if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) {  // Hvis taskProjectName er angivet
             Project mainTask = projectService.getTaskByName(project.getTaskProjectName());  // Hent hovedopgaven
@@ -168,9 +221,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Object> projects = projectService.getAll();  // Hent alle projekter, tasks og subtasks
         model.addAttribute("projects", projects);  // Tilføj projekter, og tasks samt subtasks, som er en del af et project, til model
         return "view";  // Returner view til visning af projekter
@@ -186,9 +247,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Project> projects = projectService.getProjectByID(id);  // Hent projekt efter ID
         model.addAttribute("projects", projects);  // Tilføj projekter til model
         return "view-project";  // Returner view til visning af underopgavedetaljer
@@ -203,9 +272,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Project> project = projectService.getProjectByID(id); // Henter projektet med det angivne ID
         model.addAttribute("project", project); // Tilføjer det hentede projekt til modellen
         return "edit-project"; // Returnerer viewet til at redigere projektet
@@ -227,6 +304,45 @@ public class ProjectController {
         return "redirect:/view-project/" + id;  // Redirect til visning af projektet
     }
 
+    @PostMapping("/delete-project/{id}")
+    public String deleteProject(@PathVariable("id") int id, @ModelAttribute Project project, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        System.out.println("Sletter projekt med ID: " + id);
+
+        projectService.deleteProject(id);
+
+        return "redirect:/view";
+    }
+
+    @PostMapping("/delete-task/{id}")
+    public String deleteTask(@PathVariable("id") int id, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        System.out.println("Sletter task med ID: " + id);
+
+        projectService.deleteTask(id);
+
+        return "redirect:/view";
+    }
+
+    @PostMapping("/delete-subtask/{id}")
+    public String deleteSubTask(@PathVariable("id") int id, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        System.out.println("Sletter subtask med ID: " + id);
+
+        projectService.deleteSubTask(id);
+
+        return "redirect:/view";
+    }
+
     // Vis en specifik opgave ved ID
     @GetMapping("/view-task/{id}")
     public String viewTask(@PathVariable("id") Long id, Model model, HttpSession session) {
@@ -237,9 +353,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Project> projects = projectService.getTaskByID(id);  // Hent opgave efter ID
         model.addAttribute("tasks", projects);  // Tilføj opgaver til model
         return "view-task";  // Returner view til visning af opgavedetaljer
@@ -254,9 +378,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Project> task = projectService.getTaskByID(id); // Henter opgaven med det angivne ID
         model.addAttribute("task", task); // Tilføjer den hentede opgave til modellen
         return "edit-task"; // Returnerer viewet til at redigere opgaven
@@ -284,9 +416,17 @@ public class ProjectController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Project> subtasks = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
         model.addAttribute("subtasks", subtasks);  // Tilføj underopgaver til model
         return "view-subtask";  // Returner view til visning af underopgavedetaljer
@@ -294,12 +434,24 @@ public class ProjectController {
 
     @GetMapping("/edit-subtask/{id}")
     public String editSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
         } else {
             model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
+
         List<Project> subTask = projectService.getSubTaskByID(id); // Henter underopgave med ID
         model.addAttribute("subTask", subTask); // Tilføjer underopgave til model
         return "edit-subtask"; // Returnerer view til redigering af underopgave
@@ -321,10 +473,26 @@ public class ProjectController {
         return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
     }
 
+    // Opdaterer en tasks status
     @PostMapping("/update-task-status/{id}/{status}")
     public String updateTaskStatus(@PathVariable("id") Long id,
-                                   @PathVariable("status") String status) {
+                                   @PathVariable("status") String status, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
         projectService.updateTaskStatus(id, status);
         return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
+    }
+
+    // Opdaterer en subtasks status
+    @PostMapping("/update-subtask-status/{id}/{status}")
+    public String updateSubTaskStatus(@PathVariable("id") Long id,
+                                   @PathVariable("status") String status, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+        projectService.updateSubTaskStatus(id, status);
+        return "redirect:/view-subtask/" + id;  // Redirect til subtask view efter opdatering af status
     }
 }

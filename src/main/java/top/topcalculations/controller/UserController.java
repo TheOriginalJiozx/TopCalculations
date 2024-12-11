@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import top.topcalculations.model.User;
 import top.topcalculations.service.UserService;
 
+import java.util.List;
+
 @Controller
 public class UserController {
     private final UserService userService;
@@ -64,5 +66,60 @@ public class UserController {
     public String logout(HttpSession session) {
         session.invalidate();  // Invaliderer sessionen (logger brugeren ud)
         return "redirect:/";  // Omdirigerer til forsiden efter logout
+    }
+
+    // Håndterer GET-anmodning til admin panel
+    @GetMapping("/admin")
+    public String getUsers(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true);
+            } else {
+                model.addAttribute("isAdmin", false);
+                return "redirect:/";
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false);
+            return "redirect:/";
+        }
+
+        List<String> users = userService.getAllUsers();
+        model.addAttribute("users", users);
+        return "admin";
+    }
+
+    // Håndterer GET-anmodning til user profile
+    @GetMapping("/profile")
+    public String getProfile(Model model, HttpSession session) {
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true);
+            } else {
+                model.addAttribute("isAdmin", false);
+                return "redirect:/";
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false);
+            return "redirect:/";
+        }
+
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        model.addAttribute("username", user.getUsername());
+        model.addAttribute("project", userService.getProjectsForUser(user.getUsername()));
+        model.addAttribute("task", userService.getTasksForUser(user.getUsername()));
+        model.addAttribute("subtask", userService.getSubTasksForUser(user.getUsername()));
+
+        return "profile";
     }
 }

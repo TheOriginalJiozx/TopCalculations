@@ -10,6 +10,7 @@ import top.topcalculations.model.User;
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 @Repository
 public class UserRepository {
@@ -64,6 +65,11 @@ public class UserRepository {
         }
     }
 
+    public List<String> getAllUsers() {
+        String usersSql = "SELECT username FROM users";
+        return jdbcTemplate.queryForList(usersSql, String.class);
+    }
+
     // Metode til at mappe en ResultSet til et User-objekt
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
         User user = new User();
@@ -89,5 +95,20 @@ public class UserRepository {
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e); // Smider en undtagelse, hvis algoritmen ikke findes
         }
+    }
+
+    public List<String> getProjectsForUser(String username) {
+        String projectSql = "SELECT project_name FROM projects WHERE assigned = ?";
+        return jdbcTemplate.queryForList(projectSql, String.class, username);
+    }
+
+    public List<String> getTasksForUser(String username) {
+        String taskSql = "SELECT task_name FROM tasks WHERE assigned = ?";
+        return jdbcTemplate.queryForList(taskSql, String.class, username);
+    }
+
+    public List<String> getSubTasksForUser(String username) {
+        String subTaskSql = "SELECT sub_task_name FROM subtasks WHERE assigned = ?";
+        return jdbcTemplate.queryForList(subTaskSql, String.class, username);
     }
 }
