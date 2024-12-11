@@ -22,7 +22,7 @@ public class UserRepository {
 
     // Method to find user by username
     public User findByUsername(String username) {
-        String sql = "SELECT * FROM users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE username = ? AND enabled = '1'";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[]{username}, this::mapRowToUser);
         } catch (EmptyResultDataAccessException e) {
@@ -41,7 +41,6 @@ public class UserRepository {
             }
 
             user.setEnabled(true);
-            // Using a simple hashing mechanism (you can replace this with any preferred method)
             String hashedPassword = hashPassword(user.getPassword());
 
             String sql = "INSERT INTO users (username, password, enabled, role) VALUES (?, ?, ?, ?)";
@@ -57,7 +56,6 @@ public class UserRepository {
         }
     }
 
-    // Method to map ResultSet to User object
     private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
         User user = new User();
         user.setId(rs.getLong("id"));
@@ -68,7 +66,6 @@ public class UserRepository {
         return user;
     }
 
-    // Simple password hashing method (MD5 for example, but you should replace with a better algorithm like bcrypt in production)
     public String hashPassword(String password) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
