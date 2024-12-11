@@ -476,7 +476,7 @@ public class ProjectController {
     // Opdaterer en tasks status
     @PostMapping("/update-project-status/{id}/{status}")
     public String updateProjectStatus(@PathVariable("id") Long id,
-                                      @PathVariable("status") String status, HttpSession session) {
+                                   @PathVariable("status") String status, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -500,7 +500,7 @@ public class ProjectController {
     // Opdaterer en subtasks status
     @PostMapping("/update-subtask-status/{id}/{status}")
     public String updateSubTaskStatus(@PathVariable("id") Long id,
-                                      @PathVariable("status") String status, HttpSession session) {
+                                   @PathVariable("status") String status, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
