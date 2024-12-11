@@ -238,10 +238,17 @@ public class ProjectRepository {
 
     // Henter en opgave baseret på dens ID
     public List<Project> findTaskByID(Long id) {
-        String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date " +
+        String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date, t.status " +
                 "FROM tasks t " +
                 "WHERE t.id = ? AND t.task_name IS NOT NULL AND t.task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper(), id);
+    }
+
+    public Project findTaskByIDForStatus(Long id) {
+        String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date, t.status " +
+                "FROM tasks t " +
+                "WHERE t.id = ? AND t.task_name IS NOT NULL AND t.task_name != ''";
+        return jdbcTemplate.queryForObject(sql, new TaskRowMapper(), id);
     }
 
     // Henter et projekt baseret på dens ID
@@ -260,33 +267,45 @@ public class ProjectRepository {
         return jdbcTemplate.query(sql, new SubTaskRowMapper(), id);
     }
 
+    public void updateTaskStatusByID(Long id, String status) {
+        Project task = findTaskByIDForStatus(id);
+        if (task != null) {
+            task.setStatus(status);
+            String sql = "UPDATE tasks SET status = ? WHERE id = ?";
+            jdbcTemplate.update(sql, status, id);
+        } else {
+            throw new RuntimeException("Task with ID " + id + " not found");
+        }
+    }
+
     public void updateTask(int id, Project task, String oldTaskName) {
         String updateSubtaskSql = "UPDATE subtasks SET task_name = ?, time_spent = time_spent + ? WHERE task_name = ?";
         jdbcTemplate.update(updateSubtaskSql, task.getTaskProjectName(), task.getTimeSpent(), oldTaskName);
 
         String updateTaskSql = "UPDATE tasks SET task_name = ?, time_spent = time_spent + ? WHERE id = ?";
-        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), id);
+        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), id); // Pass time spent and id
 
         String sql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
         jdbcTemplate.update(sql, task.getTimeSpent(), task.getProjectTaskName());
 
+        System.out.println("Project name: " + task.getProjectTaskName());
+
         String insertIntoTimeSpentTasks = "INSERT INTO time_spent_tasks (days_date, time_spent, task_name) VALUES (CURRENT_DATE, ?, ?)";
         jdbcTemplate.update(insertIntoTimeSpentTasks, task.getTimeSpent(), task.getTaskProjectName());
-
-        System.out.println("Project name: " + task.getProjectTaskName());
     }
 
     // Opdaterer en underopgave i databasen
-    public void updateSubTask(int id, Project subtask) {
+    public void updateSubTask(int id, Project subtask, String oldSubTaskName) {
         String sql = "UPDATE subtasks SET sub_task_name = ?, time_spent = time_spent + ? WHERE id = ?";
         jdbcTemplate.update(sql, subtask.getSubTaskName(), subtask.getTimeSpent(), id);
 
         String updateProjectSql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = (SELECT t.project_name FROM tasks t WHERE t.task_name = ?)";
-        jdbcTemplate.update(updateProjectSql, subtask.getTimeSpent(), subtask.getTaskProjectName());
+        jdbcTemplate.update(updateProjectSql, subtask.getTimeSpent(), subtask.getProjectTaskName());
+
+        System.out.println("Task name: " + subtask.getTaskProjectName());
 
         String insertIntoTimeSpentSubTasks = "INSERT INTO time_spent_subtasks (days_date, time_spent, sub_task_name) VALUES (CURRENT_DATE, ?, ?)";
         jdbcTemplate.update(insertIntoTimeSpentSubTasks, subtask.getTimeSpent(), subtask.getSubTaskName());
-        System.out.println("Task name: " + subtask.getTaskProjectName());
     }
 
     // Opdater projektnavnet og dets detaljer
@@ -361,7 +380,7 @@ public class ProjectRepository {
             project.setId(rs.getInt("id"));
             project.setWbs(rs.getString("WBS"));
             project.setProjectTaskName(rs.getString("project_name"));
-            project.setTimeSpent(rs.getInt("time_spent"));
+            project.setTimeSpent(rs.getDouble("time_spent"));
             project.setExpectedTimeInTotal(rs.getDouble("expected_time_in_total"));
             project.setDuration(rs.getInt("duration"));
             project.setPlannedStartDate(rs.getString("planned_start_date"));
@@ -380,8 +399,9 @@ public class ProjectRepository {
             task.setWbs(rs.getString("WBS"));
             task.setMainProjectName(rs.getString("project_name"));
             task.setTaskProjectName(rs.getString("task_name"));
-            task.setTimeSpent(rs.getInt("time_spent"));
+            task.setTimeSpent(rs.getDouble("time_spent"));
             task.setTimeToSpend(rs.getDouble("time_to_spend"));
+            task.setStatus(rs.getString("status"));
             task.setDuration(rs.getInt("duration"));
             task.setPlannedStartDate(rs.getString("planned_start_date"));
             task.setPlannedFinishDate(rs.getString("planned_finish_date"));
@@ -399,13 +419,13 @@ public class ProjectRepository {
             subTask.setWbs(rs.getString("WBS"));
             subTask.setTaskProjectName(rs.getString("task_name"));
             subTask.setSubTaskName(rs.getString("sub_task_name"));
-            subTask.setTimeSpent(rs.getInt("time_spent"));
+            subTask.setTimeSpent(rs.getDouble("time_spent"));
             subTask.setTimeToSpend(rs.getDouble("time_to_spend"));
             subTask.setDuration(rs.getInt("duration"));
             subTask.setPlannedStartDate(rs.getString("planned_start_date"));
             subTask.setPlannedFinishDate(rs.getString("planned_finish_date"));
             subTask.setAssigned(rs.getString("assigned"));
-            return subTask;
+            return subTask; // Returner det mapperede Subtask-objekt
         }
     }
 }

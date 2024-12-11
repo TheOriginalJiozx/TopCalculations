@@ -306,7 +306,7 @@ public class ProjectController {
     }
 
     @PostMapping("/update-subtask/{id}")
-    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Project subtask, HttpSession session) {
+    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Project subtask, HttpSession session, String oldSubTaskName) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -316,8 +316,15 @@ public class ProjectController {
         System.out.println("Ny varighed: " + subtask.getDuration());
 
         subtask.setId(id);  // Sætter ID for underopgaven
-        projectService.updateSubTask(id, subtask);  // Opdater underopgave
+        projectService.updateSubTask(id, subtask, oldSubTaskName);  // Opdater underopgave
 
         return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
+    }
+
+    @PostMapping("/update-task-status/{id}/{status}")
+    public String updateTaskStatus(@PathVariable("id") Long id,
+                                   @PathVariable("status") String status) {
+        projectService.updateTaskStatus(id, status);
+        return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
     }
 }

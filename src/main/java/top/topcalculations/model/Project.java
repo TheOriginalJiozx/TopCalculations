@@ -11,10 +11,11 @@ public class Project {
     private String plannedFinishDate;
     private String assigned;
     private String subTaskName;
-    private int timeSpent;
+    private double timeSpent;
     private Double expectedTimeInTotal;
     private Double timeToSpend;
     private String resource_name;
+    private String status;
 
     public int getId() {
         return id;
@@ -40,11 +41,11 @@ public class Project {
         this.subTaskName = subTaskName;
     }
 
-    public void setTimeSpent(int timeSpent) {
+    public void setTimeSpent(double timeSpent) {
         this.timeSpent = timeSpent;
     }
 
-    public int getTimeSpent() {
+    public double getTimeSpent() {
         return timeSpent;
     }
 
@@ -126,5 +127,13 @@ public class Project {
 
     public String getResource_name() {
         return resource_name;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

@@ -41,7 +41,7 @@
                 </div>
                 <div class="form-group">
                     <label for="projectName">Project Name</label>
-                    <input type="text" id="projectName" name="projectTaskName" th:value="${task.mainProjectName}" aria-labelledby="projectName" required disabled />
+                    <input type="text" id="projectName" name="projectTaskName" th:value="${task.mainProjectName}" aria-labelledby="project-name-desc" required readonly/>
                     <span id="project-name-desc" class="sr-only">Name of the project.</span>
                 </div>
                 <div class="form-group">

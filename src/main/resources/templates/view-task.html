@@ -41,6 +41,7 @@
                 <th scope="col">Time to Spend on Task (estimated in hours)</th>
                 <th scope="col">Time Spent on Task (in hours)</th>
                 <th scope="col">Actions</th>
+                <th scope="col">Task status</th>
             </tr>
             </thead>
             <tbody>
@@ -52,6 +53,19 @@
                 <td th:text="${task.timeSpent}" aria-label="Time spent on task"></td>
                 <td>
                     <a href="#" th:href="@{/edit-task/{id}(id=${task.id})}" class="btn-edit" aria-label="Edit task">Edit</a>
+                </td>
+                <td>
+                    <form th:action="@{/update-task-status/{id}/{status}(id=${task.id}, status='in-progress')}" method="post">
+                        <button type="submit" class="btn-status">Set In Progress</button>
+                    </form>
+
+                    <form th:action="@{/update-task-status/{id}/{status}(id=${task.id}, status='delayed')}" method="post">
+                        <button type="submit" class="btn-status">Set Delayed</button>
+                    </form>
+
+                    <form th:action="@{/update-task-status/{id}/{status}(id=${task.id}, status='done')}" method="post">
+                        <button type="submit" class="btn-status">Set Done</button>
+                    </form>
                 </td>
             </tr>
             </tbody>
