@@ -8,6 +8,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.topcalculations.model.Project;
 import top.topcalculations.model.User;
 import top.topcalculations.service.ProjectService;
+import top.topcalculations.service.TaskService;
 import top.topcalculations.service.UserService;
 
 import java.util.List;
@@ -17,11 +18,13 @@ import java.util.List;
 public class ProjectController {
     private final ProjectService projectService;  // Service til at håndtere projekter
     private final UserService userService;  // Service til at håndtere brugere
+    private final TaskService taskService;
 
     // Konstruktor til at injicere ProjectService og UserService afhængigheder
-    public ProjectController(ProjectService projectService, UserService userService) {
+    public ProjectController(ProjectService projectService, UserService userService, TaskService taskService) {
         this.projectService = projectService;
         this.userService = userService;
+        this.taskService = taskService;
     }
 
     // Vis index-siden
@@ -121,7 +124,7 @@ public class ProjectController {
                 project.setProjectTaskName(mainProject.getProjectTaskName());  // Sæt projectTaskName fra hovedprojektet
                 project.setResource_name(project.getResource_name());  // Sæt resource_name
                 project.setId(project.getId());  // Sæt ID
-                projectService.saveTask(project);  // Gem opgaven
+                taskService.saveTask(project);  // Gem opgaven
                 redirectAttributes.addFlashAttribute("message", "Task added successfully.");  // Success meddelelse
             } else {
                 // Hvis hovedprojektet ikke findes, vis en fejlmeddelelse
@@ -156,7 +159,7 @@ public class ProjectController {
             model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
 
-        List<Project> projects = projectService.getAllTasks();  // Hent alle opgaver
+        List<Project> projects = taskService.getAllTasks();  // Hent alle opgaver
         model.addAttribute("projects", projects);  // Tilføj opgaver til model
         model.addAttribute("project", new Project());  // Tilføj et nyt tomt projekt til model
         return "addSub";  // Returner formularen til tilføjelse af underopgave
@@ -184,7 +187,7 @@ public class ProjectController {
         }
 
         if (project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()) {  // Hvis taskProjectName er angivet
-            Project mainTask = projectService.getTaskByName(project.getTaskProjectName());  // Hent hovedopgaven
+            Project mainTask = taskService.getTaskByName(project.getTaskProjectName());  // Hent hovedopgaven
 
             if (mainTask != null) {
                 String mainTaskWBS = mainTask.getWbs();  // Hent WBS for hovedopgaven
@@ -317,19 +320,6 @@ public class ProjectController {
         return "redirect:/view";
     }
 
-    @PostMapping("/delete-task/{id}")
-    public String deleteTask(@PathVariable("id") int id, HttpSession session, Project name) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        System.out.println("Sletter task med ID: " + id);
-
-        projectService.deleteTask(id);
-
-        return "redirect:/view";
-    }
-
     @PostMapping("/delete-subtask/{id}")
     public String deleteSubTask(@PathVariable("id") int id, HttpSession session, Project name) {
         if (session.getAttribute("user") == null) {
@@ -341,69 +331,6 @@ public class ProjectController {
         projectService.deleteSubTask(id);
 
         return "redirect:/view";
-    }
-
-    // Vis en specifik opgave ved ID
-    @GetMapping("/view-task/{id}")
-    public String viewTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
-        }
-
-        List<Project> projects = projectService.getTaskByID(id);  // Hent opgave efter ID
-        model.addAttribute("tasks", projects);  // Tilføj opgaver til model
-        return "view-task";  // Returner view til visning af opgavedetaljer
-    }
-
-    @GetMapping("/edit-task/{id}")
-    public String editTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
-        }
-
-        List<Project> task = projectService.getTaskByID(id); // Henter opgaven med det angivne ID
-        model.addAttribute("task", task); // Tilføjer den hentede opgave til modellen
-        return "edit-task"; // Returnerer viewet til at redigere opgaven
-    }
-
-    @PostMapping("/update-task/{id}")
-    public String updateTask(@PathVariable("id") int id, @ModelAttribute Project task, HttpSession session, String oldTaskName) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        task.setId(id);  // Sætter ID for opgaven
-        projectService.updateTask(id, task, oldTaskName);  // Opdater opgaven
-
-        return "redirect:/view-task/" + id;  // Redirect til visning af opgaven
     }
 
     // Vis en specifik underopgave ved ID
@@ -482,18 +409,6 @@ public class ProjectController {
         }
 
         projectService.updateProjectStatus(id, status);
-        return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
-    }
-
-    // Opdaterer en tasks status
-    @PostMapping("/update-task-status/{id}/{status}")
-    public String updateTaskStatus(@PathVariable("id") Long id,
-                                   @PathVariable("status") String status, HttpSession session, String projectName) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        projectService.updateTaskStatus(id, status, projectName);
         return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
     }
 
