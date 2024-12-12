@@ -98,17 +98,6 @@ public class UserController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true);
-            } else {
-                model.addAttribute("isAdmin", false);
-                return "redirect:/";
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false);
-            return "redirect:/";
         }
 
         if (user == null) {

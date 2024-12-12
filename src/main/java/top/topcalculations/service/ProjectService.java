@@ -65,13 +65,13 @@ public class ProjectService {
     }
 
     // Sletter en opgave i databasen
-    public void deleteTask(int id) {
-        projectRepository.deleteTask(id);
+    public void deleteTask(int id, Project name) {
+        projectRepository.deleteTask(id, name);
     }
 
     // Sletter en underopgave i databasen
-    public void deleteSubTask(int id) {
-        projectRepository.deleteSubTask(id);
+    public void deleteSubTask(int id, Project name) {
+        projectRepository.deleteSubTask(id, name);
     }
 
     public List<Object> getAll() {

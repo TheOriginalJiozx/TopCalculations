@@ -318,27 +318,27 @@ public class ProjectController {
     }
 
     @PostMapping("/delete-task/{id}")
-    public String deleteTask(@PathVariable("id") int id, HttpSession session) {
+    public String deleteTask(@PathVariable("id") int id, HttpSession session, Project name) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
 
         System.out.println("Sletter task med ID: " + id);
 
-        projectService.deleteTask(id);
+        projectService.deleteTask(id, name);
 
         return "redirect:/view";
     }
 
     @PostMapping("/delete-subtask/{id}")
-    public String deleteSubTask(@PathVariable("id") int id, HttpSession session) {
+    public String deleteSubTask(@PathVariable("id") int id, HttpSession session, Project name) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
 
         System.out.println("Sletter subtask med ID: " + id);
 
-        projectService.deleteSubTask(id);
+        projectService.deleteSubTask(id, name);
 
         return "redirect:/view";
     }
@@ -452,8 +452,8 @@ public class ProjectController {
             model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
 
-        List<Project> subTask = projectService.getSubTaskByID(id); // Henter underopgave med ID
-        model.addAttribute("subTask", subTask); // Tilføjer underopgave til model
+        List<Project> subtask = projectService.getSubTaskByID(id); // Henter underopgave med ID
+        model.addAttribute("subtask", subtask); // Tilføjer underopgave til model
         return "edit-subtask"; // Returnerer view til redigering af underopgave
     }
 
@@ -476,7 +476,7 @@ public class ProjectController {
     // Opdaterer en tasks status
     @PostMapping("/update-project-status/{id}/{status}")
     public String updateProjectStatus(@PathVariable("id") Long id,
-                                   @PathVariable("status") String status, HttpSession session) {
+                                      @PathVariable("status") String status, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -500,7 +500,7 @@ public class ProjectController {
     // Opdaterer en subtasks status
     @PostMapping("/update-subtask-status/{id}/{status}")
     public String updateSubTaskStatus(@PathVariable("id") Long id,
-                                   @PathVariable("status") String status, HttpSession session) {
+                                      @PathVariable("status") String status, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }

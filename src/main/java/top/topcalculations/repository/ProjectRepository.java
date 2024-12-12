@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 @Repository
+
 public class ProjectRepository {
     private JdbcTemplate jdbcTemplate;
 
@@ -48,7 +49,7 @@ public class ProjectRepository {
 
         // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?,?), ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, DATEDIFF(?,?), ?, ?)";
         // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
         jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), task.getTaskProjectName(),
                 task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
@@ -81,11 +82,11 @@ public class ProjectRepository {
         System.out.println("Saving subtask: " + subTask);
 
         // Justeret SQL-spørgsmål: Sørg for, at DATEDIFF beregner varigheden korrekt
-        String sql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                "VALUES (?, ?, ?, ?, ?, DATEDIFF(?,?), ?, ?)";
+        String sql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
+                "VALUES (?, ?, ?, (SELECT project_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(?, ?), ?, ?)";
 
         // Udfører SQL-spørgsmålet og gemmer delopgaven i databasen
-        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getSubTaskName(),
+        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getSubTaskName(), subTask.getTaskProjectName(),
                 subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
 
         // SQL-spørgsmål for at finde ID'et for den gemte delopgave
@@ -121,7 +122,7 @@ public class ProjectRepository {
         updateTimeToSpendIfNecessary(subTask);
     }
 
-    private void updateTimeToSpendIfNecessary(Project subTask) {
+    private void updateTimeToSpendIfNecessary(Project name) {
         String calculateSubtaskTimeQuery =
                 "SELECT SUM(st.time_to_spend) " +
                         "FROM subtasks st " +
@@ -137,18 +138,18 @@ public class ProjectRepository {
                         "SET time_to_spend = ? " +
                         "WHERE task_name = ?";
 
-        Double totalSubtaskTime = jdbcTemplate.queryForObject(calculateSubtaskTimeQuery, Double.class, subTask.getTaskProjectName());
+        Double totalSubtaskTime = jdbcTemplate.queryForObject(calculateSubtaskTimeQuery, Double.class, name.getTaskProjectName());
         if (totalSubtaskTime == null) {
             totalSubtaskTime = 0.0;
         }
 
-        Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeQuery, Double.class, subTask.getTaskProjectName());
+        Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeQuery, Double.class, name.getTaskProjectName());
         if (taskTimeToSpend == null) {
             taskTimeToSpend = 0.0;
         }
 
         if (totalSubtaskTime > taskTimeToSpend) {
-            jdbcTemplate.update(updateTaskTimeQuery, totalSubtaskTime, subTask.getTaskProjectName());
+            jdbcTemplate.update(updateTaskTimeQuery, totalSubtaskTime, name.getTaskProjectName());
         }
     }
 
@@ -272,7 +273,7 @@ public class ProjectRepository {
 
     // Henter en underopgave baseret på dens ID
     public List<Project> findSubTaskByID(Long id) {
-        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
+        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.project_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
                 "FROM subtasks st " +
                 "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
         return jdbcTemplate.query(sql, new SubTaskRowMapper(), id);
@@ -328,7 +329,7 @@ public class ProjectRepository {
         jdbcTemplate.update(updateSubtaskSql, task.getTaskProjectName(), task.getTimeSpent(), oldTaskName);
 
         String updateTaskSql = "UPDATE tasks SET task_name = ?, time_spent = time_spent + ? WHERE id = ?";
-        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), id); // Pass time spent and id
+        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), id);
 
         String sql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
         jdbcTemplate.update(sql, task.getTimeSpent(), task.getProjectTaskName());
@@ -344,7 +345,10 @@ public class ProjectRepository {
         String sql = "UPDATE subtasks SET sub_task_name = ?, time_spent = time_spent + ? WHERE id = ?";
         jdbcTemplate.update(sql, subtask.getSubTaskName(), subtask.getTimeSpent(), id);
 
-        String updateProjectSql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = (SELECT t.project_name FROM tasks t WHERE t.task_name = ?)";
+        String updateTaskSql = "UPDATE tasks SET time_spent = time_spent + ? WHERE task_name = ?";
+        jdbcTemplate.update(updateTaskSql, subtask.getTimeSpent(), subtask.getTaskProjectName());
+
+        String updateProjectSql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
         jdbcTemplate.update(updateProjectSql, subtask.getTimeSpent(), subtask.getProjectTaskName());
 
         System.out.println("Task name: " + subtask.getTaskProjectName());
@@ -391,7 +395,7 @@ public class ProjectRepository {
     }
 
     // Sletter en task i databasen
-    public void deleteTask(int id) {
+    public void deleteTask(int id, Project name) {
         String sql = "DELETE FROM tasks WHERE id = ?";
         jdbcTemplate.update(sql, id);
 
@@ -418,7 +422,7 @@ public class ProjectRepository {
     }
 
     // Sletter en subtask i databasen
-    public void deleteSubTask(int id) {
+    public void deleteSubTask(int id, Project name) {
         String sql = "DELETE FROM subtasks WHERE id = ?";
         jdbcTemplate.update(sql, id);
 
@@ -443,15 +447,6 @@ public class ProjectRepository {
             newId++;
         }
     }
-
-    /*private String updateWBS(String originalWBS, int newId) {
-        String[] parts = originalWBS.split("\\.");
-        if (parts.length == 3) {
-            parts[2] = String.valueOf(newId);
-        }
-
-        return String.join(".", parts);
-    }*/
 
     // Finder projekter
     public List<Project> findAllProjects() {
@@ -533,6 +528,7 @@ public class ProjectRepository {
             subTask.setWbs(rs.getString("WBS"));
             subTask.setTaskProjectName(rs.getString("task_name"));
             subTask.setSubTaskName(rs.getString("sub_task_name"));
+            subTask.setProjectTaskName(rs.getString("project_name"));
             subTask.setTimeSpent(rs.getDouble("time_spent"));
             subTask.setTimeToSpend(rs.getDouble("time_to_spend"));
             subTask.setDuration(rs.getInt("duration"));
