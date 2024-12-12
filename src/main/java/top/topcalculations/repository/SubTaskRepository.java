@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import top.topcalculations.model.Project;
-import top.topcalculations.repository.ProjectRepository;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -94,6 +93,7 @@ public class SubTaskRepository {
                 "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
         return jdbcTemplate.query(sql, new SubTaskRowMapper(), id);
     }
+
     // Henter en underopgave baseret på dens ID (specifik underopgave)
     public Project findSubTaskByIDForStatus(Long id) {
         String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.project_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
@@ -174,6 +174,7 @@ public class SubTaskRepository {
         String insertIntoTimeSpentSubTasks = "INSERT INTO time_spent_subtasks (days_date, time_spent, sub_task_name) VALUES (CURRENT_DATE, ?, ?)";
         jdbcTemplate.update(insertIntoTimeSpentSubTasks, subtask.getTimeSpent(), subtask.getSubTaskName());
     }
+
     // Sletter en subtask i databasen
     public void deleteSubTask(int id) {
         // Hent detaljer for underopgaven baseret på ID
