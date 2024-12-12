@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import top.topcalculations.model.Project;
 import top.topcalculations.repository.ProjectRepository;
+import top.topcalculations.repository.TaskRepository;
 
 import java.time.LocalDate;
 
@@ -16,12 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest
 @ActiveProfiles("h2")
 public class ProjectRepositoryIntegrationTest {
-
-    @Autowired
-    private ProjectRepository projectRepository;
-
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private TaskRepository taskRepository;
 
     @Test
     public void testSaveTask() {
@@ -38,7 +37,7 @@ public class ProjectRepositoryIntegrationTest {
         task.setPlannedFinishDate(String.valueOf(LocalDate.of(2024, 1, 10)));
         task.setResource_name("Resource 1");
 
-        projectRepository.saveTask(task);
+        taskRepository.saveTask(task);
 
         String sql = "SELECT COUNT(*) FROM tasks WHERE WBS = ? AND task_name = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, task.getWbs(), task.getTaskProjectName());
