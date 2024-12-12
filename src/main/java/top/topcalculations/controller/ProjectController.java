@@ -8,6 +8,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.topcalculations.model.Project;
 import top.topcalculations.model.User;
 import top.topcalculations.service.ProjectService;
+import top.topcalculations.service.SubTaskService;
 import top.topcalculations.service.TaskService;
 import top.topcalculations.service.UserService;
 
@@ -19,12 +20,14 @@ public class ProjectController {
     private final ProjectService projectService;  // Service til at håndtere projekter
     private final UserService userService;  // Service til at håndtere brugere
     private final TaskService taskService;
+    private final SubTaskService subTaskService;
 
     // Konstruktor til at injicere ProjectService og UserService afhængigheder
-    public ProjectController(ProjectService projectService, UserService userService, TaskService taskService) {
+    public ProjectController(ProjectService projectService, UserService userService, TaskService taskService, SubTaskService subTaskService) {
         this.projectService = projectService;
         this.userService = userService;
         this.taskService = taskService;
+        this.subTaskService = subTaskService;
     }
 
     // Vis index-siden
@@ -193,7 +196,7 @@ public class ProjectController {
                 String mainTaskWBS = mainTask.getWbs();  // Hent WBS for hovedopgaven
 
                 // Hent den højeste WBS-index for underopgaver
-                int highestSubtaskIndex = projectService.getHighestWbsIndexForSubtasks(mainTaskWBS);
+                int highestSubtaskIndex = subTaskService.getHighestWbsIndexForSubtasks(mainTaskWBS);
 
                 // Generer en ny WBS for underopgaven
                 String newWBS = mainTaskWBS + "." + (highestSubtaskIndex + 1);
@@ -204,7 +207,7 @@ public class ProjectController {
                 project.setResource_name(project.getResource_name());
                 project.setId(project.getId());
 
-                projectService.saveSubTask(project);  // Gem underopgaven
+                subTaskService.saveSubTask(project);  // Gem underopgaven
                 redirectAttributes.addFlashAttribute("messageSub", "Subtask added successfully.");  // Success-besked
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Error: Main task not found.");  // Fejlbesked
@@ -320,86 +323,6 @@ public class ProjectController {
         return "redirect:/view";
     }
 
-    @PostMapping("/delete-subtask/{id}")
-    public String deleteSubTask(@PathVariable("id") int id, HttpSession session, Project name) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        System.out.println("Sletter subtask med ID: " + id);
-
-        projectService.deleteSubTask(id);
-
-        return "redirect:/view";
-    }
-
-    // Vis en specifik underopgave ved ID
-    @GetMapping("/view-subtask/{id}")
-    public String viewSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
-        }
-
-        List<Project> subtasks = projectService.getSubTaskByID(id);  // Hent underopgave efter ID
-        model.addAttribute("subtasks", subtasks);  // Tilføj underopgaver til model
-        return "view-subtask";  // Returner view til visning af underopgavedetaljer
-    }
-
-    @GetMapping("/edit-subtask/{id}")
-    public String editSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
-        }
-
-        List<Project> subtask = projectService.getSubTaskByID(id); // Henter underopgave med ID
-        model.addAttribute("subtask", subtask); // Tilføjer underopgave til model
-        return "edit-subtask"; // Returnerer view til redigering af underopgave
-    }
-
-    @PostMapping("/update-subtask/{id}")
-    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Project subtask, HttpSession session, String oldSubTaskName) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-
-        System.out.println("Opdaterer underopgave med ID: " + id);
-        System.out.println("Nyt underopgavenavn: " + subtask.getSubTaskName());
-        System.out.println("Ny varighed: " + subtask.getDuration());
-
-        subtask.setId(id);  // Sætter ID for underopgaven
-        projectService.updateSubTask(id, subtask, oldSubTaskName);  // Opdater underopgave
-
-        return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
-    }
-
     // Opdaterer en tasks status
     @PostMapping("/update-project-status/{id}/{status}")
     public String updateProjectStatus(@PathVariable("id") Long id,
@@ -410,16 +333,5 @@ public class ProjectController {
 
         projectService.updateProjectStatus(id, status);
         return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
-    }
-
-    // Opdaterer en subtasks status
-    @PostMapping("/update-subtask-status/{id}/{status}")
-    public String updateSubTaskStatus(@PathVariable("id") Long id,
-                                      @PathVariable("status") String status, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
-        }
-        projectService.updateSubTaskStatus(id, status);
-        return "redirect:/view-subtask/" + id;  // Redirect til subtask view efter opdatering af status
     }
 }
