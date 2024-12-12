@@ -37,7 +37,7 @@ public class ProjectRepositoryIntegrationTest {
         task.setPlannedFinishDate(String.valueOf(LocalDate.of(2024, 1, 10)));
         task.setResource_name("Resource 1");
 
-        taskRepository.saveTask(task);
+        taskRepository.saveTaskH2(task);
 
         String sql = "SELECT COUNT(*) FROM tasks WHERE WBS = ? AND task_name = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, task.getWbs(), task.getTaskProjectName());
