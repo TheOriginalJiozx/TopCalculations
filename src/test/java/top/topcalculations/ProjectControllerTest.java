@@ -9,6 +9,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.topcalculations.model.Project;
 import top.topcalculations.model.User;
 import top.topcalculations.service.ProjectService;
+import top.topcalculations.service.TaskService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.*;
 class ProjectControllerTest {
 
     private ProjectService projectService;
+    private TaskService taskService;
     private HttpSession session;
     private RedirectAttributes redirectAttributes;
     private Model model;
@@ -23,6 +25,7 @@ class ProjectControllerTest {
     @BeforeEach
     void setUp() {
         // Opret mock-objekter til afhængigheder
+        taskService = mock(TaskService.class);
         projectService = mock(ProjectService.class);
         session = mock(HttpSession.class);
         redirectAttributes = mock(RedirectAttributes.class);
@@ -85,7 +88,7 @@ class ProjectControllerTest {
 
         // Assert
         assertEquals("redirect:/add", result); // Forventet omdirigering tilbage til /add
-        verify(projectService).saveTask(newTask); // Bekræft, at opgaven blev gemt
+        verify(taskService).saveTask(newTask); // Bekræft, at opgaven blev gemt
         verify(redirectAttributes).addFlashAttribute("message", "Task added successfully."); // Tjek succesmeddelelse
         assertEquals("1.4", newTask.getWbs()); // Bekræft korrekt WBS
     }
@@ -135,7 +138,7 @@ class ProjectControllerTest {
                 int highestTaskIndex = projectService.getHighestWbsIndex(mainProjectWBS);
                 String newWBS = mainProjectWBS + "." + (highestTaskIndex + 1);
                 project.setWbs(newWBS);
-                projectService.saveTask(project);
+                taskService.saveTask(project);
                 redirectAttributes.addFlashAttribute("message", "Task added successfully.");
             } else {
                 redirectAttributes.addFlashAttribute("errorMessage", "Error: Main project not found.");

@@ -20,6 +20,8 @@
             <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
             <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
             <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
+            <a class="nav-link" th:href="@{/profile}" th:if="${username != 'Guest'}" aria-label="My Profile">My Profile</a>
+            <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
             <span class="nav-link" th:if="${username != 'Guest'}">
                 <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
@@ -31,7 +33,7 @@
 </nav>
 <h1>Edit Subtask</h1>
 <div class="container container-custom-edit">
-    <div th:each="subTask : ${subTask}">
+    <div th:each="subTask : ${subtask}">
         <form th:action="@{/update-subtask/{id}(id=${subTask.id})}" method="post" aria-labelledby="edit-subtask-form">
             <fieldset>
                 <legend id="edit-subtask-form" class="sr-only">Edit Subtask Form</legend>
@@ -41,9 +43,14 @@
                     <span id="wbs-desc" class="sr-only">Work Breakdown Structure.</span>
                 </div>
                 <div>
+                    <label for="projectName" aria-labelledby="Project Name">Project Name</label>
+                    <input type="text" id="projectName" name="projectTaskName" th:value="${subTask.projectTaskName}" required aria-labelledby="project-name-desc" readonly />
+                    <span id="project-name-desc" class="sr-only">Name of the project.</span>
+                </div>
+                <div>
                     <label for="taskName" aria-labelledby="Task Name">Task Name</label>
                     <input type="text" id="taskName" name="taskProjectName" th:value="${subTask.taskProjectName}" required aria-labelledby="task-name-desc" readonly />
-                    <span id="task-name-desc" class="sr-only">Enter the name of the task.</span>
+                    <span id="task-name-desc" class="sr-only">Name of the task.</span>
                 </div>
                 <div class="form-group">
                     <label for="subTaskName" aria-label="Subtask Name">New Subtask Name</label>

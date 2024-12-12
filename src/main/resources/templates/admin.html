@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <title>TopCalculations - View Projects, Tasks and Subtasks</title>
+  <title>TopCalculations - Admin Panel</title>
   <link rel="stylesheet" th:href="@{/css/view.css}">
   <link rel="stylesheet" th:href="@{/css/styles.css}">
   <link rel="stylesheet" th:href="@{/css/footer.css}" />
@@ -32,43 +32,17 @@
 </nav>
 
 <div class="body-wrapper">
-  <div class="container-custom-add">
-    <h1 id="projects-tasks-header">Projects, Tasks and Subtasks</h1>
-    <table aria-labelledby="projects-tasks-header" aria-describedby="projects-tasks-description">
+  <div class="container-custom-view">
+    <h1 id="admin-panel-header">All created users for your organisation</h1>
+    <table aria-labelledby="admin-panel-header" aria-describedby="admin-panel-description">
       <thead>
       <tr>
-        <th scope="col">WBS</th>
-        <th scope="col">Name</th>
-        <th scope="col">Duration</th>
-        <th scope="col">Planned Start Date</th>
-        <th scope="col">Planned Finish Date</th>
-        <th scope="col">Assigned</th>
-        <th scope="col">Time To Spend</th>
-        <th scope="col">Status</th>
+        <th scope="col">Usernames</th>
       </tr>
       </thead>
       <tbody>
-      <tr th:each="project : ${projects}">
-        <td th:text="${project.wbs}" aria-label="WBS number"></td>
-        <td>
-          <a th:if="${project.subTaskName != null}"
-             th:href="@{'/view-subtask/' + ${project.id}}"
-             th:text="${project.projectTaskName}" aria-label="View subtask details"></a>
-
-          <a th:if="${project.subTaskName == null and project.wbs.matches('[0-9]+')}"
-             th:href="@{'/view-project/' + ${project.id}}"
-             th:text="${project.projectTaskName}" aria-label="Project task name"></a>
-
-          <a th:if="${project.subTaskName == null and (project.wbs.contains('.') or not(project.wbs.matches('[0-9]+')))}"
-             th:href="@{'/view-task/' + ${project.id}}"
-             th:text="${project.projectTaskName}" aria-label="View task details"></a>
-        </td>
-        <td th:text="${project.duration}" aria-label="Duration of the task/project"></td>
-        <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
-        <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
-        <td th:text="${project.assigned}" aria-label="Assigned to"></td>
-        <td th:text="${project.timeToSpend}" aria-label="Time to spend"></td>
-        <td th:text="${project.status}" aria-label="Status"></td>
+      <tr th:each="user : ${users}">
+        <td th:text="${user}" aria-label="Created users"></td>
       </tr>
       </tbody>
     </table>
