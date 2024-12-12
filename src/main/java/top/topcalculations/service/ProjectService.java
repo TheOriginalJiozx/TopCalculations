@@ -7,6 +7,7 @@ import top.topcalculations.repository.ProjectRepository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service // Markerer klassen som en Spring Service, som kan bruges til at håndtere forretningslogik
 public class ProjectService {
@@ -35,8 +36,8 @@ public class ProjectService {
     }
 
     // Opdaterer en opgaves status i databasen
-    public void updateTaskStatus(Long id, String status) {
-        projectRepository.updateTaskStatusByID(id, status);
+    public void updateTaskStatus(Long id, String status, String projectName) {
+        projectRepository.updateTaskStatusByID(id, status, projectName);
     }
 
     // Opdaterer en underopgave i databasen
@@ -65,13 +66,13 @@ public class ProjectService {
     }
 
     // Sletter en opgave i databasen
-    public void deleteTask(int id, Project name) {
-        projectRepository.deleteTask(id, name);
+    public void deleteTask(int id) {
+        projectRepository.deleteTask(id);
     }
 
     // Sletter en underopgave i databasen
-    public void deleteSubTask(int id, Project name) {
-        projectRepository.deleteSubTask(id, name);
+    public void deleteSubTask(int id) {
+        projectRepository.deleteSubTask(id);
     }
 
     public List<Object> getAll() {
@@ -88,8 +89,7 @@ public class ProjectService {
         // Tilføj alle opgaver til listen
         allData.addAll(tasks);
         // Tilføj alle delopgaver til listen
-        allData.addAll(subtasks);
-        // Returner den kombinerede liste med alle data
+        allData.addAll(subtasks);        // Returner den kombinerede liste med alle data
         return allData;
     }
 

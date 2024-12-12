@@ -65,19 +65,6 @@
                         <button type="submit" class="btn-delete">Delete</button>
                     </form>
                 </td>
-                <td>
-                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='in-progress')}" method="post">
-                        <button type="submit" class="btn-status">Set In Progress</button>
-                    </form>
-
-                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='delayed')}" method="post">
-                        <button type="submit" class="btn-status">Set Delayed</button>
-                    </form>
-
-                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='done')}" method="post">
-                        <button type="submit" class="btn-status">Set Done</button>
-                    </form>
-                </td>
             </tr>
             </tbody>
         </table>

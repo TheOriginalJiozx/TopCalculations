@@ -178,7 +178,7 @@ public class ProjectRepository {
 
     // Henter alle projekter fra databasen
     public List<Project> getAllProjects() {
-        String sql = "SELECT * FROM projects";
+        String sql = "SELECT *, expected_time_in_total, status FROM projects";
         List<Project> projects = jdbcTemplate.query(sql, new ProjectRowMapper());
 
         for (Project project : projects) {
@@ -190,6 +190,9 @@ public class ProjectRepository {
                         ? project.getTaskProjectName()
                         : project.getProjectTaskName());
             }
+
+            project.setTimeToSpend(project.getExpectedTimeInTotal());
+            project.setStatus(project.getStatus());
         }
 
         return projects;
@@ -197,7 +200,7 @@ public class ProjectRepository {
 
     // Henter alle opgaver fra databasen
     public List<Project> getAllTasks() {
-        String sql = "SELECT * FROM tasks";
+        String sql = "SELECT *, time_to_spend, status FROM tasks";  // Adjust column name as needed
         List<Project> tasks = jdbcTemplate.query(sql, new TaskRowMapper());
 
         for (Project task : tasks) {
@@ -209,6 +212,9 @@ public class ProjectRepository {
                         ? task.getTaskProjectName()
                         : task.getProjectTaskName());
             }
+
+            task.setTimeToSpend(task.getTimeToSpend());
+            task.setStatus(task.getStatus());
         }
 
         return tasks;
@@ -216,7 +222,7 @@ public class ProjectRepository {
 
     // Henter alle underopgaver fra databasen
     public List<Project> getAllSubTasks() {
-        String sql = "SELECT * FROM subtasks";
+        String sql = "SELECT *, status FROM subtasks";
         List<Project> subTasks = jdbcTemplate.query(sql, new SubTaskRowMapper());
 
         for (Project subTask : subTasks) {
@@ -228,6 +234,9 @@ public class ProjectRepository {
                         ? subTask.getSubTaskName()
                         : subTask.getTaskProjectName());
             }
+
+            subTask.setStatus(subTask.getStatus());
+
         }
 
         return subTasks; // Returner alle projekter
@@ -281,7 +290,7 @@ public class ProjectRepository {
 
     // Henter en underopgave baseret på dens ID (specifik underopgave)
     public Project findSubTaskByIDForStatus(Long id) {
-        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
+        String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.project_name, st.assigned, st.task_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
                 "FROM subtasks st " +
                 "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
         return jdbcTemplate.queryForObject(sql, new SubTaskRowMapper(), id);
@@ -300,12 +309,31 @@ public class ProjectRepository {
     }
 
     // Opdaterer en opgaves status
-    public void updateTaskStatusByID(Long id, String status) {
+    public void updateTaskStatusByID(Long id, String status, String projectName) {
         Project task = findTaskByIDForStatus(id);
         if (task != null) {
             task.setStatus(status);
+
             String sql = "UPDATE tasks SET status = ? WHERE id = ?";
             jdbcTemplate.update(sql, status, id);
+
+            String projectQuery = "SELECT project_name FROM tasks WHERE id = ?";
+            String fetchedProjectName = jdbcTemplate.queryForObject(projectQuery, String.class, id);
+
+            String checkTasksQuery = "SELECT COUNT(*) FROM tasks WHERE project_name = ? AND status != 'done'";
+            Integer countNotDone = jdbcTemplate.queryForObject(checkTasksQuery, Integer.class, fetchedProjectName);
+
+            if (countNotDone == 0) {
+                String updateProjectSql = "UPDATE projects SET status = 'done' WHERE project_name = ?";
+                jdbcTemplate.update(updateProjectSql, fetchedProjectName);
+            } else {
+                if (!"done".equals(status)) {
+                    String updateProjectSql = "UPDATE projects SET status = ? WHERE project_name = ?";
+                    jdbcTemplate.update(updateProjectSql, status, fetchedProjectName);
+                }
+            }
+
+            System.out.println("Updated project: " + fetchedProjectName);
         } else {
             throw new RuntimeException("Task with ID " + id + " not found");
         }
@@ -316,8 +344,52 @@ public class ProjectRepository {
         Project subTask = findSubTaskByIDForStatus(id);
         if (subTask != null) {
             subTask.setStatus(status);
+
+            // Update subtask status
             String sql = "UPDATE subtasks SET status = ? WHERE id = ?";
             jdbcTemplate.update(sql, status, id);
+
+            // Fetch the task name associated with the subtask
+            String taskQuery = "SELECT task_name FROM subtasks WHERE id = ?";
+            String fetchedTaskName = jdbcTemplate.queryForObject(taskQuery, String.class, id);
+
+            // Check if all subtasks for the task are "done"
+            String checkSubtasksQuery = "SELECT COUNT(*) FROM subtasks WHERE task_name = ? AND status != 'done'";
+            Integer countNotDoneSubtasks = jdbcTemplate.queryForObject(checkSubtasksQuery, Integer.class, fetchedTaskName);
+
+            // Fetch project name
+            String projectQuery = "SELECT project_name FROM subtasks WHERE id = ?";
+            String fetchedProjectName = jdbcTemplate.queryForObject(projectQuery, String.class, id);
+
+            // If all subtasks are done, update the task status to "done"
+            if (countNotDoneSubtasks == 0) {
+                String updateTaskSql = "UPDATE tasks SET status = 'done' WHERE task_name = ?";
+                jdbcTemplate.update(updateTaskSql, fetchedTaskName);
+
+                // After updating task status, check if all tasks for the project are done
+                String checkTasksQuery = "SELECT COUNT(*) FROM tasks WHERE project_name = ? AND status != 'done'";
+                Integer countNotDoneTasks = jdbcTemplate.queryForObject(checkTasksQuery, Integer.class, fetchedProjectName);
+
+                // If all tasks are done, update the project status to "done"
+                if (countNotDoneTasks == 0) {
+                    String updateProjectSql = "UPDATE projects SET status = 'done' WHERE project_name = ?";
+                    jdbcTemplate.update(updateProjectSql, fetchedProjectName);
+                }
+            } else {
+                // Otherwise, update the task and project statuses to the current subtask status, unless "done"
+                if (!"done".equals(status)) {
+                    String updateTaskSql = "UPDATE tasks SET status = ? WHERE task_name = ?";
+                    jdbcTemplate.update(updateTaskSql, status, fetchedTaskName);
+
+                    // Update project status as well (if not "done")
+                    String updateProjectSql = "UPDATE projects SET status = ? WHERE project_name = ?";
+                    jdbcTemplate.update(updateProjectSql, status, fetchedProjectName);
+                }
+            }
+
+            // Now that fetchedProjectName is in scope, we can print it
+            System.out.println("Updated project: " + fetchedProjectName);
+
         } else {
             throw new RuntimeException("Subtask with ID " + id + " not found");
         }
@@ -395,10 +467,47 @@ public class ProjectRepository {
     }
 
     // Sletter en task i databasen
-    public void deleteTask(int id, Project name) {
-        String sql = "DELETE FROM tasks WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+    public void deleteTask(int id) {
+        // Hent detaljer for opgaven baseret på ID
+        String selectSql = "SELECT time_spent, project_name, time_to_spend FROM tasks WHERE id = ?";
+        Map<String, Object> taskDetails = jdbcTemplate.queryForMap(selectSql, id);
 
+        if (taskDetails != null) {
+            // Ekstraher værdier fra den hentede opgave
+            Double taskTimeSpent = (Double) taskDetails.get("time_spent");
+            String projectName = (String) taskDetails.get("project_name");
+            Double timeToSpend = (Double) taskDetails.get("time_to_spend");
+
+            // Log oplysninger for debugging (kan fjernes i produktion)
+            System.out.println("Task Time Spent: " + taskTimeSpent);
+            System.out.println("Project Name: " + projectName);
+            System.out.println("Task Time To Spend: " + timeToSpend);
+
+            // Kontroller om projektets navn ikke er null
+            if (projectName != null) {
+                // Opdater projektets time_spent og expected_time_to_spend
+                String updateProjectSql = "UPDATE projects SET time_spent = time_spent - ?, expected_time_in_total = expected_time_in_total - ? WHERE project_name = ?";
+                int rowsUpdated = jdbcTemplate.update(updateProjectSql, taskTimeSpent, timeToSpend, projectName);
+
+                System.out.println("Rows updated in projects table: " + rowsUpdated);
+
+                // Hvis opdateringen lykkedes, slet opgaven
+                if (rowsUpdated > 0) {
+                    String deleteTaskSql = "DELETE FROM tasks WHERE id = ?";
+                    jdbcTemplate.update(deleteTaskSql, id);
+                } else {
+                    throw new IllegalStateException("No matching project found to updat time_spent.");
+                }
+            } else {
+                // Kast en undtagelse, hvis projektets navn er null
+                throw new IllegalStateException("Project name is null for task ID: " + id);
+            }
+        } else {
+            // Kast en undtagelse, hvis opgaven ikke findes
+            throw new IllegalArgumentException("Task with ID " + id + " was not found.");
+        }
+
+        // Opdater opgavetabellen (hvis nødvendigt)
         updateTasksTable();
     }
 
@@ -422,10 +531,62 @@ public class ProjectRepository {
     }
 
     // Sletter en subtask i databasen
-    public void deleteSubTask(int id, Project name) {
-        String sql = "DELETE FROM subtasks WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+    // Sletter en subtask i databasen
+    public void deleteSubTask(int id) {
+        // Hent detaljer for underopgaven baseret på ID
+        String selectSql = "SELECT time_spent, project_name, task_name, time_to_spend FROM subtasks WHERE id = ?";
+        Map<String, Object> subTaskDetails = jdbcTemplate.queryForMap(selectSql, id);
 
+        if (subTaskDetails != null) {
+            // Ekstraher værdier fra den hentede underopgave
+            Double subTaskTimeSpent = (Double) subTaskDetails.get("time_spent");
+            String projectName = (String) subTaskDetails.get("project_name");
+            String taskName = (String) subTaskDetails.get("task_name");
+            Double subTaskTimeToSpend = (Double) subTaskDetails.get("time_to_spend");
+
+            // Log oplysninger for debugging (kan fjernes i produktion)
+            System.out.println("SubTask Time Spent: " + subTaskTimeSpent);
+            System.out.println("Project Name: " + projectName);
+            System.out.println("Task Name: " + taskName);
+            System.out.println("SubTask Time To Spend: " + subTaskTimeToSpend);
+
+            // Kontroller om projektets navn og taskens navn ikke er null
+            if (projectName != null && taskName != null) {
+                // Opdater projektets time_spent og expected_time_in_total
+                String updateProjectSql = "UPDATE projects SET time_spent = time_spent - ?, expected_time_in_total = expected_time_in_total - ? WHERE project_name = ?";
+                int rowsUpdated = jdbcTemplate.update(updateProjectSql, subTaskTimeSpent, subTaskTimeToSpend, projectName);
+                System.out.println("Rows updated in projects table: " + rowsUpdated);
+
+                // Hent antal subtasks for den givne task_name
+                String countSubTasksSql = "SELECT COUNT(*) FROM subtasks WHERE task_name = ?";
+                Integer subTaskCount = jdbcTemplate.queryForObject(countSubTasksSql, new Object[]{taskName}, Integer.class);
+
+                // Hent den aktuelle time_to_spend fra tasks
+                String getTaskTimeToSpendSql = "SELECT time_to_spend FROM tasks WHERE task_name = ?";
+                Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeToSpendSql, new Object[]{taskName}, Double.class);
+
+                // Opdater taskens time_to_spend (det skal altid opdateres)
+                String updateTaskSql = "UPDATE tasks SET time_spent = time_spent - ?, time_to_spend = time_to_spend - ? WHERE task_name = ?";
+                jdbcTemplate.update(updateTaskSql, subTaskTimeSpent, subTaskTimeToSpend, taskName);
+                System.out.println("Rows updated in tasks table: " + updateTaskSql);
+
+                // Hvis projektopdateringen lykkedes, slet underopgaven
+                if (rowsUpdated > 0) {
+                    String deleteSubTaskSql = "DELETE FROM subtasks WHERE id = ?";
+                    jdbcTemplate.update(deleteSubTaskSql, id);
+                } else {
+                    throw new IllegalStateException("Ingen matchende projekt fundet til at opdatere time_spent.");
+                }
+            } else {
+                // Kast en undtagelse, hvis projektets eller taskens navn er null
+                throw new IllegalStateException("Projektets eller taskens navn er null for subtask ID: " + id);
+            }
+        } else {
+            // Kast en undtagelse, hvis underopgaven ikke findes
+            throw new IllegalArgumentException("Subtask med ID " + id + " blev ikke fundet.");
+        }
+
+        // Opdater underopgavetabellen (hvis nødvendigt)
         updateSubTasksTable();
     }
 
@@ -492,6 +653,7 @@ public class ProjectRepository {
             project.setTimeSpent(rs.getDouble("time_spent"));
             project.setExpectedTimeInTotal(rs.getDouble("expected_time_in_total"));
             project.setDuration(rs.getInt("duration"));
+            project.setStatus(rs.getString("status"));
             project.setPlannedStartDate(rs.getString("planned_start_date"));
             project.setPlannedFinishDate(rs.getString("planned_finish_date"));
             project.setAssigned(rs.getString("assigned"));
@@ -531,6 +693,7 @@ public class ProjectRepository {
             subTask.setProjectTaskName(rs.getString("project_name"));
             subTask.setTimeSpent(rs.getDouble("time_spent"));
             subTask.setTimeToSpend(rs.getDouble("time_to_spend"));
+            subTask.setStatus(rs.getString("status"));
             subTask.setDuration(rs.getInt("duration"));
             subTask.setPlannedStartDate(rs.getString("planned_start_date"));
             subTask.setPlannedFinishDate(rs.getString("planned_finish_date"));

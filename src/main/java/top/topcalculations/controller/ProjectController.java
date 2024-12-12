@@ -325,7 +325,7 @@ public class ProjectController {
 
         System.out.println("Sletter task med ID: " + id);
 
-        projectService.deleteTask(id, name);
+        projectService.deleteTask(id);
 
         return "redirect:/view";
     }
@@ -338,7 +338,7 @@ public class ProjectController {
 
         System.out.println("Sletter subtask med ID: " + id);
 
-        projectService.deleteSubTask(id, name);
+        projectService.deleteSubTask(id);
 
         return "redirect:/view";
     }
@@ -488,12 +488,12 @@ public class ProjectController {
     // Opdaterer en tasks status
     @PostMapping("/update-task-status/{id}/{status}")
     public String updateTaskStatus(@PathVariable("id") Long id,
-                                   @PathVariable("status") String status, HttpSession session) {
+                                   @PathVariable("status") String status, HttpSession session, String projectName) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
 
-        projectService.updateTaskStatus(id, status);
+        projectService.updateTaskStatus(id, status, projectName);
         return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
     }
 
