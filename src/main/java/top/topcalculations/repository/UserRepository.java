@@ -32,6 +32,11 @@ public class UserRepository {
         }
     }
 
+    public void updateLastLogin(String username) {
+        String sql = "UPDATE users SET last_login = CURRENT_DATE WHERE username = ?";
+        jdbcTemplate.update(sql, username);  // Use update instead of queryForObject
+    }
+
     // Metode til at oprette en ny bruger
     public String signUp(User user, Model model) {
         try {

@@ -51,38 +51,6 @@ public class TaskRepository {
         addExpectedTimeToProjectFromTask(task);
     }
 
-    public void saveTaskH2(Project task) {
-        // Udskriver hvilken opgave der gemmes
-        System.out.println("Saving task: " + task);
-
-        // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
-        String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?,?), ?, ?)";
-        // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-        jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), task.getTaskProjectName(),
-                task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
-
-        // SQL-spørgsmål for at finde ID'et for den gemte opgave
-        String findTaskIdQuery = "SELECT id FROM tasks WHERE WBS = ? AND task_name = ?";
-        // Henter ID'et for opgaven baseret på WBS og task_name
-        Long taskId = jdbcTemplate.queryForObject(findTaskIdQuery, Long.class, task.getWbs(), task.getTaskProjectName());
-
-        // Hvis taskId ikke er gyldigt, kastes en undtagelse
-        if (taskId == null || taskId <= 0) {
-            throw new IllegalStateException("Failed to retrieve valid task ID after insert.");
-        }
-
-        // Udskriver det fundne task ID
-        System.out.println("Task ID: " + taskId);
-
-        // SQL-spørgsmål for at indsætte relationen mellem opgaven og ressourcen i resources_tasks-tabellen
-        String sql2 = "INSERT INTO resources_tasks (resource_name, task_id) VALUES (?, ?)";
-        // Gemmer ressourcen for opgaven i databasen
-        jdbcTemplate.update(sql2, task.getResource_name(), taskId);
-
-        addExpectedTimeToProjectFromTask(task);
-    }
-
     private void addExpectedTimeToProjectFromTask(Project task) {
         String sql = "UPDATE projects SET expected_time_in_total = expected_time_in_total + ? WHERE project_name = ?";
         jdbcTemplate.update(sql, task.getTimeToSpend(), task.getProjectTaskName());
@@ -119,7 +87,7 @@ public class TaskRepository {
 
     // Finder alle opgaver fra databasen
     public List<Project> findAllTasks() {
-        String sql = "SELECT * FROM tasks WHERE task_name IS NOT NULL AND task_name != ''";
+        String sql = "SELECT * FROM tasks WHERE task_name IS NOT NULL AND task_name != '' AND status != 'done'";
         return jdbcTemplate.query(sql, new TaskRowMapper());
     }
 

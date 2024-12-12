@@ -179,7 +179,7 @@ public class ProjectRepository {
 
     // Finder projekter
     public List<Project> findAllProjects() {
-        String sql = "SELECT * FROM projects";
+        String sql = "SELECT * FROM projects WHERE status =! 'done'";
         return jdbcTemplate.query(sql, new ProjectRowMapper());
     }
 

@@ -35,6 +35,8 @@ public class UserService {
             // Sammenlign den indtastede password (efter hashing) med den lagrede hashed password
             String hashedEnteredPassword = hashPassword(password);  // Brug samme hash-logik som ved sign up
             if (hashedEnteredPassword.equals(user.getPassword())) {
+                // Opdater last_login-feltet til den nuværende dato
+                userRepository.updateLastLogin(user.getUsername());  // Kalder en metode i UserRepository
                 return user;  // Autentificering er vellykket
             }
         }

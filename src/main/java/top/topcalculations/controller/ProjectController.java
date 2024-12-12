@@ -221,7 +221,7 @@ public class ProjectController {
     @GetMapping("/view")
     public String view(Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
+            return "redirect:/login";  // Redirect to login page if the user is not logged in
         }
 
         User user = (User) session.getAttribute("user");
@@ -238,9 +238,25 @@ public class ProjectController {
             model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
 
-        List<Object> projects = projectService.getAll();  // Hent alle projekter, tasks og subtasks
-        model.addAttribute("projects", projects);  // Tilføj projekter, og tasks samt subtasks, som er en del af et project, til model
-        return "view";  // Returner view til visning af projekter
+        List<Object> projects = projectService.getAll();  // Get all projects, tasks, and subtasks
+        model.addAttribute("projects", projects);  // Add projects, tasks, and subtasks to the model
+
+        // Calculate the total time to spend, excluding projects with status "done"
+        double totalTimeToSpend = projects.stream()
+                .filter(project -> !(project instanceof Project && "done".equals(((Project) project).getStatus())))
+                .mapToDouble(project -> {
+                    // Assuming project has a method `getTimeToSpend` that returns a numeric value
+                    if (project instanceof Project) {
+                        return ((Project) project).getTimeToSpend();
+                    }
+                    return 0;  // Return 0 if the project doesn't have a timeToSpend value
+                })
+                .sum();
+
+        // Add the total time to spend to the model
+        model.addAttribute("totalTimeToSpend", totalTimeToSpend);
+
+        return "view";  // Return the view to display projects
     }
 
     // Vis et specifikt projekt ved ID

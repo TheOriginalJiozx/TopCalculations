@@ -16,19 +16,19 @@
             <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
             <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
             <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Signup</a>
-            <a class="nav-link" th:href="@{/view}" th:if="${username != 'Guest'}" aria-label="View Projects">View Projects</a>
-            <a class="nav-link" th:href="@{/add}" th:if="${username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
-            <a class="nav-link" th:href="@{/addSub}" th:if="${username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
-            <a class="nav-link" th:href="@{/profile}" th:if="${username != 'Guest'}" aria-label="My Profile">My Profile</a>
+            <a class="nav-link" th:href="@{/view}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="View Projects">View Projects</a>
+            <a class="nav-link" th:href="@{/add}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
+            <a class="nav-link" th:href="@{/addSub}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
+            <a class="nav-link" th:href="@{/profile}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="My Profile">My Profile</a>
             <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
-            <span class="nav-link" th:if="${username != 'Guest'}">
+            <span class="nav-link" th:if="${username != null and username.trim() != '' and username != 'Guest'}">
                 <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
                 </form>
             </span>
         </div>
     </div>
-    <span class="welcome-message" th:if="${username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
+    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
 <div class="body-wrapper">
@@ -43,8 +43,8 @@
                 <th scope="col">Planned Start Date</th>
                 <th scope="col">Planned Finish Date</th>
                 <th scope="col">Assigned</th>
-                <th scope="col">Estimated to Spend on Project  (estimated in hours)</th>
-                <th scope="col">Time Spent on Task (in hours)</th>
+                <th scope="col">Estimated to Spend on Project (estimated in hours)</th>
+                <th scope="col">Time Spent on Project (in hours)</th>
                 <th scope="col">Project status</th>
                 <th scope="col">Actions</th>
             </tr>
@@ -57,12 +57,25 @@
                 <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
                 <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
                 <td th:text="${project.assigned}" aria-label="Assigned to"></td>
-                <td th:text="${project.expectedTimeInTotal}" aria-label="Estimated time to complete task"></td>
+                <td th:text="${project.expectedTimeInTotal}" aria-label="Estimated time to complete project"></td>
                 <td th:text="${project.timeSpent}" aria-label="Time spent on project"></td>
                 <td>
                     <a href="#" th:href="@{/edit-project/{id}(id=${project.id})}" class="btn-edit" aria-label="Edit project">Edit</a>
                     <form th:action="@{/delete-project/{id}(id=${project.id})}" class="btn-delete" aria-label="Delete project" method="post">
                         <button type="submit" class="btn-delete">Delete</button>
+                    </form>
+                </td>
+                <td>
+                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='in-progress')}" method="post">
+                        <button type="submit" class="btn-status">Set In Progress</button>
+                    </form>
+
+                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='delayed')}" method="post">
+                        <button type="submit" class="btn-status">Set Delayed</button>
+                    </form>
+
+                    <form th:action="@{/update-project-status/{id}/{status}(id=${project.id}, status='done')}" method="post">
+                        <button type="submit" class="btn-status">Set Done</button>
                     </form>
                 </td>
             </tr>
