@@ -19,18 +19,32 @@ public class TaskRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    // Gemmer en opgave i databasen
     public void saveTask(Project task) {
         // Udskriver hvilken opgave der gemmes
         System.out.println("Saving task: " + task);
 
         String fullTaskName = task.getProjectTaskName() + "_" + task.getTaskProjectName();
 
-        // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
+        // Første SQL-spørgsmål for at indsætte en opgave i tasks-tabellen med DATEDIFF(?, ?)
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                "VALUES (?, ?, ?, ?, ?, DATEDIFF(?,?), ?, ?)";
-        // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-        jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
-                task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
+                "VALUES (?, ?, ?, ?, ?, DATEDIFF(?, ?), ?, ?)";
+
+        try {
+            // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
+            jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
+                    task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
+        } catch (Exception e) {
+            // Hvis den første SQL fejler, udfør alternativ forespørgsel med DATEDIFF(DAY, ?, ?)
+            System.out.println("First SQL query failed, trying to execute alternate query.");
+
+            // Anden SQL-spørgsmål for at indsætte en opgave med DATEDIFF(DAY, ?, ?)
+            String fallbackSql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
+                    "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
+            // Udfør den alternative SQL forespørgsel
+            jdbcTemplate.update(fallbackSql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
+                    task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
+        }
 
         // SQL-spørgsmål for at finde ID'et for den gemte opgave
         String findTaskIdQuery = "SELECT id FROM tasks WHERE WBS = ? AND task_name = ?";
@@ -50,6 +64,7 @@ public class TaskRepository {
         // Gemmer ressourcen for opgaven i databasen
         jdbcTemplate.update(sql2, task.getResource_name(), taskId);
 
+        // Opdaterer den forventede tid for projektet baseret på opgaven
         addExpectedTimeToProjectFromTask(task);
     }
 
@@ -275,11 +290,33 @@ public class TaskRepository {
 
     public int getHighestWbsIndexFromTasks(String mainProjectWBS) {
         // SQL-forespørgsel for at finde det højeste WBS-indeks fra opgaver-tabellen
-        String sql = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS UNSIGNED)) FROM tasks WHERE WBS LIKE CONCAT(?, '.%')";
-        // Udfør forespørgslen og få resultatet som en Integer
-        Integer highestTaskIndex = jdbcTemplate.queryForObject(sql, new Object[]{mainProjectWBS, mainProjectWBS}, Integer.class);
-        // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
-        return highestTaskIndex != null ? highestTaskIndex : 0;
+        String sqlMySQL = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS UNSIGNED)) FROM tasks WHERE WBS LIKE CONCAT(?, '.%')";
+        String sqlH2 = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS INT)) FROM tasks WHERE WBS LIKE CONCAT(?, '.%')";
+
+        try {
+            // Forsøg at køre MySQL-specifik forespørgsel
+            Integer highestTaskIndex = jdbcTemplate.queryForObject(sqlMySQL, new Object[]{mainProjectWBS, mainProjectWBS}, Integer.class);
+            // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
+            return highestTaskIndex != null ? highestTaskIndex : 0;
+        } catch (Exception eMySQL) {
+            // Hvis MySQL-forespørgslen fejler, forsøg H2-forespørgslen i stedet
+            System.err.println("MySQL query failed, attempting H2 query: " + eMySQL.getMessage());
+            eMySQL.printStackTrace();
+
+            try {
+                // Kør H2-specifik forespørgsel
+                Integer highestTaskIndex = jdbcTemplate.queryForObject(sqlH2, new Object[]{mainProjectWBS, mainProjectWBS}, Integer.class);
+                // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
+                return highestTaskIndex != null ? highestTaskIndex : 0;
+            } catch (Exception eH2) {
+                // Hvis H2-forespørgslen også fejler, log fejlen og returner 0
+                System.err.println("H2 query failed: " + eH2.getMessage());
+                eH2.printStackTrace();
+
+                // Returner 0, hvis begge forespørgsler fejler
+                return 0; // Standard WBS-værdi
+            }
+        }
     }
 
     // Mapper resultatet af SQL-spørgsmål til et Task-objekt

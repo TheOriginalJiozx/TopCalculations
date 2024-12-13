@@ -23,21 +23,35 @@ public class SubTaskRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    // Gemmer en delopgave i databasen
     public void saveSubTask(Project subTask) {
 
         // Udskriver hvilken delopgave der gemmes
         System.out.println("Saving subtask: " + subTask);
 
-        // Concatenate task_name and sub_task_name to form taskname_sub_task_name
+        // Sammenkæd task_name og sub_task_name for at danne taskname_sub_task_name
         String fullSubTaskName = subTask.getTaskProjectName() + "_" + subTask.getSubTaskName();
 
-        // Justeret SQL-spørgsmål: Sørg for, at DATEDIFF beregner varigheden korrekt
+        // Første SQL-spørgsmål for at indsætte en delopgave i subtasks-tabellen med DATEDIFF(?, ?)
         String sql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
                 "VALUES (?, ?, ?, (SELECT project_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(?, ?), ?, ?)";
 
-        // Udfører SQL-spørgsmålet og gemmer delopgaven i databasen
-        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), fullSubTaskName, subTask.getTaskProjectName(),
-                subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
+        try {
+            // Udfører SQL-spørgsmålet og gemmer delopgaven i databasen
+            jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), fullSubTaskName, subTask.getTaskProjectName(),
+                    subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
+        } catch (Exception e) {
+            // Hvis den første SQL fejler, udfør alternativ forespørgsel med DATEDIFF(DAY, ?, ?)
+            System.out.println("First SQL query failed, trying to execute alternate query.");
+
+            // Anden SQL-spørgsmål for at indsætte en delopgave med DATEDIFF(DAY, ?, ?)
+            String fallbackSql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
+                    "VALUES (?, ?, ?, (SELECT project_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
+
+            // Udfør den alternative SQL forespørgsel
+            jdbcTemplate.update(fallbackSql, subTask.getWbs(), subTask.getTaskProjectName(), fullSubTaskName, subTask.getTaskProjectName(),
+                    subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
+        }
 
         // SQL-spørgsmål for at finde ID'et for den gemte delopgave
         String findSubTaskIdQuery = "SELECT id FROM subtasks WHERE WBS = ? AND sub_task_name = ?";
@@ -57,6 +71,7 @@ public class SubTaskRepository {
         // Gemmer ressourcen for delopgaven i databasen
         jdbcTemplate.update(sql2, subTask.getResource_name(), subTaskId);
 
+        // Opdaterer den forventede tid for projektet baseret på delopgaven
         addExpectedTimeToProjectFromSubTask(subTask);
     }
 
@@ -282,12 +297,34 @@ public class SubTaskRepository {
     }
 
     public int getHighestWbsIndexFromSubTasks(String mainTaskWBS) {
-        // SQL-forespørgsel for at finde det højeste WBS-indeks fra opgaver-tabellen
-        String sql = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS UNSIGNED)) FROM subtasks WHERE WBS LIKE CONCAT(?, '.%')";
-        // Udfør forespørgslen og få resultatet som en Integer
-        Integer highestSubtaskIndex = jdbcTemplate.queryForObject(sql, new Object[]{mainTaskWBS, mainTaskWBS}, Integer.class);
-        // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
-        return highestSubtaskIndex != null ? highestSubtaskIndex : 0;
+        // SQL-forespørgsel for at finde det højeste WBS-indeks fra subtasks-tabellen
+        String sqlMySQL = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS UNSIGNED)) FROM subtasks WHERE WBS LIKE CONCAT(?, '.%')";
+        String sqlH2 = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS INT)) FROM subtasks WHERE WBS LIKE CONCAT(?, '.%')";
+
+        try {
+            // Forsøg at køre MySQL-specifik forespørgsel
+            Integer highestSubtaskIndex = jdbcTemplate.queryForObject(sqlMySQL, new Object[]{mainTaskWBS, mainTaskWBS}, Integer.class);
+            // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
+            return highestSubtaskIndex != null ? highestSubtaskIndex : 0;
+        } catch (Exception eMySQL) {
+            // Hvis MySQL-forespørgslen fejler, forsøg H2-forespørgslen i stedet
+            System.err.println("MySQL query failed, attempting H2 query: " + eMySQL.getMessage());
+            eMySQL.printStackTrace();
+
+            try {
+                // Kør H2-specifik forespørgsel
+                Integer highestSubtaskIndex = jdbcTemplate.queryForObject(sqlH2, new Object[]{mainTaskWBS, mainTaskWBS}, Integer.class);
+                // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
+                return highestSubtaskIndex != null ? highestSubtaskIndex : 0;
+            } catch (Exception eH2) {
+                // Hvis H2-forespørgslen også fejler, log fejlen og returner 0
+                System.err.println("H2 query failed: " + eH2.getMessage());
+                eH2.printStackTrace();
+
+                // Returner 0, hvis begge forespørgsler fejler
+                return 0; // Standard WBS-værdi
+            }
+        }
     }
 
     // Mapper resultatet af SQL-spørgsmål til et Subtask-objekt
