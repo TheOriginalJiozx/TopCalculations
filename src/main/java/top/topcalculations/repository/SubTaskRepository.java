@@ -22,24 +22,27 @@ public class SubTaskRepository {
     public SubTaskRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    // Gemmer en delopgave (subtask) i databasen
+
     public void saveSubTask(Project subTask) {
 
         // Udskriver hvilken delopgave der gemmes
         System.out.println("Saving subtask: " + subTask);
+
+        // Concatenate task_name and sub_task_name to form taskname_sub_task_name
+        String fullSubTaskName = subTask.getTaskProjectName() + "_" + subTask.getSubTaskName();
 
         // Justeret SQL-spørgsmål: Sørg for, at DATEDIFF beregner varigheden korrekt
         String sql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
                 "VALUES (?, ?, ?, (SELECT project_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(?, ?), ?, ?)";
 
         // Udfører SQL-spørgsmålet og gemmer delopgaven i databasen
-        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), subTask.getSubTaskName(), subTask.getTaskProjectName(),
+        jdbcTemplate.update(sql, subTask.getWbs(), subTask.getTaskProjectName(), fullSubTaskName, subTask.getTaskProjectName(),
                 subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
 
         // SQL-spørgsmål for at finde ID'et for den gemte delopgave
         String findSubTaskIdQuery = "SELECT id FROM subtasks WHERE WBS = ? AND sub_task_name = ?";
         // Henter ID'et for delopgaven baseret på WBS og sub_task_name
-        Long subTaskId = jdbcTemplate.queryForObject(findSubTaskIdQuery, Long.class, subTask.getWbs(), subTask.getSubTaskName());
+        Long subTaskId = jdbcTemplate.queryForObject(findSubTaskIdQuery, Long.class, subTask.getWbs(), fullSubTaskName);
 
         // Hvis subTaskId ikke er gyldigt, kastes en undtagelse
         if (subTaskId == null || subTaskId <= 0) {
@@ -50,7 +53,7 @@ public class SubTaskRepository {
         System.out.println("Subtask ID: " + subTaskId);
 
         // SQL-spørgsmål for at indsætte relationen mellem delopgaven og ressourcen i resources_subtasks-tabellen
-        String sql2 = "INSERT INTO resources_subtasks (resource_name, sub_task_id) VALUES (?, ?)\n";
+        String sql2 = "INSERT INTO resources_subtasks (resource_name, sub_task_id) VALUES (?, ?)";
         // Gemmer ressourcen for delopgaven i databasen
         jdbcTemplate.update(sql2, subTask.getResource_name(), subTaskId);
 
@@ -209,10 +212,17 @@ public class SubTaskRepository {
                 String getTaskTimeToSpendSql = "SELECT time_to_spend FROM tasks WHERE task_name = ?";
                 Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeToSpendSql, new Object[]{taskName}, Double.class);
 
-                // Opdater taskens time_to_spend (det skal altid opdateres)
-                String updateTaskSql = "UPDATE tasks SET time_spent = time_spent - ?, time_to_spend = time_to_spend - ? WHERE task_name = ?";
-                jdbcTemplate.update(updateTaskSql, subTaskTimeSpent, subTaskTimeToSpend, taskName);
-                System.out.println("Rows updated in tasks table: " + updateTaskSql);
+                // Opdater taskens time_spent (det skal altid opdateres)
+                String updateTaskSql = "UPDATE tasks SET time_spent = time_spent - ? WHERE task_name = ?";
+                jdbcTemplate.update(updateTaskSql, subTaskTimeSpent, taskName);
+                System.out.println("Rows updated in tasks table for time_spent: " + updateTaskSql);
+
+                // Update time_to_spend only if subTaskTimeToSpend is greater than the task's current time_to_spend
+                if (subTaskTimeToSpend < taskTimeToSpend) {
+                    String updateTaskTimeToSpendSql = "UPDATE tasks SET time_to_spend = time_to_spend - ? WHERE task_name = ?";
+                    jdbcTemplate.update(updateTaskTimeToSpendSql, subTaskTimeToSpend, taskName);
+                    System.out.println("Rows updated in tasks table for time_to_spend: " + updateTaskTimeToSpendSql);
+                }
 
                 // Hvis projektopdateringen lykkedes, slet underopgaven
                 if (rowsUpdated > 0) {
@@ -236,6 +246,7 @@ public class SubTaskRepository {
 
     // Opdaterer IDs i subtasks tabellen
     public void updateSubTasksTable() {
+        // Hent alle underopgaver fra subtasks-tabellen, sorteret efter id
         String sql = "SELECT * FROM subtasks ORDER BY id";
         List<Map<String, Object>> subtasks = jdbcTemplate.queryForList(sql);
 
@@ -243,13 +254,30 @@ public class SubTaskRepository {
         for (Map<String, Object> subtask : subtasks) {
             int originalID = (int) subtask.get("id");
 
+            // Opdater id i subtasks-tabellen
             String updateSql = "UPDATE subtasks SET id = ? WHERE id = ?";
             jdbcTemplate.update(updateSql, newId, originalID);
 
+            // Opdater sub_task_id i resources_subtasks-tabellen
             String updateSql2 = "UPDATE resources_subtasks SET sub_task_id = ? WHERE sub_task_id = ?";
             jdbcTemplate.update(updateSql2, newId, originalID);
 
-            newId++;
+            // Hent og opdater WBS (Work Breakdown Structure) i subtasks-tabellen
+            String originalWBS = (String) subtask.get("wbs");
+            if (originalWBS != null && !originalWBS.isEmpty()) {
+                String[] wbsParts = originalWBS.split("\\."); // Opdel WBS i dele baseret på '.'
+                int lastDigit = Integer.parseInt(wbsParts[wbsParts.length - 1]); // Hent sidste tal i WBS
+                if (lastDigit != 1) {
+                    wbsParts[wbsParts.length - 1] = String.valueOf(lastDigit - 1); // Reducer sidste tal med 1
+                    String updatedWBS = String.join(".", wbsParts); // Saml WBS igen
+
+                    // Opdater WBS i subtasks-tabellen
+                    String updateWbsSql = "UPDATE subtasks SET wbs = ? WHERE id = ?";
+                    jdbcTemplate.update(updateWbsSql, updatedWBS, newId);
+                }
+            }
+
+            newId++; // Forøg newId for den næste underopgave
         }
     }
 

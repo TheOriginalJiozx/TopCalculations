@@ -163,6 +163,7 @@ public class ProjectRepository {
 
     // Opdaterer IDs i projects tabellen
     public void updateProjectsTable() {
+        // Update the projects table
         String sql = "SELECT * FROM projects ORDER BY id";
         List<Map<String, Object>> projects = jdbcTemplate.queryForList(sql);
 
@@ -170,16 +171,56 @@ public class ProjectRepository {
         for (Map<String, Object> project : projects) {
             int originalID = (int) project.get("id");
 
-            String updateSql = "UPDATE projects SET id = ? WHERE id = ?";
-            jdbcTemplate.update(updateSql, newId, originalID);
+            String updateSql = "UPDATE projects SET id = ?, WBS = ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, newId, newId, originalID);
 
             newId++;
+        }
+
+        String tasksSql = "SELECT id, wbs FROM tasks";
+        List<Map<String, Object>> tasks = jdbcTemplate.queryForList(tasksSql);
+
+        for (Map<String, Object> task : tasks) {
+            int taskId = (int) task.get("id");
+            String originalWBS = (String) task.get("wbs");
+
+            if (originalWBS != null && !originalWBS.isEmpty()) {
+                String[] wbsParts = originalWBS.split("\\.");
+                int firstDigit = Integer.parseInt(wbsParts[0]);
+                if (firstDigit != 1) {
+                    wbsParts[0] = String.valueOf(firstDigit - 1);
+                    String updatedWBS = String.join(".", wbsParts);
+
+                    String updateTasksWbsSql = "UPDATE tasks SET wbs = ? WHERE id = ?";
+                    jdbcTemplate.update(updateTasksWbsSql, updatedWBS, taskId);
+                }
+            }
+        }
+
+        String subtasksSql = "SELECT id, wbs FROM subtasks";
+        List<Map<String, Object>> subtasks = jdbcTemplate.queryForList(subtasksSql);
+
+        for (Map<String, Object> subtask : subtasks) {
+            int subtaskId = (int) subtask.get("id");
+            String originalWBS = (String) subtask.get("wbs");
+
+            if (originalWBS != null && !originalWBS.isEmpty()) {
+                String[] wbsParts = originalWBS.split("\\.");
+                int firstDigit = Integer.parseInt(wbsParts[0]);
+                if (firstDigit != 1) {
+                    wbsParts[0] = String.valueOf(firstDigit - 1);
+                    String updatedWBS = String.join(".", wbsParts);
+
+                    String updateSubtasksWbsSql = "UPDATE subtasks SET wbs = ? WHERE id = ?";
+                    jdbcTemplate.update(updateSubtasksWbsSql, updatedWBS, subtaskId);
+                }
+            }
         }
     }
 
     // Finder projekter
     public List<Project> findAllProjects() {
-        String sql = "SELECT * FROM projects WHERE status =! 'done'";
+        String sql = "SELECT * FROM projects WHERE status != 'done'";
         return jdbcTemplate.query(sql, new ProjectRowMapper());
     }
 

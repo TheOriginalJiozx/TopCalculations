@@ -23,17 +23,19 @@ public class TaskRepository {
         // Udskriver hvilken opgave der gemmes
         System.out.println("Saving task: " + task);
 
+        String fullTaskName = task.getProjectTaskName() + "_" + task.getTaskProjectName();
+
         // SQL-spørgsmål for at indsætte en opgave i tasks-tabellen
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
                 "VALUES (?, ?, ?, ?, ?, DATEDIFF(?,?), ?, ?)";
         // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-        jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), task.getTaskProjectName(),
+        jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
                 task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
 
         // SQL-spørgsmål for at finde ID'et for den gemte opgave
         String findTaskIdQuery = "SELECT id FROM tasks WHERE WBS = ? AND task_name = ?";
         // Henter ID'et for opgaven baseret på WBS og task_name
-        Long taskId = jdbcTemplate.queryForObject(findTaskIdQuery, Long.class, task.getWbs(), task.getTaskProjectName());
+        Long taskId = jdbcTemplate.queryForObject(findTaskIdQuery, Long.class, task.getWbs(), fullTaskName);
 
         // Hvis taskId ikke er gyldigt, kastes en undtagelse
         if (taskId == null || taskId <= 0) {
@@ -87,7 +89,7 @@ public class TaskRepository {
 
     // Finder alle opgaver fra databasen
     public List<Project> findAllTasks() {
-        String sql = "SELECT * FROM tasks WHERE task_name IS NOT NULL AND task_name != '' AND status != 'done'";
+        String sql = "SELECT * FROM tasks WHERE task_name IS NOT NULL AND task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper());
     }
 
@@ -161,6 +163,9 @@ public class TaskRepository {
         String selectSql = "SELECT time_spent, project_name, time_to_spend FROM tasks WHERE id = ?";
         Map<String, Object> taskDetails = jdbcTemplate.queryForMap(selectSql, id);
 
+        String selectSqlSub = "SELECT time_spent, project_name, time_to_spend FROM tasks WHERE id = ?";
+        Map<String, Object> subTaskDetails = jdbcTemplate.queryForMap(selectSqlSub, id);
+
         if (taskDetails != null) {
             // Ekstraher værdier fra den hentede opgave
             Double taskTimeSpent = (Double) taskDetails.get("time_spent");
@@ -191,6 +196,15 @@ public class TaskRepository {
                 // Kast en undtagelse, hvis projektets navn er null
                 throw new IllegalStateException("Project name is null for task ID: " + id);
             }
+        }
+
+        if (subTaskDetails != null) {
+            Double subTaskTimeSpent = (Double) subTaskDetails.get("time_spent");
+            String projectName = (String) subTaskDetails.get("project_name");
+            Double timeToSpend = (Double) subTaskDetails.get("time_to_spend");
+
+            String updateProjectSqlFromSubTask = "UPDATE projects SET time_spent = time_spent - ?, expected_time_in_total = expected_time_in_total - ? WHERE project_name = ?";
+            jdbcTemplate.update(updateProjectSqlFromSubTask, subTaskTimeSpent, timeToSpend, projectName);
         } else {
             // Kast en undtagelse, hvis opgaven ikke findes
             throw new IllegalArgumentException("Task with ID " + id + " was not found.");
@@ -202,6 +216,7 @@ public class TaskRepository {
 
     // Opdaterer IDs i tasks tabellen
     public void updateTasksTable() {
+        // Hent alle opgaver fra tasks-tabellen, sorteret efter id
         String sql = "SELECT * FROM tasks ORDER BY id";
         List<Map<String, Object>> tasks = jdbcTemplate.queryForList(sql);
 
@@ -209,13 +224,52 @@ public class TaskRepository {
         for (Map<String, Object> task : tasks) {
             int originalID = (int) task.get("id");
 
+            // Opdater ID i tasks-tabellen
             String updateSql = "UPDATE tasks SET id = ? WHERE id = ?";
             jdbcTemplate.update(updateSql, newId, originalID);
 
+            // Opdater task_id i resources_tasks-tabellen
             String updateSql2 = "UPDATE resources_tasks SET task_id = ? WHERE task_id = ?";
             jdbcTemplate.update(updateSql2, newId, originalID);
 
-            newId++;
+            // Hent og opdater WBS (Work Breakdown Structure) i tasks-tabellen
+            String originalWBS = (String) task.get("wbs");
+            if (originalWBS != null && !originalWBS.isEmpty()) {
+                String[] wbsParts = originalWBS.split("\\."); // Opdel WBS i dele baseret på '.'
+                int lastDigit = Integer.parseInt(wbsParts[wbsParts.length - 1]); // Hent sidste tal i WBS
+                if (lastDigit != 1) {
+                    wbsParts[wbsParts.length - 1] = String.valueOf(lastDigit - 1); // Reducer sidste tal med 1
+                    String updatedWBS = String.join(".", wbsParts); // Saml WBS igen
+
+                    // Opdater WBS i tasks-tabellen
+                    String updateWbsSql = "UPDATE tasks SET wbs = ? WHERE id = ?";
+                    jdbcTemplate.update(updateWbsSql, updatedWBS, newId);
+                }
+            }
+
+            newId++; // Forøg newId for næste opgave
+        }
+
+        // Hent alle underopgaver fra subtasks-tabellen
+        String subtasksSql = "SELECT id, wbs FROM subtasks";
+        List<Map<String, Object>> subtasks = jdbcTemplate.queryForList(subtasksSql);
+
+        for (Map<String, Object> subtask : subtasks) {
+            int subtaskId = (int) subtask.get("id");
+            String originalWBS = (String) subtask.get("wbs");
+
+            if (originalWBS != null && !originalWBS.isEmpty()) {
+                String[] wbsParts = originalWBS.split("\\."); // Opdel WBS i dele baseret på '.'
+                int secondDigit = Integer.parseInt(wbsParts[1]); // Hent andet tal i WBS
+                if (secondDigit != 1) {
+                    wbsParts[1] = String.valueOf(secondDigit - 1); // Reducer andet tal med 1
+                    String updatedWBS = String.join(".", wbsParts); // Saml WBS igen
+
+                    // Opdater WBS i subtasks-tabellen
+                    String updateSubtasksWbsSql = "UPDATE subtasks SET wbs = ? WHERE id = ?";
+                    jdbcTemplate.update(updateSubtasksWbsSql, updatedWBS, subtaskId);
+                }
+            }
         }
     }
 

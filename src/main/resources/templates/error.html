@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>TopCalculations - Error</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+</head>
+<div class="container-error" >
+    <h1>An error has occurred...</h1>
+    <img th:src="@{/images/error-icon.png}"
+         width="100px" height="100px" />
+    <p>There seems to be a problem with the page you requested
+        (<span th:text="${path}"></span>).</p>
+    <p th:text="${'The status code is ' + status
+       + ', which means that the page was ' + error + '.'}"></p>
+    <p th:text="${'Further details: ' + message + '.'}"></p>
+    <a class="btn" href="/">Back to home</a>
+</div>
+</body>
+</html>
