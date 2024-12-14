@@ -52,7 +52,7 @@
             <tbody>
             <tr th:each="project : ${projects}">
                 <td th:text="${project.wbs}" aria-label="WBS number"></td>
-                <td th:text="${project.projectTaskName}" aria-label="Project name"></td>
+                <td th:text="${project.projectName}" aria-label="Project name"></td>
                 <td th:text="${project.duration}" aria-label="Duration of the project"></td>
                 <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
                 <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>

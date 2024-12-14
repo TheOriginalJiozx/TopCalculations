@@ -35,7 +35,7 @@
 <h1 id="add-subtask-heading">Add Subtask</h1>
 
 <div class="container container-custom-add">
-    <form th:action="@{/addSub}" th:object="${project}" method="post" aria-labelledby="add-subtask-heading">
+    <form th:action="@{/addSub}" th:object="${subtask}" method="post" aria-labelledby="add-subtask-heading">
         <fieldset>
             <legend class="sr-only">Add Subtask Form</legend>
             <div class="form-group">
@@ -53,11 +53,11 @@
 
             <div class="form-group">
                 <label for="main_task">Main Task:</label>
-                <select id="main_task" th:field="*{taskProjectName}" class="form-control" aria-describedby="main-task-desc">
+                <select id="main_task" th:field="*{taskName}" required class="form-control" aria-describedby="main-task-desc">
                     <option value="" th:text="'-- Select Main Task --'"></option>
-                    <option th:each="project : ${projects}" th:value="${project.taskProjectName}" th:text="${project.taskProjectName}"></option>
+                    <option th:each="task : ${tasks}" th:value="${task.taskName}" th:text="${task.taskName}"></option>
                 </select>
-                <span id="main-task-desc" class="sr-only">Select the main task for the subtask.</span>
+                <span id="main-task-desc" class="sr-only">Select the main task.</span>
             </div>
 
             <div class="form-group">

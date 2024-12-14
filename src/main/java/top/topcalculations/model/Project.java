@@ -3,42 +3,40 @@ package top.topcalculations.model;
 public class Project {
     private int id;
     private String wbs;
-    private String projectTaskName;
-    private String mainProjectName;
-    private String taskProjectName;
+    private String projectName;
+    private String taskName;
     private int duration;
     private String plannedStartDate;
     private String plannedFinishDate;
     private String assigned;
-    private String subTaskName;
     private double timeSpent;
     private Double expectedTimeInTotal;
     private Double timeToSpend;
     private String resource_name;
     private String status;
 
-    public int getId() {
-        return id;
-    }
-
     public void setId(int id) {
         this.id = id;
     }
 
-    public String getProjectTaskName() {
-        return projectTaskName;
+    public int getId() {
+        return id;
     }
 
-    public void setProjectTaskName(String projectTaskName) {
-        this.projectTaskName = projectTaskName;
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
-    public String getSubTaskName() {
-        return subTaskName;
+    public String getProjectName() {
+        return projectName;
     }
 
-    public void setSubTaskName(String subTaskName) {
-        this.subTaskName = subTaskName;
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
+
+    public String getTaskName() {
+        return taskName;
     }
 
     public void setTimeSpent(double timeSpent) {
@@ -71,22 +69,6 @@ public class Project {
 
     public void setWbs(String wbs) {
         this.wbs = wbs;
-    }
-
-    public String getMainProjectName() {
-        return mainProjectName;
-    }
-
-    public void setMainProjectName(String projectName) {
-        this.mainProjectName = projectName;
-    }
-
-    public String getTaskProjectName() {
-        return taskProjectName;
-    }
-
-    public void setTaskProjectName(String taskProjectName) {
-        this.taskProjectName = taskProjectName;
     }
 
     public int getDuration() {

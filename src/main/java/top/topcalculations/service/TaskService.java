@@ -3,6 +3,7 @@ package top.topcalculations.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.topcalculations.model.Project;
+import top.topcalculations.model.Task;
 import top.topcalculations.repository.TaskRepository;
 
 import java.util.List;
@@ -13,12 +14,12 @@ public class TaskService {
     private TaskRepository taskRepository; // Injicerer TaskRepository for at kunne interagere med databasen
 
     // Gemmer en opgave i databasen
-    public void saveTask(Project project) {
-        taskRepository.saveTask(project); // Kald til repository-metode for at gemme opgaven
+    public void saveTask(Task task, Project project) {
+        taskRepository.saveTask(task, project); // Kald til repository-metode for at gemme opgaven
     }
 
     // Opdaterer en opgave i databasen
-    public void updateTask(int id, Project task, String oldTaskName) {
+    public void updateTask(int id, Task task, String oldTaskName) {
         taskRepository.updateTask(id, task, oldTaskName); // Kald til repository-metode for at opdatere opgaven
     }
 
@@ -33,17 +34,17 @@ public class TaskService {
     }
 
     // Henter alle opgaver fra databasen
-    public List<Project> getAllTasks() {
+    public List<Task> getAllTasks() {
         return taskRepository.findAllTasks(); // Kald til repository-metode for at hente alle opgaver
     }
 
     // Henter opgaver baseret på ID fra databasen
-    public List<Project> getTaskByID(Long id) {
+    public List<Task> getTaskByID(Long id) {
         return taskRepository.findTaskByID(id); // Kald til repository-metode for at hente opgave baseret på ID
     }
 
     // Henter en opgave baseret på navnet
-    public Project getTaskByName(String taskName) {
+    public Task getTaskByName(String taskName) {
         return taskRepository.findTaskByName(taskName); // Kald til repository-metode for at hente opgave baseret på navn
     }
 }

@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import top.topcalculations.model.Project;
+import top.topcalculations.model.Task;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,9 +23,9 @@ public class ProjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    public void saveProject(Project project) {
+    public void saveProject(Task task, Project project) {
         // Generer en ny WBS, hvis nødvendigt
-        if (project.getTaskProjectName() == null || project.getTaskProjectName().isEmpty()) {
+        if (task.getTaskName() == null || task.getTaskName().isEmpty()) {
             String newWBS = generateNewWBS();  // Generer en ny WBS
             project.setWbs(newWBS);  // Sæt den nye WBS for projektet
         }
@@ -39,7 +40,7 @@ public class ProjectRepository {
             // Forsøg at udføre den første SQL
             jdbcTemplate.update(sql,
                     project.getWbs(),
-                    project.getProjectTaskName(),
+                    project.getProjectName(),
                     project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
                     project.getPlannedStartDate(),
@@ -53,7 +54,7 @@ public class ProjectRepository {
                     "VALUES (?, ?, DATEDIFF(DAY, ?, ?), ?, ?, ?, 0)";
             jdbcTemplate.update(fallbackSql,
                     project.getWbs(),
-                    project.getProjectTaskName(),
+                    project.getProjectName(),
                     project.getPlannedStartDate(),
                     project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
@@ -62,7 +63,7 @@ public class ProjectRepository {
         }
     }
 
-    void updateTimeToSpendIfNecessary(Project name) {
+    void updateTimeToSpendIfNecessary(Task name) {
         String calculateSubtaskTimeQuery =
                 "SELECT SUM(st.time_to_spend) " +
                         "FROM subtasks st " +
@@ -78,18 +79,18 @@ public class ProjectRepository {
                         "SET time_to_spend = ? " +
                         "WHERE task_name = ?";
 
-        Double totalSubtaskTime = jdbcTemplate.queryForObject(calculateSubtaskTimeQuery, Double.class, name.getTaskProjectName());
+        Double totalSubtaskTime = jdbcTemplate.queryForObject(calculateSubtaskTimeQuery, Double.class, name.getTaskName());
         if (totalSubtaskTime == null) {
             totalSubtaskTime = 0.0;
         }
 
-        Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeQuery, Double.class, name.getTaskProjectName());
+        Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeQuery, Double.class, name.getTaskName());
         if (taskTimeToSpend == null) {
             taskTimeToSpend = 0.0;
         }
 
         if (totalSubtaskTime > taskTimeToSpend) {
-            jdbcTemplate.update(updateTaskTimeQuery, totalSubtaskTime, name.getTaskProjectName());
+            jdbcTemplate.update(updateTaskTimeQuery, totalSubtaskTime, name.getTaskName());
         }
     }
 
@@ -143,13 +144,13 @@ public class ProjectRepository {
         List<Project> projects = jdbcTemplate.query(sql, new ProjectRowMapper());
 
         for (Project project : projects) {
-            if (project.getProjectTaskName() != null && !project.getProjectTaskName().isEmpty() &&
-                    (project.getTaskProjectName() == null || project.getTaskProjectName().isEmpty())) {
-                project.setProjectTaskName(project.getProjectTaskName());
+            if (project.getProjectName() != null && !project.getProjectName().isEmpty() &&
+                    (project.getTaskName() == null || project.getTaskName().isEmpty())) {
+                project.setProjectName(project.getProjectName());
             } else {
-                project.setProjectTaskName(project.getTaskProjectName() != null && !project.getTaskProjectName().isEmpty()
-                        ? project.getTaskProjectName()
-                        : project.getProjectTaskName());
+                project.setProjectName(project.getTaskName() != null && !project.getTaskName().isEmpty()
+                        ? project.getTaskName()
+                        : project.getProjectName());
             }
 
             project.setTimeToSpend(project.getExpectedTimeInTotal());
@@ -195,7 +196,7 @@ public class ProjectRepository {
         try {
             // Forsøg at opdatere projektet med den første DATEDIFF
             jdbcTemplate.update(updateProjectSql,
-                    project.getProjectTaskName(),
+                    project.getProjectName(),
                     project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
                     project.getPlannedStartDate(),
@@ -208,7 +209,7 @@ public class ProjectRepository {
 
             String fallbackUpdateSql = "UPDATE projects SET project_name = ?, duration = DATEDIFF(DAY, ?, ?), planned_start_date = ?, planned_finish_date = ?, expected_time_in_total = ? WHERE id = ?";
             jdbcTemplate.update(fallbackUpdateSql,
-                    project.getProjectTaskName(),
+                    project.getProjectName(),
                     project.getPlannedStartDate(),
                     project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
@@ -320,7 +321,6 @@ public class ProjectRepository {
         }
     }
 
-
     // Mapper resultatet af SQL-spørgsmål til et Project-objekt
     private static class ProjectRowMapper implements RowMapper<Project> {
         @Override
@@ -328,7 +328,7 @@ public class ProjectRepository {
             Project project = new Project();
             project.setId(rs.getInt("id"));
             project.setWbs(rs.getString("WBS"));
-            project.setProjectTaskName(rs.getString("project_name"));
+            project.setProjectName(rs.getString("project_name"));
             project.setTimeSpent(rs.getDouble("time_spent"));
             project.setExpectedTimeInTotal(rs.getDouble("expected_time_in_total"));
             project.setDuration(rs.getInt("duration"));

@@ -3,6 +3,8 @@ package top.topcalculations.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import top.topcalculations.model.Project;
+import top.topcalculations.model.Subtask;
+import top.topcalculations.model.Task;
 import top.topcalculations.repository.ProjectRepository;
 import top.topcalculations.repository.SubTaskRepository;
 import top.topcalculations.repository.TaskRepository;
@@ -22,8 +24,8 @@ public class ProjectService {
     private SubTaskRepository subTaskRepository;
 
     // Gemmer et projekt i databasen
-    public void saveProject(Project project) {
-        projectRepository.saveProject(project); // Kald til repository-metode for at gemme projektet
+    public void saveProject(Project project, Task task) {
+        projectRepository.saveProject(task, project); // Kald til repository-metode for at gemme projektet
     }
 
     // Opdaterer et projekt i databasen
@@ -45,9 +47,9 @@ public class ProjectService {
         // Hent alle projekter fra repository
         List<Project> projects = projectRepository.getAllProjects();
         // Hent alle opgaver (tasks) fra repository
-        List<Project> tasks = taskRepository.getAllTasks();
+        List<Task> tasks = taskRepository.getAllTasks();
         // Hent alle delopgaver (subtasks) fra repository
-        List<Project> subtasks = subTaskRepository.getAllSubTasks();
+        List<Subtask> subtasks = subTaskRepository.getAllSubTasks();
         // Opret en liste til at indeholde alle data (projekter, opgaver og delopgaver)
         List<Object> allData = new ArrayList<>();
         // Tilføj alle projekter til listen

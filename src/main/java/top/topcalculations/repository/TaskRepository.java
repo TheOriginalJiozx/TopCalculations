@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import top.topcalculations.model.Project;
+import top.topcalculations.model.Task;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -20,11 +21,11 @@ public class TaskRepository {
     }
 
     // Gemmer en opgave i databasen
-    public void saveTask(Project task) {
+    public void saveTask(Task task, Project project) {
         // Udskriver hvilken opgave der gemmes
         System.out.println("Saving task: " + task);
 
-        String fullTaskName = task.getProjectTaskName() + "_" + task.getTaskProjectName();
+        String fullTaskName = project.getProjectName() + "_" + task.getTaskName();
 
         // Første SQL-spørgsmål for at indsætte en opgave i tasks-tabellen med DATEDIFF(?, ?)
         String sql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
@@ -32,7 +33,7 @@ public class TaskRepository {
 
         try {
             // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-            jdbcTemplate.update(sql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
+            jdbcTemplate.update(sql, task.getWbs(), project.getProjectName(), fullTaskName,
                     task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
         } catch (Exception e) {
             // Hvis den første SQL fejler, udfør alternativ forespørgsel med DATEDIFF(DAY, ?, ?)
@@ -42,7 +43,7 @@ public class TaskRepository {
             String fallbackSql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
                     "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
             // Udfør den alternative SQL forespørgsel
-            jdbcTemplate.update(fallbackSql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
+            jdbcTemplate.update(fallbackSql, task.getWbs(), task.getProjectName(), fullTaskName,
                     task.getTimeToSpend(), task.getAssigned(), task.getPlannedStartDate(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
         }
 
@@ -68,31 +69,31 @@ public class TaskRepository {
         addExpectedTimeToProjectFromTask(task);
     }
 
-    private void addExpectedTimeToProjectFromTask(Project task) {
+    private void addExpectedTimeToProjectFromTask(Task task) {
         String sql = "UPDATE projects SET expected_time_in_total = expected_time_in_total + ? WHERE project_name = ?";
-        jdbcTemplate.update(sql, task.getTimeToSpend(), task.getProjectTaskName());
+        jdbcTemplate.update(sql, task.getTimeToSpend(), task.getProjectName());
     }
 
     // Finder en opgave baseret på dens navn
-    public Project findTaskByName(String taskName) {
+    public Task findTaskByName(String taskName) {
         String sql = "SELECT * FROM tasks WHERE task_name = ?";
-        List<Project> tasks = jdbcTemplate.query(sql, new Object[]{taskName}, new TaskRowMapper());
+        List<Task> tasks = jdbcTemplate.query(sql, new Object[]{taskName}, new TaskRowMapper());
         return tasks.isEmpty() ? null : tasks.get(0);  // Returner opgaven eller null, hvis ikke fundet
     }
 
     // Henter alle opgaver fra databasen
-    public List<Project> getAllTasks() {
+    public List<Task> getAllTasks() {
         String sql = "SELECT *, time_to_spend, status FROM tasks";  // Adjust column name as needed
-        List<Project> tasks = jdbcTemplate.query(sql, new TaskRepository.TaskRowMapper());
+        List<Task> tasks = jdbcTemplate.query(sql, new TaskRepository.TaskRowMapper());
 
-        for (Project task : tasks) {
-            if (task.getProjectTaskName() != null && !task.getProjectTaskName().isEmpty() &&
-                    (task.getTaskProjectName() == null || task.getTaskProjectName().isEmpty())) {
-                task.setProjectTaskName(task.getProjectTaskName());
+        for (Task task : tasks) {
+            if (task.getProjectName() != null && !task.getProjectName().isEmpty() &&
+                    (task.getTaskName() == null || task.getTaskName().isEmpty())) {
+                task.setProjectName(task.getProjectName());
             } else {
-                task.setProjectTaskName(task.getTaskProjectName() != null && !task.getTaskProjectName().isEmpty()
-                        ? task.getTaskProjectName()
-                        : task.getProjectTaskName());
+                task.setProjectName(task.getTaskName() != null && !task.getTaskName().isEmpty()
+                        ? task.getTaskName()
+                        : task.getProjectName());
             }
 
             task.setTimeToSpend(task.getTimeToSpend());
@@ -103,13 +104,13 @@ public class TaskRepository {
     }
 
     // Finder alle opgaver fra databasen
-    public List<Project> findAllTasks() {
+    public List<Task> findAllTasks() {
         String sql = "SELECT * FROM tasks WHERE task_name IS NOT NULL AND task_name != ''";
         return jdbcTemplate.query(sql, new TaskRowMapper());
     }
 
     // Henter en opgave baseret på dens ID
-    public List<Project> findTaskByID(Long id) {
+    public List<Task> findTaskByID(Long id) {
         String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date, t.status " +
                 "FROM tasks t " +
                 "WHERE t.id = ? AND t.task_name IS NOT NULL AND t.task_name != ''";
@@ -117,7 +118,7 @@ public class TaskRepository {
     }
 
     // Henter en opgave baseret på dens ID (specifik opgave)
-    public Project findTaskByIDForStatus(Long id) {
+    public Task findTaskByIDForStatus(Long id) {
         String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date, t.status " +
                 "FROM tasks t " +
                 "WHERE t.id = ? AND t.task_name IS NOT NULL AND t.task_name != ''";
@@ -126,7 +127,7 @@ public class TaskRepository {
 
     // Opdaterer en opgaves status
     public void updateTaskStatusByID(Long id, String status, String projectName) {
-        Project task = findTaskByIDForStatus(id);
+        Task task = findTaskByIDForStatus(id);
         if (task != null) {
             task.setStatus(status);
 
@@ -156,20 +157,20 @@ public class TaskRepository {
     }
 
     // Opdaterer en opgave i databasen
-    public void updateTask(int id, Project task, String oldTaskName) {
+    public void updateTask(int id, Task task, String oldTaskName) {
         String updateSubtaskSql = "UPDATE subtasks SET task_name = ?, time_spent = time_spent + ? WHERE task_name = ?";
-        jdbcTemplate.update(updateSubtaskSql, task.getTaskProjectName(), task.getTimeSpent(), oldTaskName);
+        jdbcTemplate.update(updateSubtaskSql, task.getTaskName(), task.getTimeSpent(), oldTaskName);
 
         String updateTaskSql = "UPDATE tasks SET task_name = ?, time_spent = time_spent + ?, planned_start_date = ?, planned_finish_date = ? WHERE id = ?";
-        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), task.getPlannedStartDate(), task.getPlannedFinishDate(), id);
+        jdbcTemplate.update(updateTaskSql, task.getTaskName(), task.getTimeSpent(), task.getPlannedStartDate(), task.getPlannedFinishDate(), id);
 
         String sql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
-        jdbcTemplate.update(sql, task.getTimeSpent(), task.getProjectTaskName());
+        jdbcTemplate.update(sql, task.getTimeSpent(), task.getProjectName());
 
-        System.out.println("Project name: " + task.getProjectTaskName());
+        System.out.println("Project name: " + task.getProjectName());
 
         String insertIntoTimeSpentTasks = "INSERT INTO time_spent_tasks (days_date, time_spent, task_name) VALUES (CURRENT_DATE, ?, ?)";
-        jdbcTemplate.update(insertIntoTimeSpentTasks, task.getTimeSpent(), task.getTaskProjectName());
+        jdbcTemplate.update(insertIntoTimeSpentTasks, task.getTimeSpent(), task.getTaskName());
     }
 
     // Sletter en task i databasen
@@ -320,14 +321,14 @@ public class TaskRepository {
     }
 
     // Mapper resultatet af SQL-spørgsmål til et Task-objekt
-    private static class TaskRowMapper implements RowMapper<Project> {
+    private static class TaskRowMapper implements RowMapper<Task> {
         @Override
-        public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Project task = new Project();
+        public Task mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Task task = new Task();
             task.setId(rs.getInt("id"));
             task.setWbs(rs.getString("WBS"));
             task.setMainProjectName(rs.getString("project_name"));
-            task.setTaskProjectName(rs.getString("task_name"));
+            task.setTaskName(rs.getString("task_name"));
             task.setTimeSpent(rs.getDouble("time_spent"));
             task.setTimeToSpend(rs.getDouble("time_to_spend"));
             task.setStatus(rs.getString("status"));
