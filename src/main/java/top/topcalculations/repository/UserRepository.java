@@ -62,7 +62,7 @@ public class UserRepository {
             // Logger hvor mange rækker der blev opdateret
             System.out.println("Rows affected: " + rowsAffected);
             model.addAttribute("message", "User registered successfully!");
-            return "redirect:/signup";
+            return "signup";
         } catch (Exception e) {
             // Tilføjer en fejlmeddelelse til modellen i tilfælde af en fejl
             model.addAttribute("error", "Error: " + e.getMessage());
