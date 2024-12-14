@@ -11,13 +11,15 @@
     <div class="navbar-left">
         <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
         <div class="navbar-links">
-            <a class="nav-link" th:href="@{/}" aria-label="Home">Home</a>
-            <a class="nav-link" th:href="@{/login}" aria-label="Login">Login</a>
-            <a class="nav-link" th:href="@{/signup}" aria-label="Signup">Signup</a>
-            <a class="nav-link" th:href="@{/view}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="View Projects">View Projects</a>
-            <a class="nav-link" th:href="@{/add}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Project or Task">Add Project/Task</a>
+            <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Signup</a>
+            <a class="nav-link" th:href="@{/view}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="View Projects">View</a>
+            <a class="nav-link" th:href="@{/addProject}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Project">Add Project</a>
+            <a class="nav-link" th:href="@{/addTask}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Task">Add Task</a>
             <a class="nav-link" th:href="@{/addSub}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
             <a class="nav-link" th:href="@{/profile}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="My Profile">My Profile</a>
+            <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
             <span class="nav-link" th:if="${username != null and username.trim() != '' and username != 'Guest'}">
                 <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
@@ -25,6 +27,7 @@
             </span>
         </div>
     </div>
+    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
 
 <div class="container container-custom" aria-labelledby="sign-up-header" aria-describedby="sign-up-description">
