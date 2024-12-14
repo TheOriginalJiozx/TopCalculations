@@ -43,7 +43,7 @@ public class TaskRepository {
                     "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
             // Udfør den alternative SQL forespørgsel
             jdbcTemplate.update(fallbackSql, task.getWbs(), task.getProjectTaskName(), fullTaskName,
-                    task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
+                    task.getTimeToSpend(), task.getAssigned(), task.getPlannedStartDate(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
         }
 
         // SQL-spørgsmål for at finde ID'et for den gemte opgave

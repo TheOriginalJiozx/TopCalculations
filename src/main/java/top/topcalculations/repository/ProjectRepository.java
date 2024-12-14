@@ -54,8 +54,8 @@ public class ProjectRepository {
             jdbcTemplate.update(fallbackSql,
                     project.getWbs(),
                     project.getProjectTaskName(),
-                    project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
+                    project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
                     project.getPlannedFinishDate(),
                     project.getAssigned());
@@ -209,8 +209,8 @@ public class ProjectRepository {
             String fallbackUpdateSql = "UPDATE projects SET project_name = ?, duration = DATEDIFF(DAY, ?, ?), planned_start_date = ?, planned_finish_date = ?, expected_time_in_total = ? WHERE id = ?";
             jdbcTemplate.update(fallbackUpdateSql,
                     project.getProjectTaskName(),
-                    project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
+                    project.getPlannedFinishDate(),
                     project.getPlannedStartDate(),
                     project.getPlannedFinishDate(),
                     project.getExpectedTimeInTotal(),

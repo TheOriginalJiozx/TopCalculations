@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS projects (
   planned_finish_date date DEFAULT NULL,
   assigned varchar(255) DEFAULT NULL,
   time_spent double DEFAULT '0',
-  expected_time_in_total int DEFAULT NULL,
+  expected_time_in_total double DEFAULT NULL,
   status varchar(255) DEFAULT 'not started',
   PRIMARY KEY (id),
   UNIQUE KEY unique_project_name (project_name)
@@ -120,15 +120,15 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Insert into projects first
 INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, time_spent, expected_time_in_total, status)
-VALUES ('1', 'Tester', '1', '2011-11-01', '2011-11-02', 'Omar', '1', '1', 'delayed');
+VALUES ('1', 'Project', '7', '2024-12-14', '2024-12-21', 'Omar', '0.0', '10.0', 'delayed');
 
 -- Insert into tasks, using the project_name that exists in projects
 INSERT INTO tasks (WBS, project_name, task_name, duration, planned_start_date, planned_finish_date, assigned, time_spent, time_to_spend, status)
-VALUES ('1.1', 'Tester', 'Test', '1', '2011-11-01', '2011-11-02', 'Omar', '0.5', '0.5', 'delayed');
+VALUES ('1.1', 'Project', 'Project_Task', '7', '2024-12-14', '2024-12-21', 'Omar', '0.0', '5.0', 'delayed');
 
 -- Insert into subtasks, using task_name that exists in tasks
 INSERT INTO subtasks (WBS, project_name, task_name, sub_task_name, duration, planned_start_date, planned_finish_date, assigned, time_spent, time_to_spend, status)
-VALUES ('1.1.1', 'Tester', 'Test', 'Test2', '0', '2011-11-02', '2011-11-02', 'Omar', '0.5', '0.5', 'delayed');
+VALUES ('1.1.1', 'Project', 'Project_Task', 'Task_Subtask', '7', '2024-12-14', '2024-12-21', 'Omar', '0.0', '5.0', 'delayed');
 
 -- Insert into resources_subtasks (sub_task_id must exist in subtasks)
 INSERT INTO resources_subtasks (resource_name, sub_task_id)
@@ -138,10 +138,8 @@ VALUES ('Subtask resource', '1');
 INSERT INTO resources_tasks (resource_name, task_id)
 VALUES ('Task resource', '1');
 
--- Insert into time_spent_tasks (task_name must exist in tasks)
 INSERT INTO time_spent_tasks (days_date, time_spent, task_name)
-VALUES ('2011-11-01', '0.5', 'Test');
+VALUES ('2024-12-14', '1.0', 'Project_Task');
 
--- Insert into time_spent_subtasks (sub_task_name must exist in subtasks)
 INSERT INTO time_spent_subtasks (days_date, time_spent, sub_task_name)
-VALUES ('2011-11-02', '0.5', 'Test2');
+VALUES ('2024-12-14', '1.0', 'Task_Subtask');

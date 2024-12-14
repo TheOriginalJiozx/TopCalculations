@@ -50,7 +50,7 @@ public class SubTaskRepository {
 
             // Udfør den alternative SQL forespørgsel
             jdbcTemplate.update(fallbackSql, subTask.getWbs(), subTask.getTaskProjectName(), fullSubTaskName, subTask.getTaskProjectName(),
-                    subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
+                    subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
         }
 
         // SQL-spørgsmål for at finde ID'et for den gemte delopgave
