@@ -42,7 +42,14 @@
 
             <div class="form-group">
                 <label for="project_or_task_name">Name of Project or Task:</label>
-                <input type="text" id="project_or_task_name" th:field="*{taskProjectName}" required class="form-control" aria-describedby="task-name-desc">
+                <input type="text"
+                       id="project_or_task_name"
+                       th:field="*{taskProjectName}"
+                       required
+                       class="form-control"
+                       aria-describedby="task-name-desc"
+                       pattern="^(?!\s*$)(?!.*\d).+"
+                       title="Name must contain at least one non-space character and no numbers." />
                 <span id="project-or-task-name-desc" class="sr-only">Enter the name of the project or task.</span>
             </div>
 
@@ -76,9 +83,16 @@
             </div>
 
             <div class="form-group">
-                <label for="resources_name">Resources:</label>
-                <input type="text" id="resources_name" th:field="*{resource_name}" required class="form-control" aria-describedby="resources-desc">
-                <span id="resources-desc" class="sr-only">Enter the resources required for the project or task.</span>
+                <label for="resources_name">Resource(s):</label>
+                <input type="text"
+                        id="resources_name"
+                        th:field="*{resource_name}"
+                        required
+                        class="form-control"
+                        aria-describedby="resources-desc"
+                        pattern="^(?!\s*$).+"
+                title="Resources must contain at least one non-space character." />
+                <span id="resources-desc" class="sr-only">Enter the resource(s) required for the task.</span>
             </div>
 
             <div class="form-group">

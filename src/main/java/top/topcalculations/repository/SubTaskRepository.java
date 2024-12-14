@@ -177,20 +177,20 @@ public class SubTaskRepository {
     }
 
     // Opdaterer en underopgave i databasen
-    public void updateSubTask(int id, Project subtask, String oldSubTaskName) {
-        String sql = "UPDATE subtasks SET sub_task_name = ?, time_spent = time_spent + ? WHERE id = ?";
-        jdbcTemplate.update(sql, subtask.getSubTaskName(), subtask.getTimeSpent(), id);
+    public void updateSubTask(int id, Project subTask, String oldSubTaskName) {
+        String sql = "UPDATE subtasks SET sub_task_name = ?, time_spent = time_spent + ?, planned_start_date = ?, planned_finish_date = ? WHERE id = ?";
+        jdbcTemplate.update(sql, subTask.getSubTaskName(), subTask.getTimeSpent(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(), id);
 
         String updateTaskSql = "UPDATE tasks SET time_spent = time_spent + ? WHERE task_name = ?";
-        jdbcTemplate.update(updateTaskSql, subtask.getTimeSpent(), subtask.getTaskProjectName());
+        jdbcTemplate.update(updateTaskSql, subTask.getTimeSpent(), subTask.getTaskProjectName());
 
         String updateProjectSql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
-        jdbcTemplate.update(updateProjectSql, subtask.getTimeSpent(), subtask.getProjectTaskName());
+        jdbcTemplate.update(updateProjectSql, subTask.getTimeSpent(), subTask.getProjectTaskName());
 
-        System.out.println("Task name: " + subtask.getTaskProjectName());
+        System.out.println("Task name: " + subTask.getTaskProjectName());
 
         String insertIntoTimeSpentSubTasks = "INSERT INTO time_spent_subtasks (days_date, time_spent, sub_task_name) VALUES (CURRENT_DATE, ?, ?)";
-        jdbcTemplate.update(insertIntoTimeSpentSubTasks, subtask.getTimeSpent(), subtask.getSubTaskName());
+        jdbcTemplate.update(insertIntoTimeSpentSubTasks, subTask.getTimeSpent(), subTask.getSubTaskName());
     }
 
     // Sletter en subtask i databasen

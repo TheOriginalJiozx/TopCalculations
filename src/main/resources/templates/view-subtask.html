@@ -39,6 +39,9 @@
             <tr>
                 <th scope="col">WBS</th>
                 <th scope="col">Name</th>
+                <th scope="col">Duration</th>
+                <th scope="col">Planned Start Date</th>
+                <th scope="col">Planned Finish Date</th>
                 <th scope="col">Assigned</th>
                 <th scope="col">Expected Time to Spend on Subtask (estimated in hours)</th>
                 <th scope="col">Time Spent on Subtask (in hours)</th>
@@ -50,6 +53,9 @@
             <tr th:each="subtask : ${subtasks}">
                 <td th:text="${subtask.wbs}" aria-label="WBS number"></td>
                 <td th:text="${subtask.subTaskName}" aria-label="Subtask name"></td>
+                <td th:text="${subtask.duration}" aria-label="Duration"></td>
+                <td th:text="${subtask.plannedStartDate}" aria-label="Planned start date"></td>
+                <td th:text="${subtask.plannedFinishDate}" aria-label="Planned finish date"></td>
                 <td th:text="${subtask.assigned}" aria-label="Assigned to"></td>
                 <td th:text="${subtask.timeToSpend}" aria-label="Estimated time to complete subtask"></td>
                 <td th:text="${subtask.timeSpent}" aria-label="Time spent on subtask"></td>

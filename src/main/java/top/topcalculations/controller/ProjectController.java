@@ -210,7 +210,8 @@ public class ProjectController {
                 subTaskService.saveSubTask(project);  // Gem underopgaven
                 redirectAttributes.addFlashAttribute("messageSub", "Subtask added successfully.");  // Success-besked
             } else {
-                redirectAttributes.addFlashAttribute("errorMessage", "Error: Main task not found.");  // Fejlbesked
+                redirectAttributes.addFlashAttribute("errorMessageSub", "Error: Main task not found.");  // Fejlbesked
+                return "redirect:/addSub";  // Omdiriger tilbage til formularen
             }
         }
 

@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>TopCalculations - Edit Project</title>
-    <link rel="stylesheet" th:href="@{/css/view.css}">
     <link rel="stylesheet" th:href="@{/css/styles.css}">
     <link rel="stylesheet" th:href="@{/css/edit.css}" />
     <link rel="stylesheet" th:href="@{/css/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/nav.css}" />
 </head>
 <body>
-
 <nav class="navbar" aria-label="Main navigation">
     <div class="navbar-left">
         <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
@@ -24,51 +22,59 @@
             <a class="nav-link" th:href="@{/profile}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="My Profile">My Profile</a>
             <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
             <span class="nav-link" th:if="${username != null and username.trim() != '' and username != 'Guest'}">
-                <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
-                </form>
-            </span>
+                  <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
+                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
+                  </form>
+               </span>
         </div>
     </div>
-    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
+    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>! </span>
 </nav>
-
-<h1>Edit Project</h1>
+<h1 id="edit-project-heading">Edit Project</h1>
 <div class="container container-custom-edit">
-    <div th:each="project : ${project}">
-        <form th:action="@{/update-project/{id}(id=${project.id})}" method="post" aria-labelledby="edit-project-form">
-            <fieldset>
-                <legend id="edit-project-form" class="sr-only">Edit Project Form</legend>
-                <div>
-                    <label for="WBS" aria-label="WBS">WBS</label>
-                    <input type="text" id="WBS" name="WBS" th:value="${project.wbs}" required disabled aria-labelledby="wbs-desc" />
-                    <span id="wbs-desc" class="sr-only">Work Breakdown Structure.</span>
-                </div>
-                <div>
-                    <label for="projectTaskName" aria-label="Project Name">Project Name</label>
-                    <input type="text" id="projectTaskName" name="projectTaskName" th:value="${project.projectTaskName}" required aria-describedby="project-name-desc" />
-                    <span id="project-name-desc" class="sr-only">Enter the new name of the project.</span>
-                </div>
-                <div>
-                    <label for="plannedStartDate" aria-label="Planned Start Date">Planned Start Date</label>
-                    <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${project.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-start-date-desc" />
-                    <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the subtask.</span>
-                </div>
-                <div>
-                    <label for="plannedFinishDate" aria-label="Planned Finish Date">Planned Finish Date</label>
-                    <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${project.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-finish-date-desc" />
-                    <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the subtask.</span>
-                </div>
-                <div>
-                    <label for="assigned" aria-label="Assigned To">Assigned</label>
-                    <input type="text" id="assigned" name="assigned" th:value="${project.assigned}" required disabled aria-labelledby="assigned-desc" />
-                    <span id="assigned-desc" class="sr-only">Enter the name of the person assigned to this subtask.</span>
-                </div>
-                <div>
-                    <button type="submit" name="action" value="save" aria-label="Save changes">Save Changes</button>
-                </div>
-            </fieldset>
-        </form>
+    <div class="form-wrapper">
+        <div th:each="Project : ${project}">
+            <form th:action="@{/update-project/{id}(id=${Project.id})}" method="post" aria-labelledby="edit-project-form">
+                <fieldset>
+                    <legend id="edit-project-form" class="sr-only">Edit Project Form</legend>
+                    <div class="form-group">
+                        <label for="WBS" aria-label="WBS">WBS</label>
+                        <input type="text" id="WBS" name="WBS" th:value="${Project.wbs}" required disabled aria-labelledby="wbs-desc" />
+                        <span id="wbs-desc" class="sr-only">Work Breakdown Structure.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="projectTaskName" aria-label="Project Name">Project Name</label>
+                        <input type="text"
+                               id="projectTaskName"
+                               name="projectTaskName"
+                               th:value="${Project.projectTaskName}"
+                               required
+                               aria-describedby="project-name-desc"
+                               pattern="^(?!\s*$)(?!.*\d).+"
+                               title="Project name must contain at least one non-space character and no numbers." />
+                        <span id="project-name-desc" class="sr-only">Enter the new name of the project.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="plannedStartDate" aria-label="Planned Start Date">Planned Start Date</label>
+                        <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${Project.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-start-date-desc" />
+                        <span id="planned-start-date-desc" class="sr-only">Change the planned start date for the project.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="plannedFinishDate" aria-label="Planned Finish Date">Planned Finish Date</label>
+                        <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${Project.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-finish-date-desc" />
+                        <span id="planned-finish-date-desc" class="sr-only">Change the planned finish date for the project.</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="assigned" aria-label="Assigned To">Assigned</label>
+                        <input type="text" id="assigned" name="assigned" th:value="${Project.assigned}" required disabled aria-labelledby="assigned-desc" />
+                        <span id="assigned-desc" class="sr-only">Name of the person assigned to this subtask.</span>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" name="action" value="save" aria-label="Save changes">Save Changes</button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
     </div>
 </div>
 <div id="footer-placeholder" th:replace="fragments/footer :: footer" aria-labelledby="footer-placeholder"></div>

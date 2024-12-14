@@ -160,8 +160,8 @@ public class TaskRepository {
         String updateSubtaskSql = "UPDATE subtasks SET task_name = ?, time_spent = time_spent + ? WHERE task_name = ?";
         jdbcTemplate.update(updateSubtaskSql, task.getTaskProjectName(), task.getTimeSpent(), oldTaskName);
 
-        String updateTaskSql = "UPDATE tasks SET task_name = ?, time_spent = time_spent + ? WHERE id = ?";
-        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), id);
+        String updateTaskSql = "UPDATE tasks SET task_name = ?, time_spent = time_spent + ?, planned_start_date = ?, planned_finish_date = ? WHERE id = ?";
+        jdbcTemplate.update(updateTaskSql, task.getTaskProjectName(), task.getTimeSpent(), task.getPlannedStartDate(), task.getPlannedFinishDate(), id);
 
         String sql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
         jdbcTemplate.update(sql, task.getTimeSpent(), task.getProjectTaskName());
