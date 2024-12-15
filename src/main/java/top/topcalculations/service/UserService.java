@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import top.topcalculations.model.Project;
+import top.topcalculations.model.Subtask;
+import top.topcalculations.model.Task;
 import top.topcalculations.model.User;
 import top.topcalculations.repository.UserRepository;
 
@@ -69,15 +72,15 @@ public class UserService {
         }
     }
 
-    public List<String> getProjectsForUser(String username) {
+    public List<Project> getProjectsForUser(String username) {
         return userRepository.getProjectsForUser(username);
     }
 
-    public List<String> getTasksForUser(String username) {
+    public List<Task> getTasksForUser(String username) {
         return userRepository.getTasksForUser(username);
     }
 
-    public List<String> getSubTasksForUser(String username) {
+    public List<Subtask> getSubTasksForUser(String username) {
         return userRepository.getSubTasksForUser(username);
     }
 }

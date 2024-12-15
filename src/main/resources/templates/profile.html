@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>TopCalculations - My Profile</title>
-  <link rel="stylesheet" th:href="@{/css/view.css}">
+  <link rel="stylesheet" th:href="@{/css/profile.css}">
   <link rel="stylesheet" th:href="@{/css/styles.css}">
   <link rel="stylesheet" th:href="@{/css/footer.css}" />
   <link rel="stylesheet" th:href="@{/css/nav.css}" />
@@ -36,57 +36,68 @@
   <div class="container-custom-view">
     <h1 id="profile-header">My Profile</h1>
 
-    <table aria-labelledby="profile-header" aria-describedby="profile-description">
-      <thead>
-      <tr>
-        <th scope="col">My Username</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr>
-        <td th:text="${username}" aria-label="My username"></td>
-      </tr>
-      </tbody>
-    </table>
+    <div class="tables-container">
+      <table aria-labelledby="profile-header" aria-describedby="profile-description">
+        <thead>
+        <tr>
+          <th scope="col">My Username</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td th:text="${username}" aria-label="My username"></td>
+        </tr>
+        </tbody>
+      </table>
 
-    <table aria-labelledby="profile-header" aria-describedby="profile-description">
-      <thead>
-      <tr>
-        <th scope="col">My Projects</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="project : ${project}">
-        <td th:text="${project}" aria-label="My projects"></td>
-      </tr>
-      </tbody>
-    </table>
+      <table aria-labelledby="profile-header" aria-describedby="profile-description">
+        <thead>
+        <tr>
+          <th scope="col">My Projects</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="project : ${projects}">
+          <td th:text="${project.projectName}"></td>
+          <td>
+            <a th:href="@{/view-project/{id}(id=${project.id})}">View</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
 
-    <table aria-labelledby="profile-header" aria-describedby="profile-description">
-      <thead>
-      <tr>
-        <th scope="col">My Tasks</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="task : ${task}">
-        <td th:text="${task}" aria-label="My tasks"></td>
-      </tr>
-      </tbody>
-    </table>
+      <table aria-labelledby="profile-header" aria-describedby="profile-description">
+        <thead>
+        <tr>
+          <th scope="col">My Tasks</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task : ${tasks}">
+          <td th:text="${task.taskName}"></td>
+          <td>
+            <a th:href="@{/view-task/{id}(id=${task.id})}">View</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
 
-    <table aria-labelledby="profile-header" aria-describedby="profile-description">
-      <thead>
-      <tr>
-        <th scope="col">My Subtasks</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="subtask : ${subtask}">
-        <td th:text="${subtask}" aria-label="My subtasks"></td>
-      </tr>
-      </tbody>
-    </table>
+      <table aria-labelledby="profile-header" aria-describedby="profile-description">
+        <thead>
+        <tr>
+          <th scope="col">My Subtasks</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="subtask : ${subtasks}">
+          <td th:text="${subtask.subTaskName}"></td>
+          <td>
+            <a th:href="@{/view-subtask/{id}(id=${subtask.id})}">View</a>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
 

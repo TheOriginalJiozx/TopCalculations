@@ -19,34 +19,34 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ProjectControllerIntegrationsTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private MockMvc mockMvc; // MockMvc til at simulere HTTP-anmodninger
 
     @MockBean
-    private ProjectService projectService;  // Mocking the ProjectService
+    private ProjectService projectService;  // Mock af ProjectService
 
     @Test
     public void testDeleteProject_UserNotLoggedIn() throws Exception {
-        // Act & Assert: Simulate a request without a session user
+        // Act & Assert: Simuler en anmodning uden en bruger i sessionen
         mockMvc.perform(post("/delete-project/1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/login"));
+                .andExpect(status().is3xxRedirection())  // Bekræft at status er en omdirigering
+                .andExpect(redirectedUrl("/login"));  // Bekræft at brugeren bliver omdirigeret til login-siden
 
-        // Verify that the service method is never called
+        // Verificer at service-metoden aldrig blev kaldt
         verify(projectService, never()).deleteProject(anyInt());
     }
 
     @Test
     public void testDeleteProject_UserLoggedIn() throws Exception {
-        // Arrange: Mock the session attribute for a logged-in user
+        // Arrange: Mock session-attributten for en logget-in bruger
         HttpSession session = mock(HttpSession.class);
-        when(session.getAttribute("user")).thenReturn("loggedInUser");
+        when(session.getAttribute("user")).thenReturn("loggedInUser");  // Simuler at brugeren er logget ind
 
-        // Act & Assert: Simulate a request with a valid session
+        // Act & Assert: Simuler en anmodning med en gyldig session
         mockMvc.perform(post("/delete-project/1").sessionAttr("user", "loggedInUser"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/view"));
+                .andExpect(status().is3xxRedirection())  // Bekræft at status er en omdirigering
+                .andExpect(redirectedUrl("/view"));  // Bekræft at brugeren bliver omdirigeret til "view" siden
 
-        // Verify that the deleteProject method is called once with the correct ID
+        // Verificer at deleteProject metoden blev kaldt én gang med den korrekte ID
         verify(projectService, times(1)).deleteProject(1);
     }
 }

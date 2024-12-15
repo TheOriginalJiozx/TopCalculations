@@ -36,7 +36,7 @@ public class UserController {
 
         if (user != null) {
             session.setAttribute("user", user);  // Sætter bruger i sessionen, hvis autentificering er succesfuld
-            return "redirect:/";  // Omdirigerer til forsiden
+            return "redirect:profile";  // Omdirigerer til forsiden
         } else {
             model.addAttribute("error", "Invalid username or password.");  // Tilføjer fejlmeddelelse til modellen
             return "login";  // Forbliver på login-siden
@@ -105,9 +105,9 @@ public class UserController {
         }
 
         model.addAttribute("username", user.getUsername());
-        model.addAttribute("project", userService.getProjectsForUser(user.getUsername()));
-        model.addAttribute("task", userService.getTasksForUser(user.getUsername()));
-        model.addAttribute("subtask", userService.getSubTasksForUser(user.getUsername()));
+        model.addAttribute("projects", userService.getProjectsForUser(user.getUsername()));
+        model.addAttribute("tasks", userService.getTasksForUser(user.getUsername()));
+        model.addAttribute("subtasks", userService.getSubTasksForUser(user.getUsername()));
 
         return "profile";
     }

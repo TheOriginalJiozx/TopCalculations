@@ -6,6 +6,9 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
+import top.topcalculations.model.Project;
+import top.topcalculations.model.Subtask;
+import top.topcalculations.model.Task;
 import top.topcalculations.model.User;
 
 import javax.sql.DataSource;
@@ -104,18 +107,36 @@ public class UserRepository {
         }
     }
 
-    public List<String> getProjectsForUser(String username) {
-        String projectSql = "SELECT project_name FROM projects WHERE assigned = ?";
-        return jdbcTemplate.queryForList(projectSql, String.class, username);
+    public List<Project> getProjectsForUser(String username) {
+        String projectSql = "SELECT id, project_name, assigned FROM projects WHERE assigned = ?";
+        return jdbcTemplate.query(projectSql, (rs, rowNum) -> {
+            Project project = new Project();
+            project.setId(rs.getInt("id"));
+            project.setProjectName(rs.getString("project_name"));
+            project.setAssigned(rs.getString("assigned"));
+            return project;
+        }, username);
     }
 
-    public List<String> getTasksForUser(String username) {
-        String taskSql = "SELECT task_name FROM tasks WHERE assigned = ?";
-        return jdbcTemplate.queryForList(taskSql, String.class, username);
+    public List<Task> getTasksForUser(String username) {
+        String taskSql = "SELECT id, task_name, assigned FROM tasks WHERE assigned = ?";
+        return jdbcTemplate.query(taskSql, (rs, rowNum) -> {
+            Task task = new Task();
+            task.setId(rs.getInt("id"));
+            task.setTaskName(rs.getString("task_name"));
+            task.setAssigned(rs.getString("assigned"));
+            return task;
+        }, username);
     }
 
-    public List<String> getSubTasksForUser(String username) {
-        String subTaskSql = "SELECT sub_task_name FROM subtasks WHERE assigned = ?";
-        return jdbcTemplate.queryForList(subTaskSql, String.class, username);
+    public List<Subtask> getSubTasksForUser(String username) {
+        String subtaskSql = "SELECT id, sub_task_name, assigned FROM subtasks WHERE assigned = ?";
+        return jdbcTemplate.query(subtaskSql, (rs, rowNum) -> {
+            Subtask subtask = new Subtask();
+            subtask.setId(rs.getInt("id"));
+            subtask.setSubTaskName(rs.getString("sub_task_name"));
+            subtask.setAssigned(rs.getString("assigned"));
+            return subtask;
+        }, username);
     }
 }
