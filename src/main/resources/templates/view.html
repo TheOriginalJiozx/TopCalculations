@@ -38,6 +38,7 @@
     <table aria-labelledby="projects-tasks-header" aria-describedby="projects-tasks-description">
       <thead>
       <tr>
+        <th scope="col">#</th>
         <th scope="col">WBS</th>
         <th scope="col">Name</th>
         <th scope="col">Duration</th>
@@ -49,27 +50,16 @@
       </tr>
       </thead>
       <tbody>
-      <tr th:each="project : ${projects}">
-        <td th:text="${project.wbs}" aria-label="WBS number"></td>
-        <td>
-          <a th:if="${project.subTaskName != null}"
-             th:href="@{'/view-subtask/' + ${project.id}}"
-             th:text="${project.projectTaskName}" aria-label="View subtask details"></a>
-
-          <a th:if="${project.subTaskName == null and project.wbs.matches('[0-9]+')}"
-             th:href="@{'/view-project/' + ${project.id}}"
-             th:text="${project.projectTaskName}" aria-label="Project task name"></a>
-
-          <a th:if="${project.subTaskName == null and (project.wbs.contains('.') or not(project.wbs.matches('[0-9]+')))}"
-             th:href="@{'/view-task/' + ${project.id}}"
-             th:text="${project.projectTaskName}" aria-label="View task details"></a>
-        </td>
-        <td th:text="${project.duration}" aria-label="Duration of the task/project"></td>
-        <td th:text="${project.plannedStartDate}" aria-label="Planned start date"></td>
-        <td th:text="${project.plannedFinishDate}" aria-label="Planned finish date"></td>
-        <td th:text="${project.assigned}" aria-label="Assigned to"></td>
-        <td th:text="${project.timeToSpend}" aria-label="Time to spend"></td>
-        <td th:text="${project.status}" aria-label="Status"></td>
+      <tr th:each="entity, iterStat : ${combinedEntities}">
+        <td th:text="${iterStat.index + 1}" aria-label="Row number"></td>
+        <td th:text="${entity.wbs}" aria-label="WBS number"></td>
+        <td th:text="${entity.name}" aria-label="Name"></td>
+        <td th:text="${entity.duration}" aria-label="Duration"></td>
+        <td th:text="${entity.plannedStartDate}" aria-label="Planned start date"></td>
+        <td th:text="${entity.plannedFinishDate}" aria-label="Planned finish date"></td>
+        <td th:text="${entity.assigned}" aria-label="Assigned to"></td>
+        <td th:text="${entity.timeToSpend}" aria-label="Time to complete"></td>
+        <td th:text="${entity.status}" aria-label="Status"></td>
       </tr>
       </tbody>
     </table>

@@ -2,6 +2,7 @@ package top.topcalculations.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
@@ -71,9 +72,9 @@ public class UserRepository {
         }
     }
 
-    public List<String> getAllUsers() {
-        String usersSql = "SELECT username FROM users";
-        return jdbcTemplate.queryForList(usersSql, String.class);
+    public List<User> getAllUsers() {
+        String usersSql = "SELECT * FROM users";
+        return jdbcTemplate.query(usersSql, new BeanPropertyRowMapper<>(User.class));
     }
 
     // Metode til at mappe en ResultSet til et User-objekt

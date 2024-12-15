@@ -34,25 +34,25 @@
 <h1 id="edit-task-heading">Edit Task</h1>
 <div class="container container-custom-edit">
     <div class="form-wrapper">
-        <div th:each="Task : ${task}">
-            <form th:action="@{/update-task/{id}(id=${Task.id})}" method="post" aria-labelledby="edit-subtask-form">
+        <div th:each="task : ${task}">
+            <form th:action="@{/update-task/{id}(id=${task.id})}" method="post" aria-labelledby="edit-subtask-form">
                 <fieldset>
                     <legend id="edit-task-form" class="sr-only">Edit Task Form</legend>
                     <div class="form-group">
                         <label for="WBS">WBS</label>
-                        <input type="text" id="WBS" name="WBS" th:value="${Task.wbs}" required disabled aria-labelledby="WBS" />
+                        <input type="text" id="WBS" name="WBS" th:value="${task.wbs}" required disabled aria-labelledby="WBS" />
                     </div>
                     <div class="form-group">
                         <label for="projectName">Project Name</label>
-                        <input type="text" id="projectName" name="projectTaskName" th:value="${Task.mainProjectName}" aria-labelledby="project-name-desc" required readonly />
+                        <input type="text" id="projectName" name="projectName" th:value="${task.mainProjectName}" aria-labelledby="project-name-desc" required readonly />
                         <span id="project-name-desc" class="sr-only">Name of the project.</span>
                     </div>
                     <div class="form-group">
                         <label for="taskName">New Task Name</label>
                         <input type="text"
                                id="taskName"
-                               name="taskProjectName"
-                               th:value="${Task.taskName}"
+                               name="taskName"
+                               th:value="${task.taskName}"
                                required
                                aria-labelledby="task-name-desc"
                                pattern="^(?!\s*$)(?!.*\d).+"
@@ -61,12 +61,12 @@
                     </div>
                     <div class="form-group">
                         <label for="plannedStartDate" aria-label="Planned Start Date">Planned Start Date</label>
-                        <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${Task.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-start-date-desc" />
+                        <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${task.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" aria-describedby="planned-start-date-desc" />
                         <span id="planned-start-date-desc" class="sr-only">Change the planned start date for the task.</span>
                     </div>
                     <div class="form-group">
                         <label for="plannedFinishDate" aria-label="Planned Finish Date">Planned Finish Date</label>
-                        <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${Task.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-finish-date-desc" />
+                        <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${task.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" aria-describedby="planned-finish-date-desc" />
                         <span id="planned-finish-date-desc" class="sr-only">Change the planned finish date for the task.</span>
                     </div>
                     <div class="form-group">
@@ -81,7 +81,7 @@
                     </div>
                     <div class="form-group">
                         <label for="assigned">Assigned</label>
-                        <input type="text" id="assigned" name="assigned" th:value="${Task.assigned}" required disabled aria-labelledby="assigned-desc" />
+                        <input type="text" id="assigned" name="assigned" th:value="${task.assigned}" required disabled aria-labelledby="assigned-desc" />
                         <span id="assigned-desc" class="sr-only">Name of the person assigned to this subtask.</span>
                     </div>
                     <div>

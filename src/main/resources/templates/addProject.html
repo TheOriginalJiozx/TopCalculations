@@ -31,34 +31,74 @@
     </div>
     <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
 </nav>
-<h1 id="add-project-task-heading">Add Project or Task</h1>
+<h1 id="add-project-task-heading">Add Project</h1>
 <div class="container container-custom-add">
     <div class="form-wrapper">
-        <form th:action="@{/addProject}" th:object="${project}" method="post" aria-labelledby="add-project-task-heading">
+        <form th:action="@{/addProject}"
+              th:object="${project}"
+              method="post"
+              aria-labelledby="add-project-task-heading">
             <fieldset>
                 <legend class="sr-only">Add Project</legend>
                 <div class="form-group">
                     <label for="project_name">Name of Project:</label>
-                    <input type="text" id="project_name" th:field="*{projectName}" required class="form-control" aria-describedby="task-name-desc" pattern="^(?!\s*$)(?!.*\d).+" title="Name must contain at least one non-space character and no numbers." />
-                    <span id="project-name-desc" class="sr-only">Enter the name of the project.</span>
+                    <input type="text"
+                           id="project_name"
+                           th:field="*{projectName}"
+                           required
+                           class="form-control"
+                           aria-describedby="task-name-desc"
+                           pattern="^[a-zA-Z]{5,}$"
+                           title="Project name must contain at least 5 alphabetic characters and no numbers." />
+                    <span id="project-name-desc"
+                          class="sr-only">Enter the name of the project.
+                    </span>
                 </div>
                 <div class="form-group">
                     <label for="planned_start_date">Planned Start Date:</label>
-                    <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-start-date-desc">
-                    <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the project.</span>
+                    <input type="date"
+                           id="planned_start_date"
+                           th:field="*{plannedStartDate}"
+                           th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                           required class="form-control"
+                           aria-describedby="planned-start-date-desc">
+                    <span id="planned-start-date-desc"
+                          class="sr-only">Select the planned start date for the project.
+                    </span>
                 </div>
                 <div class="form-group">
                     <label for="planned_finish_date">Planned Finish Date:</label>
-                    <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-finish-date-desc">
-                    <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the project.</span>
+                    <input type="date"
+                           id="planned_finish_date"
+                           th:field="*{plannedFinishDate}"
+                           th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                           required class="form-control"
+                           aria-describedby="planned-finish-date-desc">
+                    <span id="planned-finish-date-desc"
+                          class="sr-only">Select the planned finish date for the project.
+                    </span>
                 </div>
                 <div class="form-group">
                     <label for="assigned">Assigned:</label>
-                    <input type="text" id="assigned" th:field="*{assigned}" required class="form-control" aria-describedby="assigned-desc">
-                    <span id="assigned-desc" class="sr-only">Enter the name of the person assigned to the project.</span>
+                    <select id="assigned"
+                            th:field="*{assigned}"
+                            required class="form-control"
+                            aria-describedby="assigned-desc">
+                        <option value=""
+                                disabled selected>Select a user
+                        </option>
+                        <option th:each="user : ${users}"
+                                th:value="${user.username}"
+                                th:text="${user.username}">
+                        </option>
+                    </select>
+                    <span id="assigned-desc" class="sr-only">Select the user assigned to the project.</span>
                 </div>
                 <div class="form-group">
-                    <button type="submit" class="btn btn-primary" aria-label="Save project or task">Save</button>
+                    <button type="submit"
+                            class="btn btn-primary"
+                            aria-label="Save project">Save
+                    </button>
                 </div>
             </fieldset>
         </form>

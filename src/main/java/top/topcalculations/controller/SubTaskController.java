@@ -14,6 +14,7 @@ import top.topcalculations.model.Task;
 import top.topcalculations.model.User;
 import top.topcalculations.service.SubTaskService;
 import top.topcalculations.service.TaskService;
+import top.topcalculations.service.UserService;
 
 import java.util.List;
 
@@ -22,10 +23,12 @@ public class SubTaskController {
 
     private final SubTaskService subTaskService;
     private final TaskService taskService;
+    private final UserService userService;
 
-    public SubTaskController(SubTaskService subTaskService, TaskService taskService) {
+    public SubTaskController(SubTaskService subTaskService, TaskService taskService, UserService userService) {
         this.subTaskService = subTaskService;
         this.taskService = taskService;
+        this.userService = userService;
     }
 
     // Vis formularen til at tilføje en underopgave
@@ -52,6 +55,10 @@ public class SubTaskController {
 
         List<Task> tasks = taskService.getAllTasks();  // Hent alle opgaver
         model.addAttribute("tasks", tasks);  // Tilføj opgaver til model
+
+        List<User> users = userService.getAllUsers();  // Assume userService is injected
+        model.addAttribute("users", users);  // Add the list of users to the model
+
         model.addAttribute("subtask", new Subtask());  // Tilføj et nyt tomt projekt til model
         return "addSub";  // Returner formularen til tilføjelse af underopgave
     }
@@ -90,8 +97,8 @@ public class SubTaskController {
                 String newWBS = mainTaskWBS + "." + (highestSubtaskIndex + 1);
 
                 subTask.setWbs(newWBS);  // Sæt WBS for den nye underopgave
-                subTask.setTaskName(mainTask.getTaskName());  // Sæt taskProjectName
-                subTask.setProjectName(mainTask.getProjectName());  // Sæt projectTaskName
+                subTask.setTaskName(mainTask.getTaskName());  // Sæt taskName
+                subTask.setProjectName(mainTask.getProjectName());  // Sæt projectName
                 subTask.setResource_name(subTask.getResource_name());
                 subTask.setId(subTask.getId());
 
@@ -171,7 +178,7 @@ public class SubTaskController {
     }
 
     @PostMapping("/update-subtask/{id}")
-    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Subtask subtask, HttpSession session, String oldSubTaskName) {
+    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Subtask subtask, @ModelAttribute Project project, @ModelAttribute Task task, HttpSession session) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
@@ -181,7 +188,7 @@ public class SubTaskController {
         System.out.println("Ny varighed: " + subtask.getDuration());
 
         subtask.setId(id);  // Sætter ID for underopgaven
-        subTaskService.updateSubTask(id, subtask, oldSubTaskName);  // Opdater underopgave
+        subTaskService.updateSubTask(id, subtask, project, task);  // Opdater underopgave
 
         return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
     }

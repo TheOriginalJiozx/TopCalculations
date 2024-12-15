@@ -43,7 +43,7 @@
       </thead>
       <tbody>
       <tr th:each="user : ${users}">
-        <td th:text="${user}" aria-label="Created users"></td>
+        <td th:text="${user.username}" aria-label="Created users"></td>
       </tr>
       </tbody>
     </table>

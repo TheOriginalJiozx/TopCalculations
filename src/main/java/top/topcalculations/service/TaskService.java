@@ -13,14 +13,20 @@ public class TaskService {
     @Autowired
     private TaskRepository taskRepository; // Injicerer TaskRepository for at kunne interagere med databasen
 
+    public List<Task> getTasks() {
+        // Hent alle opgaver (tasks) fra repository
+        List<Task> tasks = taskRepository.getAllTasks();
+        return tasks;
+    }
+
     // Gemmer en opgave i databasen
     public void saveTask(Task task, Project project) {
         taskRepository.saveTask(task, project); // Kald til repository-metode for at gemme opgaven
     }
 
     // Opdaterer en opgave i databasen
-    public void updateTask(int id, Task task, String oldTaskName) {
-        taskRepository.updateTask(id, task, oldTaskName); // Kald til repository-metode for at opdatere opgaven
+    public void updateTask(int id, Task task, String oldTaskName, Project project) {
+        taskRepository.updateTask(id, task, oldTaskName, project); // Kald til repository-metode for at opdatere opgaven
     }
 
     // Opdaterer en opgaves status i databasen

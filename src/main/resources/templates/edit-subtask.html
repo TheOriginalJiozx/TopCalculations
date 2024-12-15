@@ -45,12 +45,12 @@
                     </div>
                     <div>
                         <label for="projectName" aria-labelledby="Project Name">Project Name</label>
-                        <input type="text" id="projectName" name="projectTaskName" th:value="${subTask.projectName}" required aria-labelledby="project-name-desc" readonly />
+                        <input type="text" id="projectName" name="projectName" th:value="${subTask.projectName}" required aria-labelledby="project-name-desc" readonly />
                         <span id="project-name-desc" class="sr-only">Name of the project.</span>
                     </div>
                     <div>
                         <label for="taskName" aria-labelledby="Task Name">Task Name</label>
-                        <input type="text" id="taskName" name="taskProjectName" th:value="${subTask.taskName}" required aria-labelledby="task-name-desc" readonly />
+                        <input type="text" id="taskName" name="taskName" th:value="${subTask.taskName}" required aria-labelledby="task-name-desc" readonly />
                         <span id="task-name-desc" class="sr-only">Name of the task.</span>
                     </div>
                     <div class="form-group">
@@ -67,12 +67,12 @@
                     </div>
                     <div class="form-group">
                         <label for="plannedStartDate" aria-label="Planned Start Date">Planned Start Date</label>
-                        <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${subTask.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-start-date-desc" />
+                        <input type="date" id="plannedStartDate" name="plannedStartDate" th:value="${subTask.plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" aria-describedby="planned-start-date-desc" />
                         <span id="planned-start-date-desc" class="sr-only">Change the planned start date for the subtask.</span>
                     </div>
                     <div class="form-group">
                         <label for="plannedFinishDate" aria-label="Planned Finish Date">Planned Finish Date</label>
-                        <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${subTask.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required aria-describedby="planned-finish-date-desc" />
+                        <input type="date" id="plannedFinishDate" name="plannedFinishDate" th:value="${subTask.plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" aria-describedby="planned-finish-date-desc" />
                         <span id="planned-finish-date-desc" class="sr-only">Change the planned finish date for the subtask.</span>
                     </div>
                     <div class="form-group">

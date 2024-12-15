@@ -5,9 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import top.topcalculations.model.Project;
-import top.topcalculations.model.Task;
-import top.topcalculations.model.User;
+import top.topcalculations.model.*;
 import top.topcalculations.service.ProjectService;
 import top.topcalculations.service.SubTaskService;
 import top.topcalculations.service.TaskService;
@@ -52,12 +50,13 @@ public class ProjectController {
 
     @GetMapping("/addProject")
     public String showAddProjectForm(Model model, HttpSession session) {
-        // Tjek om brugeren er logget ind, ellers send til login
+        // Check if the user is logged in, otherwise redirect to login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect til login-siden
+            return "redirect:/login";  // Redirect to login page
         }
 
         User user = (User) session.getAttribute("user");
+
         if (user != null) {
             model.addAttribute("username", user.getUsername());  // Add username to the model
 
@@ -71,8 +70,11 @@ public class ProjectController {
             model.addAttribute("isAdmin", false);  // Set isAdmin to false for guest users
         }
 
-        model.addAttribute("project", new Project());  // Tilføj et nyt tomt Project objekt til modellen til formular binding
-        return "addProject";  // Returnér "addTask" viewet for at vise formularen
+        List<User> users = userService.getAllUsers();  // Assume userService is injected
+        model.addAttribute("users", users);  // Add the list of users to the model
+
+        model.addAttribute("project", new Project());  // Add a new empty Project object for the form binding
+        return "addProject";  // Return the "addProject" view to show the form
     }
 
     @PostMapping("/addProject")
@@ -108,48 +110,6 @@ public class ProjectController {
 
         // Omdiriger tilbage til formularen for at tilføje et projekt/opgave
         return "redirect:/addProject";  // Omdiriger tilbage til formularen for at tilføje et projekt/opgave
-    }
-
-    // Viser et view over alle projekter, tasks og subtasks
-    @GetMapping("/view")
-    public String view(Model model, HttpSession session) {
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect to login page if the user is not logged in
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
-        }
-
-        List<Object> projects = projectService.getAll();  // Get all projects, tasks, and subtasks
-        model.addAttribute("projects", projects);  // Add projects, tasks, and subtasks to the model
-
-        // Calculate the total time to spend, excluding projects with status "done"
-        double totalTimeToSpend = projects.stream()
-                .filter(project -> !(project instanceof Project && "done".equals(((Project) project).getStatus())))
-                .mapToDouble(project -> {
-                    // Assuming project has a method `getTimeToSpend` that returns a numeric value
-                    if (project instanceof Project) {
-                        return ((Project) project).getTimeToSpend();
-                    }
-                    return 0;  // Return 0 if the project doesn't have a timeToSpend value
-                })
-                .sum();
-
-        // Add the total time to spend to the model
-        model.addAttribute("totalTimeToSpend", totalTimeToSpend);
-
-        return "view";  // Return the view to display projects
     }
 
     // Vis et specifikt projekt ved ID

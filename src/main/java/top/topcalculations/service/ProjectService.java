@@ -43,22 +43,10 @@ public class ProjectService {
         projectRepository.deleteProject(id);
     }
 
-    public List<Object> getAll() {
+    public List<Project> getProjects() {
         // Hent alle projekter fra repository
         List<Project> projects = projectRepository.getAllProjects();
-        // Hent alle opgaver (tasks) fra repository
-        List<Task> tasks = taskRepository.getAllTasks();
-        // Hent alle delopgaver (subtasks) fra repository
-        List<Subtask> subtasks = subTaskRepository.getAllSubTasks();
-        // Opret en liste til at indeholde alle data (projekter, opgaver og delopgaver)
-        List<Object> allData = new ArrayList<>();
-        // Tilføj alle projekter til listen
-        allData.addAll(projects);
-        // Tilføj alle opgaver til listen
-        allData.addAll(tasks);
-        // Tilføj alle delopgaver til listen
-        allData.addAll(subtasks);        // Returner den kombinerede liste med alle data
-        return allData;
+        return projects;
     }
 
     // Henter alle hovedprojekter (uden opgaver) fra databasen

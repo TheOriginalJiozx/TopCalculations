@@ -13,6 +13,7 @@ import top.topcalculations.model.Task;
 import top.topcalculations.service.ProjectService;
 import top.topcalculations.model.User;
 import top.topcalculations.service.TaskService;
+import top.topcalculations.service.UserService;
 
 import java.util.List;
 
@@ -21,10 +22,12 @@ public class TaskController {
 
     private final TaskService taskService;
     private final ProjectService projectService;
+    private final UserService userService;
 
-    public TaskController(TaskService taskService, ProjectService projectService) {
+    public TaskController(TaskService taskService, ProjectService projectService, UserService userService) {
         this.taskService = taskService;
         this.projectService = projectService;
+        this.userService = userService;
     }
 
     @GetMapping("/addTask")
@@ -51,6 +54,11 @@ public class TaskController {
 
         List<Project> projects = projectService.getAllProjects();  // Get all projects
         model.addAttribute("projects", projects);  // Add the list of projects to the model
+
+        // Fetch the list of users (usernames)
+        List<User> users = userService.getAllUsers();  // Assume userService is injected
+        model.addAttribute("users", users);  // Add the list of users to the model
+
         model.addAttribute("task", new Task());  // Add a new empty Task object for the form binding
 
         return "addTask";  // Return the "addTask" view to show the form
@@ -168,13 +176,13 @@ public class TaskController {
     }
 
     @PostMapping("/update-task/{id}")
-    public String updateTask(@PathVariable("id") int id, @ModelAttribute Task task, HttpSession session, String oldTaskName) {
+    public String updateTask(@PathVariable("id") int id, @ModelAttribute Task task, @ModelAttribute Project project, HttpSession session, String oldTaskName) {
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Redirect til login-siden
         }
 
         task.setId(id);  // Sætter ID for opgaven
-        taskService.updateTask(id, task, oldTaskName);  // Opdater opgaven
+        taskService.updateTask(id, task, oldTaskName, project);  // Opdater opgaven
 
         return "redirect:/view-task/" + id;  // Redirect til visning af opgaven
     }

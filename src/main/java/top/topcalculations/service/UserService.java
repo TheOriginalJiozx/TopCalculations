@@ -22,8 +22,8 @@ public class UserService {
     }
 
     // Metode til at finde alle oprettede brugere
-    public List<String> getAllUsers() {
-        return userRepository.getAllUsers();
+    public List<User> getAllUsers() {
+        return userRepository.getAllUsers();  // Fetch the list of users
     }
 
     // Metode til at autentificere en bruger ved login

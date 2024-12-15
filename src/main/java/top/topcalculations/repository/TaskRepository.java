@@ -33,7 +33,7 @@ public class TaskRepository {
 
         try {
             // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-            jdbcTemplate.update(sql, task.getWbs(), project.getProjectName(), fullTaskName,
+            jdbcTemplate.update(sql, task.getWbs(), task.getProjectName(), fullTaskName,
                     task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
         } catch (Exception e) {
             // Hvis den første SQL fejler, udfør alternativ forespørgsel med DATEDIFF(DAY, ?, ?)
@@ -43,7 +43,7 @@ public class TaskRepository {
             String fallbackSql = "INSERT INTO tasks (WBS, project_name, task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
                     "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
             // Udfør den alternative SQL forespørgsel
-            jdbcTemplate.update(fallbackSql, task.getWbs(), task.getProjectName(), fullTaskName,
+            jdbcTemplate.update(fallbackSql, task.getWbs(), project.getProjectName(), fullTaskName,
                     task.getTimeToSpend(), task.getAssigned(), task.getPlannedStartDate(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
         }
 
@@ -66,12 +66,12 @@ public class TaskRepository {
         jdbcTemplate.update(sql2, task.getResource_name(), taskId);
 
         // Opdaterer den forventede tid for projektet baseret på opgaven
-        addExpectedTimeToProjectFromTask(task);
+        addExpectedTimeToProjectFromTask(task, project);
     }
 
-    private void addExpectedTimeToProjectFromTask(Task task) {
+    private void addExpectedTimeToProjectFromTask(Task task, Project project) {
         String sql = "UPDATE projects SET expected_time_in_total = expected_time_in_total + ? WHERE project_name = ?";
-        jdbcTemplate.update(sql, task.getTimeToSpend(), task.getProjectName());
+        jdbcTemplate.update(sql, task.getTimeToSpend(), project.getProjectName());
     }
 
     // Finder en opgave baseret på dens navn
@@ -81,7 +81,7 @@ public class TaskRepository {
         return tasks.isEmpty() ? null : tasks.get(0);  // Returner opgaven eller null, hvis ikke fundet
     }
 
-    // Henter alle opgaver fra databasen
+    // Henter alle opgaver fra databasen //skal ændres
     public List<Task> getAllTasks() {
         String sql = "SELECT *, time_to_spend, status FROM tasks";  // Adjust column name as needed
         List<Task> tasks = jdbcTemplate.query(sql, new TaskRepository.TaskRowMapper());
@@ -157,7 +157,7 @@ public class TaskRepository {
     }
 
     // Opdaterer en opgave i databasen
-    public void updateTask(int id, Task task, String oldTaskName) {
+    public void updateTask(int id, Task task, String oldTaskName, Project project) {
         String updateSubtaskSql = "UPDATE subtasks SET task_name = ?, time_spent = time_spent + ? WHERE task_name = ?";
         jdbcTemplate.update(updateSubtaskSql, task.getTaskName(), task.getTimeSpent(), oldTaskName);
 
@@ -168,6 +168,7 @@ public class TaskRepository {
         jdbcTemplate.update(sql, task.getTimeSpent(), task.getProjectName());
 
         System.out.println("Project name: " + task.getProjectName());
+        System.out.println("Task name: " + task.getTaskName());
 
         String insertIntoTimeSpentTasks = "INSERT INTO time_spent_tasks (days_date, time_spent, task_name) VALUES (CURRENT_DATE, ?, ?)";
         jdbcTemplate.update(insertIntoTimeSpentTasks, task.getTimeSpent(), task.getTaskName());

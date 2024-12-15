@@ -48,7 +48,7 @@ public class SubTaskRepository {
 
             // Anden SQL-spørgsmål for at indsætte en delopgave med DATEDIFF(DAY, ?, ?)
             String fallbackSql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                    "VALUES (?, ?, ?, (SELECT project_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
+                    "VALUES (?, ?, ?, (SELECT prorject_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
 
             // Udfør den alternative SQL forespørgsel
             jdbcTemplate.update(fallbackSql, subTask.getWbs(), subTask.getTaskName(), fullSubTaskName, subTask.getTaskName(),
@@ -179,17 +179,18 @@ public class SubTaskRepository {
     }
 
     // Opdaterer en underopgave i databasen
-    public void updateSubTask(int id, Subtask subTask, String oldSubTaskName) {
+    public void updateSubTask(int id, Subtask subTask, Project project, Task task) {
         String sql = "UPDATE subtasks SET sub_task_name = ?, time_spent = time_spent + ?, planned_start_date = ?, planned_finish_date = ? WHERE id = ?";
         jdbcTemplate.update(sql, subTask.getSubTaskName(), subTask.getTimeSpent(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(), id);
 
         String updateTaskSql = "UPDATE tasks SET time_spent = time_spent + ? WHERE task_name = ?";
-        jdbcTemplate.update(updateTaskSql, subTask.getTimeSpent(), subTask.getTaskName());
+        jdbcTemplate.update(updateTaskSql, subTask.getTimeSpent(), task.getTaskName());
 
         String updateProjectSql = "UPDATE projects SET time_spent = time_spent + ? WHERE project_name = ?";
         jdbcTemplate.update(updateProjectSql, subTask.getTimeSpent(), subTask.getProjectName());
 
-        System.out.println("Task name: " + subTask.getTaskName());
+        System.out.println("Task name: " + task.getTaskName());
+        System.out.println("Project name: " + subTask.getProjectName());
 
         String insertIntoTimeSpentSubTasks = "INSERT INTO time_spent_subtasks (days_date, time_spent, sub_task_name) VALUES (CURRENT_DATE, ?, ?)";
         jdbcTemplate.update(insertIntoTimeSpentSubTasks, subTask.getTimeSpent(), subTask.getSubTaskName());
@@ -349,5 +350,4 @@ public class SubTaskRepository {
             return subTask; // Returner det mapperede Subtask-objekt
         }
     }
-
 }

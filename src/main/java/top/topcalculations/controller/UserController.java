@@ -87,7 +87,7 @@ public class UserController {
             return "redirect:/";
         }
 
-        List<String> users = userService.getAllUsers();
+        List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
         return "admin";
     }

@@ -18,14 +18,20 @@ public class SubTaskService {
     @Autowired
     private TaskRepository taskRepository;
 
+    public List<Subtask> getSubTasks() {
+        // Hent alle opgaver (tasks) fra repository
+        List<Subtask> subtasks = subTaskRepository.getAllSubTasks();
+        return subtasks;
+    }
+
     // Gemmer en underopgave i databasen
     public void saveSubTask(Subtask subTask, Task task) {
         subTaskRepository.saveSubTask(subTask, task); // Kald til repository-metode for at gemme underopgaven
     }
 
     // Opdaterer en underopgave i databasen
-    public void updateSubTask(int id, Subtask subTask, String oldSubTaskName) {
-        subTaskRepository.updateSubTask(id, subTask, oldSubTaskName); // Kald til repository-metode for at opdatere underopgaven
+    public void updateSubTask(int id, Subtask subTask, Project project, Task task) {
+        subTaskRepository.updateSubTask(id, subTask, project, task); // Kald til repository-metode for at opdatere underopgaven
     }
 
     // Opdaterer en underopgaves status i databasen

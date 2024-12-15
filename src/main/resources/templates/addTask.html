@@ -23,13 +23,13 @@
             <a class="nav-link" th:href="@{/profile}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="My Profile">My Profile</a>
             <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
             <span class="nav-link" th:if="${username != null and username.trim() != '' and username != 'Guest'}">
-                <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
-                    <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
-                </form>
-            </span>
+                  <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
+                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
+                  </form>
+               </span>
         </div>
     </div>
-    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>!</span>
+    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>! </span>
 </nav>
 <h1 id="add-project-task-heading">Add Task</h1>
 <div class="container container-custom-add">
@@ -39,7 +39,7 @@
                 <legend class="sr-only">Add Project or Task Form</legend>
                 <div class="form-group">
                     <label for="task_name">Name of Task:</label>
-                    <input type="text" id="task_name" th:field="*{taskName}" required class="form-control" aria-describedby="task-name-desc" pattern="^(?!\s*$)(?!.*\d).+" title="Name must contain at least one non-space character and no numbers." />
+                    <input type="text" id="task_name" th:field="*{taskName}" required class="form-control" aria-describedby="task-name-desc" pattern="^[a-zA-Z]{5,}$" title="Name must contain at least 5 alphabetic characters." />
                     <span id="task-name-desc" class="sr-only">Enter the name of the task.</span>
                 </div>
                 <div class="form-group">
@@ -73,14 +73,17 @@
                            required
                            class="form-control"
                            aria-describedby="resources-desc"
-                           pattern="^(?!\s*$).+"
-                           title="Resources must contain at least one non-space character." />
+                           pattern="^(?=.*[a-zA-Z])[a-zA-Z\s]+$"
+                           title="Resources must contain at least one alphabetic character and may include spaces." />
                     <span id="resources-desc" class="sr-only">Enter the resource(s) required for the task.</span>
                 </div>
                 <div class="form-group">
                     <label for="assigned">Assigned:</label>
-                    <input type="text" id="assigned" th:field="*{assigned}" required class="form-control" aria-describedby="assigned-desc">
-                    <span id="assigned-desc" class="sr-only">Enter the name of the person assigned to the task.</span>
+                    <select id="assigned" th:field="*{assigned}" required class="form-control" aria-describedby="assigned-desc">
+                        <option value="" disabled selected>Select a user</option>
+                        <option th:each="user : ${users}" th:value="${user.username}" th:text="${user.username}"></option>
+                    </select>
+                    <span id="assigned-desc" class="sr-only">Select the user assigned to the task.</span>
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary" aria-label="Save project or task">Save</button>
