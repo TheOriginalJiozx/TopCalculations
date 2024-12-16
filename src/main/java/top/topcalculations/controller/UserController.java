@@ -38,7 +38,7 @@ public class UserController {
             session.setAttribute("user", user);  // Sætter bruger i sessionen, hvis autentificering er succesfuld
             return "redirect:profile";  // Omdirigerer til forsiden
         } else {
-            model.addAttribute("error", "Invalid username or password.");  // Tilføjer fejlmeddelelse til modellen
+            model.addAttribute("error", "Invalid username or password. Please try again.");  // Tilføjer fejlmeddelelse til modellen
             return "login";  // Forbliver på login-siden
         }
     }
