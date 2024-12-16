@@ -83,4 +83,9 @@ public class UserService {
     public List<Subtask> getSubTasksForUser(String username) {
         return userRepository.getSubTasksForUser(username);
     }
+
+    // Opdaterer en opgaves status i databasen
+    public void updateAnonymization(Long id, String anonymous) {
+        userRepository.updateAnonymizationByUserID(id, anonymous);
+    }
 }

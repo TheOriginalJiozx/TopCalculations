@@ -38,14 +38,17 @@ public class SubTaskService {
     public void updateSubTaskStatus(Long id, String status) {
         subTaskRepository.updateSubTaskStatusByID(id, status);
     }
+
     // Sletter en underopgave i databasen
     public void deleteSubTask(int id) {
         subTaskRepository.deleteSubTask(id);
     }
+
     // Henter underopgaver baseret på ID fra databasen
     public List<Subtask> getSubTaskByID(Long id) {
         return subTaskRepository.findSubTaskByID(id); // Kald til repository-metode for at hente underopgave baseret på ID
     }
+
     public int getHighestWbsIndexForSubtasks(String mainTaskWBS) {
         // Get the highest WBS index from tasks and subtasks tables
         int highestIndexFromTasks = taskRepository.getHighestWbsIndexFromTasks(mainTaskWBS);

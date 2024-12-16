@@ -6,6 +6,7 @@ public class User {
     private String password;
     private boolean enabled;
     private String role;
+    private String anonymize;
 
     public Long getId() {
         return id;
@@ -21,6 +22,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getAnonymize() {
+        return anonymize;
+    }
+
+    public void setAnonymize(String anonymize) {
+        this.anonymize = anonymize;
     }
 
     public String getUsername() {

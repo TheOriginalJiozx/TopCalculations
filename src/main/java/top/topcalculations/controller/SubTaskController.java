@@ -75,13 +75,13 @@ public class SubTaskController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Sæt til true hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæster
         }
 
         if (subTask.getTaskName() != null && !subTask.getTaskName().isEmpty()) {  // Hvis taskProjectName er angivet

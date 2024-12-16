@@ -33,7 +33,7 @@ public class TaskRepository {
 
         try {
             // Udfører SQL-spørgsmålet og gemmer opgaven i databasen
-            jdbcTemplate.update(sql, task.getWbs(), task.getProjectName(), fullTaskName,
+            jdbcTemplate.update(sql, task.getWbs(), project.getProjectName(), fullTaskName,
                     task.getTimeToSpend(), task.getAssigned(), task.getPlannedFinishDate(), task.getPlannedStartDate(), task.getPlannedStartDate(), task.getPlannedFinishDate());
         } catch (Exception e) {
             // Hvis den første SQL fejler, udfør alternativ forespørgsel med DATEDIFF(DAY, ?, ?)

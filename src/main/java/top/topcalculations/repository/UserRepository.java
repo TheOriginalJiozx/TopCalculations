@@ -107,6 +107,28 @@ public class UserRepository {
         }
     }
 
+    // Opdaterer en opgaves status
+    public void updateAnonymizationByUserID(Long id, String anonymization) {
+        String findUserByIdSql = "SELECT * FROM users WHERE id = ?";
+        try {
+            User user = jdbcTemplate.queryForObject(findUserByIdSql, new Object[]{id}, this::mapRowToUser);
+
+            String updateSql = "UPDATE users SET anonymous = ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, anonymization, id);
+
+            String updateProjects = "UPDATE projects SET assigned = 'Anonymous' WHERE assigned = (SELECT username FROM users WHERE id = ?)";
+            jdbcTemplate.update(updateProjects, anonymization);
+
+            String updateTasks = "UPDATE tasks SET assigned = 'Anonymous' WHERE assigned = (SELECT username FROM users WHERE id = ?)";
+            jdbcTemplate.update(updateTasks, anonymization);
+
+            String updateSubTasks = "UPDATE subtasks SET assigned = 'Anonymous' WHERE assigned = (SELECT username FROM users WHERE id = ?)";
+            jdbcTemplate.update(updateSubTasks, anonymization);
+        } catch (EmptyResultDataAccessException e) {
+            throw new RuntimeException("User with ID " + id + " not found");
+        }
+    }
+
     public List<Project> getProjectsForUser(String username) {
         String projectSql = "SELECT id, project_name, assigned FROM projects WHERE assigned = ?";
         return jdbcTemplate.query(projectSql, (rs, rowNum) -> {
