@@ -15,7 +15,7 @@
     <div class="navbar-links">
       <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}">Home</a>
       <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}">Login</a>
-      <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Signup</a>
+      <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}">Sign up</a>
       <a class="nav-link" th:href="@{/view}" th:if="${username != null and username.trim() != '' and username != 'Guest'}">View Projects</a>
       <a class="nav-link" th:href="@{/addProject}" th:if="${username != null and username.trim() != '' and username != 'Guest'}">Add Project</a>
       <a class="nav-link" th:href="@{/addTask}" th:if="${username != null and username.trim() != '' and username != 'Guest'}">Add Task</a>

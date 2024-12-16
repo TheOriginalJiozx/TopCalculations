@@ -14,7 +14,7 @@
         <div class="navbar-links">
             <a class="nav-link" th:href="@{/}" aria-label="Home">Home</a>
             <a class="nav-link" th:href="@{/login}" aria-label="Login">Login</a>
-            <a class="nav-link" th:href="@{/signup}" aria-label="Signup">Signup</a>
+            <a class="nav-link" th:href="@{/signup}" aria-label="Signup">Sign up</a>
             <a class="nav-link" th:href="@{/view}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="View Projects">View</a>
             <a class="nav-link" th:href="@{/addProject}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Project">Add Project</a>
             <a class="nav-link" th:href="@{/addTask}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Task">Add Task</a>
