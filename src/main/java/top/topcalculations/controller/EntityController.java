@@ -59,7 +59,7 @@ public class EntityController {
                     project.getPlannedStartDate(),
                     project.getPlannedFinishDate(),
                     project.getAssigned(),
-                    String.valueOf(project.getTimeToSpend()),
+                    project.getTimeToSpend(),
                     project.getStatus()
             );
             combinedEntities.add(entity);
@@ -74,7 +74,7 @@ public class EntityController {
                     task.getPlannedStartDate(),
                     task.getPlannedFinishDate(),
                     task.getAssigned(),
-                    String.valueOf(task.getTimeToSpend()),
+                    task.getTimeToSpend(),
                     task.getStatus()
             );
             combinedEntities.add(entity);
@@ -89,7 +89,7 @@ public class EntityController {
                     subtask.getPlannedStartDate(),
                     subtask.getPlannedFinishDate(),
                     subtask.getAssigned(),
-                    String.valueOf(subtask.getTimeToSpend()),
+                    subtask.getTimeToSpend(),
                     subtask.getStatus()
             );
             combinedEntities.add(entity);

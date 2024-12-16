@@ -11,12 +11,12 @@ public class CombinedEntity {
     private String plannedStartDate;
     private String plannedFinishDate;
     private String assigned;
-    private String timeToSpend;
+    private double timeToSpend;
     private String status;
 
     // Constructor, getters, and setters
     public CombinedEntity(String wbs, String name, double duration, String plannedStartDate,
-                          String plannedFinishDate, String assigned, String timeToSpend, String status) {
+                          String plannedFinishDate, String assigned, double timeToSpend, String status) {
         this.wbs = wbs;
         this.name = name;
         this.duration = duration;
@@ -46,8 +46,8 @@ public class CombinedEntity {
     public void setPlannedFinishDate(String plannedFinishDate) { this.plannedFinishDate = plannedFinishDate; }
     public String getAssigned() { return assigned; }
     public void setAssigned(String assigned) { this.assigned = assigned; }
-    public String getTimeToSpend() { return timeToSpend; }
-    public void setTimeToSpend(String timeToSpend) { this.timeToSpend = timeToSpend; }
+    public double getTimeToSpend() { return timeToSpend; }
+    public void setTimeToSpend(double timeToSpend) { this.timeToSpend = timeToSpend; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 }
