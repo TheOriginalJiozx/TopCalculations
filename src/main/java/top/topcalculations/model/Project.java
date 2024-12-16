@@ -12,7 +12,6 @@ public class Project {
     private double timeSpent;
     private Double expectedTimeInTotal;
     private Double timeToSpend;
-    private String resource_name;
     private String status;
 
     public void setId(int id) {
@@ -101,14 +100,6 @@ public class Project {
 
     public void setAssigned(String assigned) {
         this.assigned = assigned;
-    }
-
-    public void setResource_name(String resource_name) {
-        this.resource_name = resource_name;
-    }
-
-    public String getResource_name() {
-        return resource_name;
     }
 
     public void setStatus(String status) {

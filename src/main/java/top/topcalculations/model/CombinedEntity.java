@@ -7,15 +7,14 @@ import java.util.stream.Collectors;
 public class CombinedEntity {
     private String wbs;
     private String name;
-    private double duration;
+    private int duration;
     private String plannedStartDate;
     private String plannedFinishDate;
     private String assigned;
     private double timeToSpend;
     private String status;
 
-    // Constructor, getters, and setters
-    public CombinedEntity(String wbs, String name, double duration, String plannedStartDate,
+    public CombinedEntity(String wbs, String name, int duration, String plannedStartDate,
                           String plannedFinishDate, String assigned, double timeToSpend, String status) {
         this.wbs = wbs;
         this.name = name;
@@ -39,7 +38,7 @@ public class CombinedEntity {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public double getDuration() { return duration; }
-    public void setDuration(double duration) { this.duration = duration; }
+    public void setDuration(int duration) { this.duration = duration; }
     public String getPlannedStartDate() { return plannedStartDate; }
     public void setPlannedStartDate(String plannedStartDate) { this.plannedStartDate = plannedStartDate; }
     public String getPlannedFinishDate() { return plannedFinishDate; }
