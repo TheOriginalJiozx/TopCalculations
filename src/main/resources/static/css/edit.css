@@ -61,6 +61,12 @@ h1 {
         padding: 5px;
     }
 
+    .form-group {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
     .sr-only {
         display: block;
         margin-top: 5px;

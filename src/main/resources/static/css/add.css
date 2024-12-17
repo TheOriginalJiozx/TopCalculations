@@ -57,6 +57,12 @@ h1 {
         padding: 10px;
     }
 
+    .form-group {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
     th, td {
         padding: 5px;
     }
