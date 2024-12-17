@@ -4,6 +4,9 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
+import top.topcalculations.model.Project;
+import top.topcalculations.model.Subtask;
+import top.topcalculations.model.Task;
 import top.topcalculations.model.User;
 import top.topcalculations.repository.UserRepository;
 
@@ -22,8 +25,8 @@ public class UserService {
     }
 
     // Metode til at finde alle oprettede brugere
-    public List<String> getAllUsers() {
-        return userRepository.getAllUsers();
+    public List<User> getAllUsers() {
+        return userRepository.getAllUsers();  // Fetch the list of users
     }
 
     // Metode til at autentificere en bruger ved login
@@ -35,6 +38,8 @@ public class UserService {
             // Sammenlign den indtastede password (efter hashing) med den lagrede hashed password
             String hashedEnteredPassword = hashPassword(password);  // Brug samme hash-logik som ved sign up
             if (hashedEnteredPassword.equals(user.getPassword())) {
+                // Opdater last_login-feltet til den nuværende dato
+                userRepository.updateLastLogin(user.getUsername());  // Kalder en metode i UserRepository
                 return user;  // Autentificering er vellykket
             }
         }
@@ -67,15 +72,20 @@ public class UserService {
         }
     }
 
-    public List<String> getProjectsForUser(String username) {
+    public List<Project> getProjectsForUser(String username) {
         return userRepository.getProjectsForUser(username);
     }
 
-    public List<String> getTasksForUser(String username) {
+    public List<Task> getTasksForUser(String username) {
         return userRepository.getTasksForUser(username);
     }
 
-    public List<String> getSubTasksForUser(String username) {
+    public List<Subtask> getSubTasksForUser(String username) {
         return userRepository.getSubTasksForUser(username);
+    }
+
+    // Opdaterer en opgaves status i databasen
+    public void updateAnonymization(Long id, String anonymous) {
+        userRepository.updateAnonymizationByUserID(id, anonymous);
     }
 }

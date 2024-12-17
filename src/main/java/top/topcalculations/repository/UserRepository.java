@@ -2,9 +2,13 @@ package top.topcalculations.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.ui.Model;
+import top.topcalculations.model.Project;
+import top.topcalculations.model.Subtask;
+import top.topcalculations.model.Task;
 import top.topcalculations.model.User;
 
 import javax.sql.DataSource;
@@ -32,6 +36,11 @@ public class UserRepository {
         }
     }
 
+    public void updateLastLogin(String username) {
+        String sql = "UPDATE users SET last_login = CURRENT_DATE WHERE username = ?";
+        jdbcTemplate.update(sql, username);  // Use update instead of queryForObject
+    }
+
     // Metode til at oprette en ny bruger
     public String signUp(User user, Model model) {
         try {
@@ -57,7 +66,7 @@ public class UserRepository {
             // Logger hvor mange rækker der blev opdateret
             System.out.println("Rows affected: " + rowsAffected);
             model.addAttribute("message", "User registered successfully!");
-            return "redirect:/signup";
+            return "signup";
         } catch (Exception e) {
             // Tilføjer en fejlmeddelelse til modellen i tilfælde af en fejl
             model.addAttribute("error", "Error: " + e.getMessage());
@@ -66,9 +75,9 @@ public class UserRepository {
         }
     }
 
-    public List<String> getAllUsers() {
-        String usersSql = "SELECT username FROM users";
-        return jdbcTemplate.queryForList(usersSql, String.class);
+    public List<User> getAllUsers() {
+        String usersSql = "SELECT * FROM users";
+        return jdbcTemplate.query(usersSql, new BeanPropertyRowMapper<>(User.class));
     }
 
     // Metode til at mappe en ResultSet til et User-objekt
@@ -92,24 +101,74 @@ public class UserRepository {
             for (byte b : array) {
                 sb.append(String.format("%02x", b)); // Konverterer hver byte til en hexadecimal streng
             }
-            return sb.toString();
+            return sb.toString(); // Returnerer den hashed adgangskode som en streng
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e); // Smider en undtagelse, hvis algoritmen ikke findes
         }
     }
 
-    public List<String> getProjectsForUser(String username) {
-        String projectSql = "SELECT project_name FROM projects WHERE assigned = ?";
-        return jdbcTemplate.queryForList(projectSql, String.class, username);
+    // Metode til at opdatere anonymisering af en bruger baseret på bruger-ID
+    public void updateAnonymizationByUserID(Long id, String anonymization) {
+        // SQL-forespørgsel for at finde brugeren baseret på ID
+        String findUserByIdSql = "SELECT * FROM users WHERE id = ?";
+        try {
+            // Henter brugeren fra databasen baseret på ID
+            User user = jdbcTemplate.queryForObject(findUserByIdSql, new Object[]{id}, this::mapRowToUser);
+
+            // Opdaterer anonymiseringsfeltet i brugertabellen
+            String updateSql = "UPDATE users SET anonymous = ? WHERE id = ?";
+            jdbcTemplate.update(updateSql, anonymization, id);
+
+            // Opdaterer projekter, der er knyttet til brugeren, for at vise "Anonymous"
+            String updateProjects = "UPDATE projects SET assigned = 'Anonymous' WHERE assigned = (SELECT username FROM users WHERE id = ?)";
+            jdbcTemplate.update(updateProjects, id);
+
+            // Opdaterer opgaver, der er knyttet til brugeren, for at vise "Anonymous"
+            String updateTasks = "UPDATE tasks SET assigned = 'Anonymous' WHERE assigned = (SELECT username FROM users WHERE id = ?)";
+            jdbcTemplate.update(updateTasks, id);
+
+            // Opdaterer underopgaver, der er knyttet til brugeren, for at vise "Anonymous"
+            String updateSubTasks = "UPDATE subtasks SET assigned = 'Anonymous' WHERE assigned = (SELECT username FROM users WHERE id = ?)";
+            jdbcTemplate.update(updateSubTasks, id);
+        } catch (EmptyResultDataAccessException e) {
+            // Smider en undtagelse, hvis brugeren ikke findes baseret på ID
+            throw new RuntimeException("Bruger med ID " + id + " blev ikke fundet");
+        }
     }
 
-    public List<String> getTasksForUser(String username) {
-        String taskSql = "SELECT task_name FROM tasks WHERE assigned = ?";
-        return jdbcTemplate.queryForList(taskSql, String.class, username);
+    // Henter projekter, der er tilknyttet en bestemt bruger baseret på brugernavn
+    public List<Project> getProjectsForUser(String username) {
+        String projectSql = "SELECT id, project_name, assigned FROM projects WHERE assigned = ?";
+        return jdbcTemplate.query(projectSql, (rs, rowNum) -> {
+            Project project = new Project();
+            project.setId(rs.getInt("id")); // Sætter projekt-ID
+            project.setProjectName(rs.getString("project_name")); // Sætter projektets navn
+            project.setAssigned(rs.getString("assigned")); // Sætter hvem projektet er tildelt
+            return project;
+        }, username);
     }
 
-    public List<String> getSubTasksForUser(String username) {
-        String subTaskSql = "SELECT sub_task_name FROM subtasks WHERE assigned = ?";
-        return jdbcTemplate.queryForList(subTaskSql, String.class, username);
+    // Henter opgaver, der er tilknyttet en bestemt bruger baseret på brugernavn
+    public List<Task> getTasksForUser(String username) {
+        String taskSql = "SELECT id, task_name, assigned FROM tasks WHERE assigned = ?";
+        return jdbcTemplate.query(taskSql, (rs, rowNum) -> {
+            Task task = new Task();
+            task.setId(rs.getInt("id")); // Sætter opgave-ID
+            task.setTaskName(rs.getString("task_name")); // Sætter opgavens navn
+            task.setAssigned(rs.getString("assigned")); // Sætter hvem opgaven er tildelt
+            return task;
+        }, username);
+    }
+
+    // Henter underopgaver, der er tilknyttet en bestemt bruger baseret på brugernavn
+    public List<Subtask> getSubTasksForUser(String username) {
+        String subtaskSql = "SELECT id, sub_task_name, assigned FROM subtasks WHERE assigned = ?";
+        return jdbcTemplate.query(subtaskSql, (rs, rowNum) -> {
+            Subtask subtask = new Subtask();
+            subtask.setId(rs.getInt("id")); // Sætter underopgave-ID
+            subtask.setSubTaskName(rs.getString("sub_task_name")); // Sætter underopgavens navn
+            subtask.setAssigned(rs.getString("assigned")); // Sætter hvem underopgaven er tildelt
+            return subtask;
+        }, username);
     }
 }

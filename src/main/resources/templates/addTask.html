@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>TopCalculations - Add Task</title>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/add.css}" />
+    <link rel="stylesheet" th:href="@{/css/footer.css}" />
+    <link rel="stylesheet" th:href="@{/css/nav.css}" />
+</head>
+<body>
+<nav class="navbar" aria-label="Main navigation">
+    <div class="navbar-left">
+        <a href="/" th:href="@{/}" class="navbar-logo" aria-label="Home">TopCalculations</a>
+        <div class="navbar-links">
+            <a class="nav-link" th:href="@{/}" th:if="${username == 'Guest'}" aria-label="Home">Home</a>
+            <a class="nav-link" th:href="@{/login}" th:if="${username == 'Guest'}" aria-label="Login">Login</a>
+            <a class="nav-link" th:href="@{/signup}" th:if="${username == 'Guest'}" aria-label="Signup">Sign up</a>
+            <a class="nav-link" th:href="@{/view}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="View Projects">View</a>
+            <a class="nav-link" th:href="@{/addProject}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Project">Add Project</a>
+            <a class="nav-link" th:href="@{/addTask}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Task">Add Task</a>
+            <a class="nav-link" th:href="@{/addSub}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="Add Subtask">Add Subtask</a>
+            <a class="nav-link" th:href="@{/profile}" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-label="My Profile">My Profile</a>
+            <a class="nav-link" th:href="@{/admin}" th:if="${isAdmin}" aria-label="Admin panel">Admin Panel</a>
+            <span class="nav-link" th:if="${username != null and username.trim() != '' and username != 'Guest'}">
+                  <form action="#" th:action="@{/logout}" method="post" style="display: inline;" aria-label="Logout form">
+                     <a href="#" onclick="event.preventDefault(); this.closest('form').submit();" class="logout-link" aria-label="Logout">Logout</a>
+                  </form>
+               </span>
+        </div>
+    </div>
+    <span class="welcome-message" th:if="${username != null and username.trim() != '' and username != 'Guest'}" aria-live="polite">Welcome, <span th:text="${username}"></span>! </span>
+</nav>
+<h1 id="add-project-task-heading">Add Task</h1>
+<div class="container container-custom-add">
+    <div class="form-wrapper">
+        <form th:action="@{/addTask}" th:object="${task}" method="post" aria-labelledby="add-project-task-heading">
+            <fieldset>
+                <legend class="sr-only">Add Project or Task Form</legend>
+                <div class="form-group">
+                    <label for="task_name">Name of Task:</label>
+                    <input type="text" id="task_name" th:field="*{taskName}" required class="form-control" aria-describedby="task-name-desc" pattern="^[a-zA-Z]{5,}$" title="Name must contain at least 5 alphabetic characters." />
+                    <span id="task-name-desc" class="sr-only">Enter the name of the task.</span>
+                </div>
+                <div class="form-group">
+                    <label for="main_project">Main Project:</label>
+                    <select id="main_project" th:field="*{mainProjectName}" required class="form-control" aria-describedby="main-task-desc">
+                        <option value="" th:text="'-- Select Main Project --'"></option>
+                        <option th:each="project : ${projects}" th:value="${project.projectName}" th:text="${project.projectName}"></option>
+                    </select>
+                    <span id="main-task-desc" class="sr-only">Select the main project.</span>
+                </div>
+                <div class="form-group">
+                    <label for="planned_start_date">Planned Start Date:</label>
+                    <input type="date" id="planned_start_date" th:field="*{plannedStartDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-start-date-desc">
+                    <span id="planned-start-date-desc" class="sr-only">Select the planned start date for the project or task.</span>
+                </div>
+                <div class="form-group">
+                    <label for="planned_finish_date">Planned Finish Date:</label>
+                    <input type="date" id="planned_finish_date" th:field="*{plannedFinishDate}" th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}" required class="form-control" aria-describedby="planned-finish-date-desc">
+                    <span id="planned-finish-date-desc" class="sr-only">Select the planned finish date for the project or task.</span>
+                </div>
+                <div class="form-group">
+                    <label for="time_to_spend">Expected Time to Spend on Task (in hours):</label>
+                    <input type="number" id="time_to_spend" th:field="*{timeToSpend}" required class="form-control" aria-describedby="time-to-spend-desc" step="0.1">
+                    <span id="time-to-spend-desc" class="sr-only">Enter the expected time (in hours) you expect to use on the task.</span>
+                </div>
+                <div class="form-group">
+                    <label for="resources_name">Resource(s):</label>
+                    <input type="text"
+                           id="resources_name"
+                           th:field="*{resource_name}"
+                           required
+                           class="form-control"
+                           aria-describedby="resources-desc"
+                           pattern="^(?=.*[a-zA-Z])[a-zA-Z\s]+$"
+                           title="Resources must contain at least one alphabetic character and may include spaces." />
+                    <span id="resources-desc" class="sr-only">Enter the resource(s) required for the task.</span>
+                </div>
+                <div class="form-group">
+                    <label for="assigned">Assigned:</label>
+                    <select id="assigned" th:field="*{assigned}" required class="form-control" aria-describedby="assigned-desc">
+                        <option value="" disabled selected>Select a user</option>
+                        <option th:each="user : ${users}" th:value="${user.username}" th:text="${user.username}"></option>
+                    </select>
+                    <span id="assigned-desc" class="sr-only">Select the user assigned to the task.</span>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary" aria-label="Save project or task">Save</button>
+                </div>
+            </fieldset>
+        </form>
+        <div th:if="${message}" class="alert alert-success" role="alert">
+            <p th:text="${message}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
+    </div>
+</div>
+<div id="footer-placeholder" th:replace="fragments/footer :: footer"></div>
+</body>
+</html>

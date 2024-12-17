@@ -36,9 +36,9 @@ public class UserController {
 
         if (user != null) {
             session.setAttribute("user", user);  // Sætter bruger i sessionen, hvis autentificering er succesfuld
-            return "redirect:/";  // Omdirigerer til forsiden
+            return "redirect:profile";  // Omdirigerer til forsiden
         } else {
-            model.addAttribute("error", "Invalid username or password.");  // Tilføjer fejlmeddelelse til modellen
+            model.addAttribute("error", "Invalid username or password. Please try again.");  // Tilføjer fejlmeddelelse til modellen
             return "login";  // Forbliver på login-siden
         }
     }
@@ -87,7 +87,7 @@ public class UserController {
             return "redirect:/";
         }
 
-        List<String> users = userService.getAllUsers();
+        List<User> users = userService.getAllUsers();
         model.addAttribute("users", users);
         return "admin";
     }
@@ -98,6 +98,15 @@ public class UserController {
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
         }
 
         if (user == null) {
@@ -105,10 +114,22 @@ public class UserController {
         }
 
         model.addAttribute("username", user.getUsername());
-        model.addAttribute("project", userService.getProjectsForUser(user.getUsername()));
-        model.addAttribute("task", userService.getTasksForUser(user.getUsername()));
-        model.addAttribute("subtask", userService.getSubTasksForUser(user.getUsername()));
+        model.addAttribute("projects", userService.getProjectsForUser(user.getUsername()));
+        model.addAttribute("tasks", userService.getTasksForUser(user.getUsername()));
+        model.addAttribute("subtasks", userService.getSubTasksForUser(user.getUsername()));
 
         return "profile";
+    }
+
+    // Opdaterer en tasks status
+    @PostMapping("/anonymize-user/{id}/{anonymize}")
+    public String updateTaskStatus(@PathVariable("id") Long id,
+                                   @PathVariable("anonymize") String anonymous, HttpSession session) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        userService.updateAnonymization(id, anonymous);
+        return "redirect:/admin";  // Redirect tilbage til admin
     }
 }
