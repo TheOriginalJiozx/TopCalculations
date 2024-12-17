@@ -121,9 +121,11 @@ public class EntityController {
                 .mapToDouble(Project::getTimeToSpend)
                 .sum()
                 + tasks.stream()
+                .filter(task -> !"done".equals(task.getStatus()))
                 .mapToDouble(Task::getTimeToSpend)
                 .sum()
                 + subtasks.stream()
+                .filter(subtask -> !"done".equals(subtask.getStatus()))
                 .mapToDouble(Subtask::getTimeToSpend)
                 .sum();
 

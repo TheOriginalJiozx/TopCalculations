@@ -47,11 +47,10 @@ public class SubTaskRepository {
             System.out.println("First SQL query failed, trying to execute alternate query.");
 
             // Anden SQL-spørgsmål for at indsætte en delopgave med DATEDIFF(DAY, ?, ?)
-            String fallbackSql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                    "VALUES (?, ?, ?, (SELECT prorject_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
-
+            String fallbackSql = "INSERT INTO subtasks (WBS, project_name, task_name, sub_task_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
+                    "VALUES (?, ?, ?, ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
             // Udfør den alternative SQL forespørgsel
-            jdbcTemplate.update(fallbackSql, subTask.getWbs(), subTask.getTaskName(), fullSubTaskName, subTask.getTaskName(),
+            jdbcTemplate.update(fallbackSql, subTask.getWbs(), subTask.getProjectName(), fullSubTaskName, subTask.getSubTaskName(),
                     subTask.getTimeToSpend(), subTask.getAssigned(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate(), subTask.getPlannedStartDate(), subTask.getPlannedFinishDate());
         }
 

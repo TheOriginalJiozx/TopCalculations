@@ -4,9 +4,10 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import top.topcalculations.model.User;
+import top.topcalculations.model.*;
 import top.topcalculations.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -95,29 +96,55 @@ public class UserController {
     // Håndterer GET-anmodning til user profile
     @GetMapping("/profile")
     public String getProfile(Model model, HttpSession session) {
+        // Hent brugerobjektet fra sessionen
         User user = (User) session.getAttribute("user");
+
+        // Tjek om brugeren er logget ind
         if (user != null) {
+            // Hvis brugeren er logget ind, tilføj brugerens navn og rolle (Admin eller ikke) til modellen
             model.addAttribute("username", user.getUsername());
-
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
+            model.addAttribute("isAdmin", "Admin".equals(user.getRole()));
         } else {
+            // Hvis brugeren ikke er logget ind, sættes brugernavnet til "Guest" og isAdmin til false
+            // Redirect til login siden
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
-        }
-
-        if (user == null) {
+            model.addAttribute("isAdmin", false);
             return "redirect:/login";
         }
 
-        model.addAttribute("username", user.getUsername());
-        model.addAttribute("projects", userService.getProjectsForUser(user.getUsername()));
-        model.addAttribute("tasks", userService.getTasksForUser(user.getUsername()));
-        model.addAttribute("subtasks", userService.getSubTasksForUser(user.getUsername()));
+        // Hent projekter, opgaver og subtasks for den pågældende bruger
+        List<Project> projects = userService.getProjectsForUser(user.getUsername());
+        List<Task> tasks = userService.getTasksForUser(user.getUsername());
+        List<Subtask> subtasks = userService.getSubTasksForUser(user.getUsername());
 
+        // Hvis der ikke er nogen projekter, opgaver eller subtasks, initialiser tomme lister
+        if (projects == null) projects = new ArrayList<>();
+        if (tasks == null) tasks = new ArrayList<>();
+        if (subtasks == null) subtasks = new ArrayList<>();
+
+        // Tilføj projekter, opgaver og subtasks til modellen
+        model.addAttribute("projects", projects);
+        model.addAttribute("tasks", tasks);
+        model.addAttribute("subtasks", subtasks);
+
+        // Beregn den samlede tid, der er tilbage at bruge (for projekter, opgaver og subtasks)
+        double totalTimeToSpend = projects.stream()
+                .filter(project -> !"done".equalsIgnoreCase(project.getStatus())) // Filter projekter, der ikke er færdige
+                .mapToDouble(Project::getExpectedTimeInTotal) // Summér den forventede tid for projekterne
+                .sum()
+                + tasks.stream()
+                .filter(task -> !"done".equalsIgnoreCase(task.getStatus())) // Filter opgaver, der ikke er færdige
+                .mapToDouble(Task::getTimeToSpend) // Summér tiden for opgaverne
+                .sum()
+                + subtasks.stream()
+                .filter(subtask -> !"done".equalsIgnoreCase(subtask.getStatus())) // Filter subtasks, der ikke er færdige
+                .mapToDouble(Subtask::getTimeToSpend) // Summér tiden for subtasks
+                .sum();
+
+        // Tilføj den samlede tid til modellen
+        model.addAttribute("totalTimeToSpend", totalTimeToSpend);
+
+        // Returner viewet for profil siden
         return "profile";
     }
 
