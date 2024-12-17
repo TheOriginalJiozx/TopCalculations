@@ -72,10 +72,14 @@ h1 {
         margin-top: 8px;
     }
 
-    input[type="text"], input[type="date"], input[type="number"] {
+    input[type="text"], input[type="date"] {
         width: 100%;
         padding: 6px;
         margin: 2px 0;
+    }
+
+    input[type="number"] {
+        min-width: 300px;
     }
 
     button[type="submit"] {
