@@ -1,4 +1,3 @@
-
 package top.topcalculations.repository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +17,17 @@ import java.util.Map;
 @Repository
 public class SubTaskRepository {
     private JdbcTemplate jdbcTemplate;
+
     @Autowired
     private ProjectRepository projectRepository;
 
+    // Konstruktor for at initialisere JdbcTemplate med en DataSource
     public SubTaskRepository(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     // Gemmer en delopgave i databasen
     public void saveSubTask(Subtask subTask, Task task) {
-
         // Udskriver hvilken delopgave der gemmes
         System.out.println("Saving subtask: " + subTask);
 
@@ -48,7 +48,7 @@ public class SubTaskRepository {
 
             // Anden SQL-spørgsmål for at indsætte en delopgave med DATEDIFF(DAY, ?, ?)
             String fallbackSql = "INSERT INTO subtasks (WBS, task_name, sub_task_name, project_name, time_to_spend, assigned, duration, planned_start_date, planned_finish_date) " +
-                    "VALUES (?, ?, ?, (SELECT prorject_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
+                    "VALUES (?, ?, ?, (SELECT project_name FROM tasks WHERE task_name = ?), ?, ?, DATEDIFF(DAY, ?, ?), ?, ?)";
 
             // Udfør den alternative SQL forespørgsel
             jdbcTemplate.update(fallbackSql, subTask.getWbs(), subTask.getTaskName(), fullSubTaskName, subTask.getTaskName(),
@@ -77,19 +77,25 @@ public class SubTaskRepository {
         addExpectedTimeToProjectFromSubTask(subTask, task);
     }
 
+    // Opdaterer den forventede tid for projektet baseret på delopgaven
     private void addExpectedTimeToProjectFromSubTask(Subtask subTask, Task task) {
+        // SQL-forespørgsel for at opdatere expected_time_in_total for projektet baseret på delopgaven
         String sql = "UPDATE projects SET expected_time_in_total = expected_time_in_total + ? WHERE project_name = (SELECT t.project_name FROM tasks t WHERE t.task_name = ?)";
         jdbcTemplate.update(sql, subTask.getTimeToSpend(), subTask.getTaskName());
 
-       projectRepository.updateTimeToSpendIfNecessary(task);
+        // Opdater projektet via ProjectRepository hvis nødvendigt
+        projectRepository.updateTimeToSpendIfNecessary(task);
     }
 
     // Henter alle underopgaver fra databasen
     public List<Subtask> getAllSubTasks() {
+        // SQL-forespørgsel for at hente alle underopgaver
         String sql = "SELECT *, status FROM subtasks";
         List<Subtask> subTasks = jdbcTemplate.query(sql, new SubTaskRowMapper());
 
+        // Behandler hver delopgave og sætter værdier
         for (Subtask subTask : subTasks) {
+            // Hvis task_name er til stede, men sub_task_name er tom, sæt task_name som projektname
             if (subTask.getTaskName() != null && !subTask.getTaskName().isEmpty() &&
                     (subTask.getSubTaskName() == null || subTask.getSubTaskName().isEmpty())) {
                 subTask.setTaskName(subTask.getTaskName());
@@ -99,14 +105,17 @@ public class SubTaskRepository {
                         : subTask.getTaskName());
             }
 
+            // Sætter status for underopgaven
             subTask.setStatus(subTask.getStatus());
-
         }
 
-        return subTasks; // Returner alle projekter
+        // Returner listen af alle underopgaver
+        return subTasks;
     }
 
-    // Henter en underopgave baseret på dens ID
+
+
+// Henter en underopgave baseret på dens ID
     public List<Subtask> findSubTaskByID(Long id) {
         String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.project_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
                 "FROM subtasks st " +
