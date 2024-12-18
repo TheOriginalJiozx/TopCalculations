@@ -2,15 +2,13 @@
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
-[![project_license][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
 
 
 
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <a href="https://github.com/github_username/repo_name">
+  <a href="https://github.com/TheOriginalJiozx/TopCalculations">
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
@@ -73,11 +71,11 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 
 ### Built With
 
-* [![Thymeleaf][https://thymeleaf.org]][Thymeleaf-url]
-* [![CSS][https://web.dev/learn/css][CSS-url]
-* [![Spring Boot][https://spring.io]][SpringBoot-url]
-* [![Java][https://java.com]][Java-url]
-* [![MySQL][https://mysql.com][MySQL-url]
+* [![Thymeleaf][Thymeleaf-url]
+* [![CSS][CSS-url]
+* [![Spring Boot][SpringBoot-url]
+* [![Java][Java-url]
+* [![MySQL][MySQL-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -183,7 +181,7 @@ Don't forget to give the project a star! Thanks again!
 
 ### Top contributors:
 
-<a href="https://github.com/TheOriginalJiozx/TopCalculations/graphs/contributors">
+<a href="[contributors-url]">
   <img src="https://contrib.rocks/image?repo=TheOriginalJiozx/TopCalculations" alt="contrib.rocks image" />
 </a>
 
@@ -217,36 +215,25 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/github_username/repo_name.svg?style=for-the-badge
-[contributors-url]: https://github.com/github_username/repo_name/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/github_username/repo_name.svg?style=for-the-badge
-[forks-url]: https://github.com/github_username/repo_name/network/members
-[stars-shield]: https://img.shields.io/github/stars/github_username/repo_name.svg?style=for-the-badge
-[stars-url]: https://github.com/github_username/repo_name/stargazers
-[issues-shield]: https://img.shields.io/github/issues/github_username/repo_name.svg?style=for-the-badge
-[issues-url]: https://github.com/github_username/repo_name/issues
+[contributors-shield]: https://img.shields.io/github/contributors/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
+[contributors-url]: https://github.com/TheOriginalJiozx/TopCalculations/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
+[forks-url]: https://github.com/TheOriginalJiozx/TopCalculations/network/members
+[stars-shield]: https://img.shields.io/github/stars/TheOriginal/TopCalculations.svg?style=for-the-badge
+[stars-url]: https://github.com/TheOriginalJiozx/TopCalculations/stargazers
+[issues-shield]: https://img.shields.io/github/issues/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
+[issues-url]: https://github.com/TheOriginalJiozx/TopCalculations/issues
 [product-screenshot]: images/screenshot.png
 [Java]: https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white
 [Java-url]: https://java.com/
-[Spring Boot]: https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white
-[Spring Boot-url]: https://spring.io/
+[SpringBoot]: https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white
+[SpringBoot-url]: https://spring.io/
 [CSS]: https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white
 [CSS-url]: https://web.dev/learn/css
 [MySQL]: https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white
 [MySQL-url]: https://mysql.com/
-[Thymeleaf]:
-[Thymeleaf-url]:
-
-[Next.js]: https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white
-[Next-url]: https://nextjs.org/
-[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
-[React-url]: https://reactjs.org/
-[Vue.js]: https://img.shields.io/badge/Vue.js-35495E?style=for-the-badge&logo=vuedotjs&logoColor=4FC08D
-[Vue-url]: https://vuejs.org/
-[Angular.io]: https://img.shields.io/badge/Angular-DD0031?style=for-the-badge&logo=angular&logoColor=white
-[Angular-url]: https://angular.io/
-[Svelte.dev]: https://img.shields.io/badge/Svelte-4A4A55?style=for-the-badge&logo=svelte&logoColor=FF3E00
-[Svelte-url]: https://svelte.dev/
+[Thymeleaf]: https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjRNmOXzM9OW69iXtuPO0fKQrEYxPGOyU5fxh0bg1j8ViZJW1e9TmgD_icpJ-qIvD-3Bxiva4FOLv2wi8z56yRdQSf4LZfHj8mtN1BPtZCD9RlluYPsMT23CcBlgNKGZiGpzvPmCU3LsA/s400/thymeleaf.png
+[Thymeleaf-url]: https://thymeleaf.org/
 [Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
 [Laravel-url]: https://laravel.com
 [Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
