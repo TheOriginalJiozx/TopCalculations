@@ -60,10 +60,12 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Click on logo to view live-demo:
+Click on logo to view live-demo
+
 [![Product Name Screen Shot][product-screenshot]](https://springappdemotopcalculations-aubvf8d5dwf6d0h9.westeurope-01.azurewebsites.net)
 
 Our project is a project calculation tool made to a customer.
+
 The tool is an advanced tool for creating, updating and deleting projects, task and subtasks.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -240,7 +242,7 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 [product-screenshot]: src/main/resources/static/images/logo.png
 [Java]: https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white
 [Java-url]: https://java.com/
-[SpringBoot]: https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white
+[SpringBoot]: https://img.shields.io/badge/SpringBoot-6DB33F?style=for-the-badge&logo=Spring&logoColor=white
 [SpringBoot-url]: https://spring.io/
 [CSS]: https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white
 [CSS-url]: https://web.dev/learn/css
