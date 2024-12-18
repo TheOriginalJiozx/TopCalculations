@@ -50,7 +50,6 @@
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -61,7 +60,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Product Name Screen Shot][product-screenshot]](https://springappdemotopcalculations-aubvf8d5dwf6d0h9.westeurope-01.azurewebsites.net)
 
 Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
 
@@ -71,11 +70,11 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 
 ### Built With
 
-* [![Thymeleaf][Thymeleaf-url]
-* [![CSS][CSS-url]
-* [![Spring Boot][SpringBoot-url]
-* [![Java][Java-url]
-* [![MySQL][MySQL-url]
+[![Thymeleaf]][Thymeleaf-url]
+[![CSS]][CSS-url]
+[![SpringBoot]][SpringBoot-url]
+[![Java]][Java-url]
+[![MySQL]][MySQL-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -223,7 +222,7 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 [stars-url]: https://github.com/TheOriginalJiozx/TopCalculations/stargazers
 [issues-shield]: https://img.shields.io/github/issues/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
 [issues-url]: https://github.com/TheOriginalJiozx/TopCalculations/issues
-[product-screenshot]: images/screenshot.png
+[product-screenshot]: src/images/screenshot.png
 [Java]: https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white
 [Java-url]: https://java.com/
 [SpringBoot]: https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white
@@ -232,7 +231,7 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 [CSS-url]: https://web.dev/learn/css
 [MySQL]: https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white
 [MySQL-url]: https://mysql.com/
-[Thymeleaf]: https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjRNmOXzM9OW69iXtuPO0fKQrEYxPGOyU5fxh0bg1j8ViZJW1e9TmgD_icpJ-qIvD-3Bxiva4FOLv2wi8z56yRdQSf4LZfHj8mtN1BPtZCD9RlluYPsMT23CcBlgNKGZiGpzvPmCU3LsA/s400/thymeleaf.png
+[Thymeleaf]: https://img.shields.io/badge/Thymeleaf-%2333C3A1?style=for-the-badge&logo=thymeleaf&logoColor=white
 [Thymeleaf-url]: https://thymeleaf.org/
 [Laravel.com]: https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white
 [Laravel-url]: https://laravel.com
