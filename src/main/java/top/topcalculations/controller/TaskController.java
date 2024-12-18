@@ -32,36 +32,43 @@ public class TaskController {
 
     @GetMapping("/addTask")
     public String showAddTaskForm(Model model, HttpSession session) {
-        // Check if the user is logged in, otherwise redirect to login
+        // Tjek om brugeren er logget ind; ellers omdiriger til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect to login page
+            return "redirect:/login";  // Omdiriger til login-siden
         }
 
         User user = (User) session.getAttribute("user");
         if (user != null) {
-            model.addAttribute("username", user.getUsername());  // Add username to the model
+            // Tilføj brugernavnet til modellen
+            model.addAttribute("username", user.getUsername());
 
-            // Check if the user is an admin and add isAdmin to the model
+            // Tjek om brugeren er admin og tilføj "isAdmin" til modellen
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true);  // Add isAdmin as true for admins
+                model.addAttribute("isAdmin", true);  // Sæt "isAdmin" til true for admins
             } else {
-                model.addAttribute("isAdmin", false);  // Add isAdmin as false for non-admins
+                model.addAttribute("isAdmin", false);  // Sæt "isAdmin" til false for ikke-admins
             }
         } else {
-            model.addAttribute("username", "Guest");  // Set username to "Guest" if not logged in
-            model.addAttribute("isAdmin", false);  // Set isAdmin to false for guest users
+            // Hvis brugeren ikke er logget ind, sæt standardværdier for "Guest"
+            model.addAttribute("username", "Guest");  // Sæt brugernavnet til "Guest"
+            model.addAttribute("isAdmin", false);  // Sæt "isAdmin" til false for gæstebrugere
         }
 
-        List<Project> projects = projectService.getAllProjects();  // Get all projects
-        model.addAttribute("projects", projects);  // Add the list of projects to the model
+        // Hent listen over alle projekter
+        List<Project> projects = projectService.getAllProjects();
+        // Tilføj listen over projekter til modellen
+        model.addAttribute("projects", projects);
 
-        // Fetch the list of users (usernames)
-        List<User> users = userService.getAllUsers();  // Assume userService is injected
-        model.addAttribute("users", users);  // Add the list of users to the model
+        // Hent listen over alle brugere (brugernavne)
+        List<User> users = userService.getAllUsers();  // Antag at userService er injiceret
+        // Tilføj listen over brugere til modellen
+        model.addAttribute("users", users);
 
-        model.addAttribute("task", new Task());  // Add a new empty Task object for the form binding
+        // Tilføj en ny tom Task-objekt for form-binding
+        model.addAttribute("task", new Task());
 
-        return "addTask";  // Return the "addTask" view to show the form
+        // Returnér "addTask"-viewet for at vise formularen
+        return "addTask";
     }
 
     @PostMapping("/addTask")
