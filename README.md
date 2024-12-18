@@ -191,7 +191,7 @@ Don't forget to give the project a star! Thanks again!
 ## Contact
 
 Our names:
-* Omar Al-Ali - GitHub username: TheOriginalJiozx
+* Omar Fadel Al-Ali - GitHub username: TheOriginalJiozx
 * Sami Ahamzi - GitHub username: Samiahamzi
 * Mohammed Ayan Farooq - GitHub username: Moha0002
 * Salem Lokende - GitHub username: Salo0002004
@@ -214,7 +214,7 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
   - [MySQL](https://mysql.com/) for database management.
 
 * A special thank you to the contributors:
-  - Omar Al-Ali
+  - Omar Fadel Al-Ali
   - Sami Ahamzi
   - Mohammed Ayan Farooq
   - Salem Lokende
