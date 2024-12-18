@@ -22,9 +22,9 @@
     <br />
     <a href="https://github.com/TheOriginalJiozx/TopCalculations">View Demo</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
+    <a href="https://github.com/TheOriginalJiozx/TopCalculations/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
-    <a href="https://github.com/github_username/repo_name/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
+    <a href="https://github.com/TheOriginalJiozx/TopCalculations/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
   </p>
 </div>
 
@@ -219,7 +219,7 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 [contributors-url]: https://github.com/TheOriginalJiozx/TopCalculations/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
 [forks-url]: https://github.com/TheOriginalJiozx/TopCalculations/network/members
-[stars-shield]: https://img.shields.io/github/stars/TheOriginal/TopCalculations.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
 [stars-url]: https://github.com/TheOriginalJiozx/TopCalculations/stargazers
 [issues-shield]: https://img.shields.io/github/issues/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
 [issues-url]: https://github.com/TheOriginalJiozx/TopCalculations/issues
