@@ -222,7 +222,7 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 [stars-url]: https://github.com/TheOriginalJiozx/TopCalculations/stargazers
 [issues-shield]: https://img.shields.io/github/issues/TheOriginalJiozx/TopCalculations.svg?style=for-the-badge
 [issues-url]: https://github.com/TheOriginalJiozx/TopCalculations/issues
-[product-screenshot]: src/images/screenshot.png
+[product-screenshot]: src/main/resources/static/images/logo.png
 [Java]: https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white
 [Java-url]: https://java.com/
 [SpringBoot]: https://img.shields.io/badge/SpringBoot-6DB33F?style=flat-square&logo=Spring&logoColor=white
