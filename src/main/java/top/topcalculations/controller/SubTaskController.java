@@ -138,13 +138,13 @@ public class SubTaskController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         List<Subtask> subtasks = subTaskService.getSubTaskByID(id);  // Hent underopgave efter ID
@@ -152,6 +152,7 @@ public class SubTaskController {
         return "view-subtask";  // Returner view til visning af underopgavedetaljer
     }
 
+    // Rediger en specifik underopgave ved ID
     @GetMapping("/edit-subtask/{id}")
     public String editSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
@@ -163,13 +164,13 @@ public class SubTaskController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         List<Subtask> subtasks = subTaskService.getSubTaskByID(id); // Henter underopgave med ID

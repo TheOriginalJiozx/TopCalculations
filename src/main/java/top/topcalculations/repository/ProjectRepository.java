@@ -229,54 +229,64 @@ public class ProjectRepository {
 
     // Opdaterer IDs i projects tabellen
     public void updateProjectsTable() {
-        // Update the projects table
+        // Hent alle projekter sorteret efter ID
         String sql = "SELECT * FROM projects ORDER BY id";
         List<Map<String, Object>> projects = jdbcTemplate.queryForList(sql);
 
         int newId = 1;
+        // Gennemgå hvert projekt og opdater ID'et
         for (Map<String, Object> project : projects) {
             int originalID = (int) project.get("id");
 
+            // Opdater projektets ID og WBS
             String updateSql = "UPDATE projects SET id = ?, WBS = ? WHERE id = ?";
             jdbcTemplate.update(updateSql, newId, newId, originalID);
 
-            newId++;
+            newId++;  // Øg ID'et for næste projekt
         }
 
+        // Hent opgaverne og deres WBS
         String tasksSql = "SELECT id, wbs FROM tasks";
         List<Map<String, Object>> tasks = jdbcTemplate.queryForList(tasksSql);
 
+        // Gennemgå hver opgave og opdater WBS
         for (Map<String, Object> task : tasks) {
             int taskId = (int) task.get("id");
             String originalWBS = (String) task.get("wbs");
 
+            // Hvis WBS ikke er tomt, opdater det
             if (originalWBS != null && !originalWBS.isEmpty()) {
                 String[] wbsParts = originalWBS.split("\\.");
                 int firstDigit = Integer.parseInt(wbsParts[0]);
                 if (firstDigit != 1) {
-                    wbsParts[0] = String.valueOf(firstDigit - 1);
+                    wbsParts[0] = String.valueOf(firstDigit - 1);  // Opdater første tal i WBS
                     String updatedWBS = String.join(".", wbsParts);
 
+                    // Opdater opgavens WBS i databasen
                     String updateTasksWbsSql = "UPDATE tasks SET wbs = ? WHERE id = ?";
                     jdbcTemplate.update(updateTasksWbsSql, updatedWBS, taskId);
                 }
             }
         }
 
+        // Hent underopgaverne og deres WBS
         String subtasksSql = "SELECT id, wbs FROM subtasks";
         List<Map<String, Object>> subtasks = jdbcTemplate.queryForList(subtasksSql);
 
+        // Gennemgå hver underopgave og opdater WBS
         for (Map<String, Object> subtask : subtasks) {
             int subtaskId = (int) subtask.get("id");
             String originalWBS = (String) subtask.get("wbs");
 
+            // Hvis WBS ikke er tomt, opdater det
             if (originalWBS != null && !originalWBS.isEmpty()) {
                 String[] wbsParts = originalWBS.split("\\.");
                 int firstDigit = Integer.parseInt(wbsParts[0]);
                 if (firstDigit != 1) {
-                    wbsParts[0] = String.valueOf(firstDigit - 1);
+                    wbsParts[0] = String.valueOf(firstDigit - 1);  // Opdater første tal i WBS
                     String updatedWBS = String.join(".", wbsParts);
 
+                    // Opdater underopgavens WBS i databasen
                     String updateSubtasksWbsSql = "UPDATE subtasks SET wbs = ? WHERE id = ?";
                     jdbcTemplate.update(updateSubtasksWbsSql, updatedWBS, subtaskId);
                 }

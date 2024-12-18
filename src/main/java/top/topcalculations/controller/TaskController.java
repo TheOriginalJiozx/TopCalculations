@@ -143,13 +143,13 @@ public class TaskController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         List<Task> tasks = taskService.getTaskByID(id);  // Hent opgave efter ID
@@ -157,6 +157,7 @@ public class TaskController {
         return "view-task";  // Returner view til visning af opgavedetaljer
     }
 
+    // Rediger en specifik opgave ved ID
     @GetMapping("/edit-task/{id}")
     public String editTask(@PathVariable("id") Long id, Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
@@ -168,13 +169,13 @@ public class TaskController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         List<Task> task = taskService.getTaskByID(id); // Henter opgaven med det angivne ID

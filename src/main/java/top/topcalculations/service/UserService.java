@@ -63,12 +63,12 @@ public class UserService {
     }
 
     public String getAuthenticatedUsername(HttpSession session) {
-        // Retrieve the username from the session
-        User user = (User) session.getAttribute("user");  // Get user object from session
+        // Hent brugernavnet fra sessionen
+        User user = (User) session.getAttribute("user");  // Hent brugerobjektet fra sessionen
         if (user != null) {
-            return user.getUsername();  // If user exists, return their username
+            return user.getUsername();  // Hvis brugeren eksisterer, returner deres brugernavn
         } else {
-            return "Guest";  // If no user found, return "Guest"
+            return "Guest";  // Hvis ingen bruger findes, returner "Guest"
         }
     }
 

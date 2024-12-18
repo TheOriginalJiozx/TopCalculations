@@ -123,56 +123,58 @@ public class SubTaskRepository {
 
     // Opdaterer en underopgaves status
     public void updateSubTaskStatusByID(Long id, String status) {
+        // Find underopgaven med det angivne ID for at opdatere status
         Subtask subTask = findSubTaskByIDForStatus(id);
         if (subTask != null) {
             subTask.setStatus(status);
 
-            // Update subtask status
+            // Opdater underopgavens status i databasen
             String sql = "UPDATE subtasks SET status = ? WHERE id = ?";
             jdbcTemplate.update(sql, status, id);
 
-            // Fetch the task name associated with the subtask
+            // Hent opgavenavn for underopgaven
             String taskQuery = "SELECT task_name FROM subtasks WHERE id = ?";
             String fetchedTaskName = jdbcTemplate.queryForObject(taskQuery, String.class, id);
 
-            // Check if all subtasks for the task are "done"
+            // Tjek om alle underopgaver for opgaven er "done"
             String checkSubtasksQuery = "SELECT COUNT(*) FROM subtasks WHERE task_name = ? AND status != 'done'";
             Integer countNotDoneSubtasks = jdbcTemplate.queryForObject(checkSubtasksQuery, Integer.class, fetchedTaskName);
 
-            // Fetch project name
+            // Hent projektnavn
             String projectQuery = "SELECT project_name FROM subtasks WHERE id = ?";
             String fetchedProjectName = jdbcTemplate.queryForObject(projectQuery, String.class, id);
 
-            // If all subtasks are done, update the task status to "done"
+            // Hvis alle underopgaver er færdige, opdater opgavens status til "done"
             if (countNotDoneSubtasks == 0) {
                 String updateTaskSql = "UPDATE tasks SET status = 'done' WHERE task_name = ?";
                 jdbcTemplate.update(updateTaskSql, fetchedTaskName);
 
-                // After updating task status, check if all tasks for the project are done
+                // Efter opdatering af opgavestatus, tjek om alle opgaver for projektet er "done"
                 String checkTasksQuery = "SELECT COUNT(*) FROM tasks WHERE project_name = ? AND status != 'done'";
                 Integer countNotDoneTasks = jdbcTemplate.queryForObject(checkTasksQuery, Integer.class, fetchedProjectName);
 
-                // If all tasks are done, update the project status to "done"
+                // Hvis alle opgaver er færdige, opdater projektstatus til "done"
                 if (countNotDoneTasks == 0) {
                     String updateProjectSql = "UPDATE projects SET status = 'done' WHERE project_name = ?";
                     jdbcTemplate.update(updateProjectSql, fetchedProjectName);
                 }
             } else {
-                // Otherwise, update the task and project statuses to the current subtask status, unless "done"
+                // Hvis ikke alle underopgaver er færdige, opdater opgavens og projektets status til den aktuelle underopgavestatus, medmindre den er "done"
                 if (!"done".equals(status)) {
                     String updateTaskSql = "UPDATE tasks SET status = ? WHERE task_name = ?";
                     jdbcTemplate.update(updateTaskSql, status, fetchedTaskName);
 
-                    // Update project status as well (if not "done")
+                    // Opdater også projektstatus (hvis ikke "done")
                     String updateProjectSql = "UPDATE projects SET status = ? WHERE project_name = ?";
                     jdbcTemplate.update(updateProjectSql, status, fetchedProjectName);
                 }
             }
 
-            // Now that fetchedProjectName is in scope, we can print it
+            // Udskriv projektnavnet efter opdatering
             System.out.println("Updated project: " + fetchedProjectName);
 
         } else {
+            // Hvis underopgaven ikke findes, kast en undtagelse
             throw new RuntimeException("Subtask with ID " + id + " not found");
         }
     }
@@ -234,11 +236,11 @@ public class SubTaskRepository {
                 jdbcTemplate.update(updateTaskSql, subTaskTimeSpent, taskName);
                 System.out.println("Rows updated in tasks table for time_spent: " + updateTaskSql);
 
-                // Update time_to_spend only if subTaskTimeToSpend is greater than the task's current time_to_spend
+                // Opdater time_to_spend kun hvis subTaskTimeToSpend er mindre end opgavens nuværende time_to_spend
                 if (subTaskTimeToSpend < taskTimeToSpend) {
                     String updateTaskTimeToSpendSql = "UPDATE tasks SET time_to_spend = time_to_spend - ? WHERE task_name = ?";
                     jdbcTemplate.update(updateTaskTimeToSpendSql, subTaskTimeToSpend, taskName);
-                    System.out.println("Rows updated in tasks table for time_to_spend: " + updateTaskTimeToSpendSql);
+                    System.out.println("Rækker opdateret i tasks tabellen for time_to_spend: " + updateTaskTimeToSpendSql);
                 }
 
                 // Hvis projektopdateringen lykkedes, slet underopgaven

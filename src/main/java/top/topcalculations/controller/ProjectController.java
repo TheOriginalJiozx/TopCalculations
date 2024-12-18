@@ -37,51 +37,53 @@ public class ProjectController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
-        return "index"; // Thymeleaf will render index.html
+        return "index"; // Thymeleaf vil rendre index.html
     }
 
+    // Vis formularen for at tilføje et projekt
     @GetMapping("/addProject")
     public String showAddProjectForm(Model model, HttpSession session) {
-        // Check if the user is logged in, otherwise redirect to login
+        // Tjek om brugeren er logget ind, ellers omdiriger til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Redirect to login page
+            return "redirect:/login";  // Omdiriger til login-siden
         }
 
         User user = (User) session.getAttribute("user");
 
         if (user != null) {
-            model.addAttribute("username", user.getUsername());  // Add username to the model
+            model.addAttribute("username", user.getUsername());  // Tilføj brugernavn til modellen
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true);  // Add isAdmin to the model (true if the user is an Admin)
+                model.addAttribute("isAdmin", true);  // Tilføj isAdmin til modellen (true hvis brugeren er Admin)
             } else {
-                model.addAttribute("isAdmin", false);  // Add isAdmin as false for non-admin users
+                model.addAttribute("isAdmin", false);  // Tilføj isAdmin som false for ikke-admin brugere
             }
         } else {
-            model.addAttribute("username", "Guest");  // If user is not logged in, set username to "Guest"
-            model.addAttribute("isAdmin", false);  // Set isAdmin to false for guest users
+            model.addAttribute("username", "Guest");  // Hvis brugeren ikke er logget ind, sæt brugernavn til "Guest"
+            model.addAttribute("isAdmin", false);  // Sæt isAdmin til false for gæstebrugere
         }
 
-        List<User> users = userService.getAllUsers();  // Assume userService is injected
-        model.addAttribute("users", users);  // Add the list of users to the model
+        List<User> users = userService.getAllUsers();  // Antager at userService er injiceret
+        model.addAttribute("users", users);  // Tilføj listen af brugere til modellen
 
-        model.addAttribute("project", new Project());  // Add a new empty Project object for the form binding
-        return "addProject";  // Return the "addProject" view to show the form
+        model.addAttribute("project", new Project());  // Tilføj et nyt tomt Project-objekt til formularbinding
+        return "addProject";  // Returner "addProject" view for at vise formularen
     }
 
+    // Indsend formularen for at tilføje et projekt
     @PostMapping("/addProject")
     public String submitAddProjectForm(@ModelAttribute Project project, @ModelAttribute Task task, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
         // Tjek om brugeren er logget ind, ellers omdiriger til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login siden
+            return "redirect:/login";  // Omdiriger til login-siden
         }
 
         // Hent brugeren fra sessionen og tilføj brugernavnet til modellen
@@ -90,13 +92,13 @@ public class ProjectController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         // Hvis hovedprojektet ikke er valgt, behandl som et nyt projekt
@@ -124,20 +126,21 @@ public class ProjectController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         List<Project> projects = projectService.getProjectByID(id);  // Hent projekt efter ID
         model.addAttribute("projects", projects);  // Tilføj projekter til model
-        return "view-project";  // Returner view til visning af underopgavedetaljer
+        return "view-project";  // Returner view til visning af projektets detaljer
     }
 
+    // Rediger et specifikt projekt ved ID
     @GetMapping("/edit-project/{id}")
     public String editProject(@PathVariable("id") Long id, Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
@@ -149,13 +152,13 @@ public class ProjectController {
             model.addAttribute("username", user.getUsername());
 
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
         } else {
             model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
         List<Project> project = projectService.getProjectByID(id); // Henter projektet med det angivne ID

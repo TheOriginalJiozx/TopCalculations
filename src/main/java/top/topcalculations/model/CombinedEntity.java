@@ -32,7 +32,6 @@ public class CombinedEntity {
                 .collect(Collectors.toList());
     }
 
-    // Getters and setters
     public String getWbs() { return wbs; }
     public void setWbs(String wbs) { this.wbs = wbs; }
     public String getName() { return name; }
