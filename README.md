@@ -9,13 +9,13 @@
 <br />
 <div align="center">
   <a href="https://github.com/TheOriginalJiozx/TopCalculations">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="src/main/resources/static/images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
 <h3 align="center">TopCalculations</h3>
 
   <p align="center">
-    project_description
+    TopCalculations is an online project calculation tool that strives to beat all the competitors!
     <br />
     <a href="https://github.com/TheOriginalJiozx/TopCalculations"><strong>Explore the docs »</strong></a>
     <br />
@@ -60,9 +60,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
+Click on logo to view live-demo:
 [![Product Name Screen Shot][product-screenshot]](https://springappdemotopcalculations-aubvf8d5dwf6d0h9.westeurope-01.azurewebsites.net)
 
-Here's a blank template to get started. To avoid retyping too much info, do a search and replace with your text editor for the following: `github_username`, `repo_name`, `twitter_handle`, `linkedin_username`, `email_client`, `email`, `project_title`, `project_description`, `project_license`
+Our project is a project calculation tool made to a customer.
+The tool is an advanced tool for creating, updating and deleting projects, task and subtasks.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -122,16 +124,15 @@ choco install maven      # For Windows using Chocolatey
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
 1. User Management
    * Users can register, log in and manage their projects, tasks and subtasks.
 2. CRUD Operations
    * Manage entities (projects, tasks and subtasks) using a user-friendly interface
+     
      http://localhost:8080/addProject
+     
      http://localhost:8080/addTask
+     
      http://localhost:8080/addSub
 3. Responsive UI
    * Optimized for mobile, tablets and desktop
@@ -204,9 +205,23 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-* []()
-* []()
-* []()
+## Acknowledgments
+
+* Special thanks to the following libraries and tools:
+  - [Spring Boot](https://spring.io/projects/spring-boot) for the backend framework.
+  - [Thymeleaf](https://www.thymeleaf.org/) for server-side templating.
+  - [Bootstrap](https://getbootstrap.com/) for front-end responsiveness.
+  - [MySQL](https://mysql.com/) for database management.
+
+* A special thank you to the contributors:
+  - Omar Al-Ali
+  - Sami Ahamzi
+  - Mohammed Ayan Farooq
+  - Salem Lokende
+
+* Inspired by numerous tutorials and the Spring Boot and Thymeleaf documentation.
+
+* Thanks to the open-source community for their ongoing support and contributions.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
