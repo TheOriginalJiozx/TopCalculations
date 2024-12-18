@@ -147,15 +147,15 @@ choco install maven      # For Windows using Chocolatey
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Brugervenlig brugergrænseflade
-- [ ] Nedbrydning af projekter
-- [ ] Fordeling af tidsforbrug
-- [ ] Ændring af project/task/subtask
-- [ ] Overblik over projekter
-- [ ] Summering af tidsforbrug
+- [ ] User-friendly interface
+- [ ] Breakdown of projects
+- [ ] Distribution of time usage
+- [ ] Edit project/task/subtask
+- [ ] Overview of projects
+- [ ] Summary of time usage
 - [ ] Admin panel
-- [ ] Brugerprofil
-- [ ] Automatisk fjernelse af profil
+- [ ] User profile
+- [ ] Automatic removal of profile
 
 See the [open issues](https://github.com/TheOriginalJiozx/TopCalculations/issues?q=is%3Aopen+is%3Aissue) for a full list of proposed features (and known issues).
 
