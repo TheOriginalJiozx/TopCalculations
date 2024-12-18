@@ -45,6 +45,7 @@
                 <th scope="col">Assigned</th>
                 <th scope="col">Expected Time to Spend on Subtask (estimated in hours)</th>
                 <th scope="col">Time Spent on Subtask (in hours)</th>
+                <th scope="col">Resource(s) Needed</th>
                 <th scope="col">Actions</th>
                 <th scope="col">Task status</th>
             </tr>
@@ -59,6 +60,7 @@
                 <td th:text="${subtask.assigned}" aria-label="Assigned to"></td>
                 <td th:text="${subtask.timeToSpend}" aria-label="Estimated time to complete subtask"></td>
                 <td th:text="${subtask.timeSpent}" aria-label="Time spent on subtask"></td>
+                <td th:each="resource : ${subtask.resource_name}" th:text="${resource}" aria-label="Resource name"></td>
                 <td>
                     <a href="#" th:href="@{/edit-subtask/{id}(id=${subtask.id})}" class="btn-edit" aria-label="Edit subtask">Edit</a>
                     <form th:action="@{/delete-subtask/{id}(id=${subtask.id})}" class="btn-delete" aria-label="Delete subtask" method="post">

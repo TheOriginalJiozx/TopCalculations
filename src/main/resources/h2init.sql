@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS projects_change_log, tasks_change_log, subtasks_change_log, resources_tasks, resources_subtasks, time_spent_tasks, time_spent_subtasks, tasks, subtasks, projects, users;
+
 CREATE TABLE IF NOT EXISTS projects (
   id int NOT NULL AUTO_INCREMENT,
   WBS varchar(255) DEFAULT NULL,
@@ -75,7 +77,7 @@ CREATE TABLE IF NOT EXISTS tasks_change_log (
   old_time_spent double DEFAULT NULL,
   old_time_to_spend double DEFAULT NULL,
   old_status varchar(255) DEFAULT NULL,
-new_WBS varchar(255) DEFAULT NULL,
+  new_WBS varchar(255) DEFAULT NULL,
   new_project_name varchar(255) DEFAULT NULL,
   new_task_name varchar(255) DEFAULT NULL,
   new_assigned varchar(255) DEFAULT NULL,
@@ -91,15 +93,6 @@ new_WBS varchar(255) DEFAULT NULL,
   CONSTRAINT tasks_change_log_ibfk_1 FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS resources_tasks (
-  id int NOT NULL AUTO_INCREMENT,
-  resource_name varchar(255) DEFAULT NULL,
-  task_id int DEFAULT NULL,
-  PRIMARY KEY (id),
-  KEY fk_task (task_id),
-  CONSTRAINT fk_task FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE ON UPDATE CASCADE
-);
-
 CREATE TABLE IF NOT EXISTS time_spent_tasks (
   id int NOT NULL AUTO_INCREMENT,
   days_date date DEFAULT NULL,
@@ -108,6 +101,15 @@ CREATE TABLE IF NOT EXISTS time_spent_tasks (
   PRIMARY KEY (id),
   KEY fk_task_name_new (task_name),
   CONSTRAINT fk_task_name_new FOREIGN KEY (task_name) REFERENCES tasks (task_name) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS resources_tasks (
+  id int NOT NULL AUTO_INCREMENT,
+  resource_name varchar(255) DEFAULT NULL,
+  task_id int DEFAULT NULL,
+  PRIMARY KEY (id),
+  KEY fk_task (task_id),
+  CONSTRAINT fk_task FOREIGN KEY (task_id) REFERENCES tasks (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS subtasks (

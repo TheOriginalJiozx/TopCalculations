@@ -110,7 +110,23 @@ public class SubTaskRepository {
         String sql = "SELECT st.id, st.wbs, st.sub_task_name, st.assigned, st.task_name, st.project_name, st.time_spent, st.time_to_spend, st.duration, st.planned_start_date, st.planned_finish_date, st.status " +
                 "FROM subtasks st " +
                 "WHERE st.id = ? AND st.sub_task_name IS NOT NULL AND st.sub_task_name != ''";
-        return jdbcTemplate.query(sql, new SubTaskRowMapper(), id);
+        List<Subtask> subtasks = jdbcTemplate.query(sql, new SubTaskRowMapper(), id);
+
+        // For hver opgave, hent de relaterede ressourcenavne
+        String resourcesSql = "SELECT resource_name FROM resources_subtasks WHERE sub_task_id = ?";
+        for (Subtask subtask : subtasks) {
+            List<String> resources = jdbcTemplate.query(
+                    resourcesSql,
+                    (rs, rowNum) -> rs.getString("resource_name"),
+                    subtask.getId()
+            );
+
+            // Kombiner ressourcenavnene til en kommasepareret streng
+            String resourceNames = String.join(", ", resources);
+            subtask.setResource_name(resourceNames);
+        }
+
+        return subtasks;
     }
 
     // Henter en underopgave baseret på dens ID (specifik underopgave)
