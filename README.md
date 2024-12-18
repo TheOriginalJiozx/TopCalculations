@@ -207,8 +207,6 @@ Project Link: https://github.com/TheOriginalJiozx/TopCalculations
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-## Acknowledgments
-
 * Special thanks to the following libraries and tools:
   - [Spring Boot](https://spring.io/projects/spring-boot) for the backend framework.
   - [Thymeleaf](https://www.thymeleaf.org/) for server-side templating.
