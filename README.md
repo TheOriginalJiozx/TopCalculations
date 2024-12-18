@@ -1,23 +1,3 @@
-<!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
-<a id="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
-
-
-
-<!-- PROJECT SHIELDS -->
-<!--
-*** I'm using markdown "reference style" links for readability.
-*** Reference links are enclosed in brackets [ ] instead of parentheses ( ).
-*** See the bottom of this document for the declaration of the reference variables
-*** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
-*** https://www.markdownguide.org/basic-syntax/#reference-style-links
--->
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
@@ -39,10 +19,10 @@
   <p align="center">
     project_description
     <br />
-    <a href="[https://github.com/github_username/repo_name](https://github.com/TheOriginalJiozx/TopCalculations)"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/TheOriginalJiozx/TopCalculations"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="[https://github.com/github_username/repo_name](https://github.com/TheOriginalJiozx/TopCalculations)">View Demo</a>
+    <a href="https://github.com/TheOriginalJiozx/TopCalculations">View Demo</a>
     ·
     <a href="https://github.com/github_username/repo_name/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
     ·
@@ -93,14 +73,11 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 
 ### Built With
 
-* [![Next][Next.js]][Next-url]
-* [![React][React.js]][React-url]
-* [![Vue][Vue.js]][Vue-url]
-* [![Angular][Angular.io]][Angular-url]
-* [![Svelte][Svelte.dev]][Svelte-url]
-* [![Laravel][Laravel.com]][Laravel-url]
-* [![Bootstrap][Bootstrap.com]][Bootstrap-url]
-* [![JQuery][JQuery.com]][JQuery-url]
+* [![Thymeleaf][https://thymeleaf.org]][Thymeleaf-url]
+* [![CSS][https://web.dev/learn/css][CSS-url]
+* [![Spring Boot][https://spring.io]][SpringBoot-url]
+* [![Java][https://java.com]][Java-url]
+* [![MySQL][https://mysql.com][MySQL-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -109,33 +86,33 @@ Here's a blank template to get started. To avoid retyping too much info, do a se
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+This is how you set up our project locally.
+To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+brew install maven       # For macOS using Homebrew
+
+sudo apt-get install maven  # For Ubuntu/Debian-based systems
+
+choco install maven      # For Windows using Chocolatey
+
+* mvn
   ```sh
-  npm install npm@latest -g
+  mvn install mvn
   ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
+1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/TheOriginalJiozx/TopCalculations.git
    ```
-3. Install NPM packages
+2. Install MVN packages
    ```sh
-   npm install
+   mvn install
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-5. Change git remote url to avoid accidental pushes to base project
+3. Change git remote url to avoid accidental pushes to base project
    ```sh
    git remote set-url origin github_username/repo_name
    git remote -v # confirm the changes
@@ -152,6 +129,19 @@ Use this space to show useful examples of how a project can be used. Additional 
 
 _For more examples, please refer to the [Documentation](https://example.com)_
 
+1. User Management
+   * Users can register, log in and manage their projects, tasks and subtasks.
+2. CRUD Operations
+   * Manage entities (projects, tasks and subtasks) using a user-friendly interface
+     http://localhost:8080/addProject
+     http://localhost:8080/addTask
+     http://localhost:8080/addSub
+3. Responsive UI
+   * Optimized for mobile, tablets and desktop
+   * Example:
+     * View the application on a different services to see the adaptive design in action.
+
+     
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -159,12 +149,17 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Brugervenlig brugergrænseflade
+- [ ] Nedbrydning af projekter
+- [ ] Fordeling af tidsforbrug
+- [ ] Ændring af project/task/subtask
+- [ ] Overblik over projekter
+- [ ] Summering af tidsforbrug
+- [ ] Admin panel
+- [ ] Brugerprofil
+- [ ] Automatisk fjernelse af profil
 
-See the [open issues](https://github.com/github_username/repo_name/issues) for a full list of proposed features (and known issues).
+See the [open issues](https://github.com/TheOriginalJiozx/TopCalculations/issues?q=is%3Aopen+is%3Aissue) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -188,27 +183,22 @@ Don't forget to give the project a star! Thanks again!
 
 ### Top contributors:
 
-<a href="https://github.com/github_username/repo_name/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=github_username/repo_name" alt="contrib.rocks image" />
+<a href="https://github.com/TheOriginalJiozx/TopCalculations/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=TheOriginalJiozx/TopCalculations" alt="contrib.rocks image" />
 </a>
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the project_license. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@twitter_handle](https://twitter.com/twitter_handle) - email@email_client.com
+Our names:
+* Omar Al-Ali - GitHub username: TheOriginalJiozx
+* Sami Ahamzi - GitHub username: Samiahamzi
+* Mohammed Ayan Farooq - GitHub username: Moha0002
+* Salem Lokende - GitHub username: Salo0002004
 
-Project Link: [https://github.com/github_username/repo_name](https://github.com/github_username/repo_name)
+Project Link: [https://github.com/github_username/repo_name](https://github.com/TheOriginalJiozx/TopCalculations)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
