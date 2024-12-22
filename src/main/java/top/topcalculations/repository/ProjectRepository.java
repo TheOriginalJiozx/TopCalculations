@@ -6,15 +6,13 @@ import org.springframework.stereotype.Repository;
 import top.topcalculations.model.Project;
 import top.topcalculations.model.Task;
 
+import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-import javax.sql.DataSource;
-
 @Repository
-
 public class ProjectRepository {
     private JdbcTemplate jdbcTemplate;
 
@@ -23,21 +21,21 @@ public class ProjectRepository {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
+    // Gemmer et projekt i databasen
+    // Hvis opgaven ikke har et navn, genereres en ny WBS (Work Breakdown Structure)
     public void saveProject(Task task, Project project) {
-        // Generer en ny WBS, hvis nødvendigt
+        // Hvis projektet ikke har et navn, genereres en ny WBS
         if (task.getTaskName() == null || task.getTaskName().isEmpty()) {
             String newWBS = generateNewWBS();  // Generer en ny WBS
             project.setWbs(newWBS);  // Sæt den nye WBS for projektet
         }
 
-        System.out.println("Gemmer projekt: " + project);
-
-        // Første SQL forespørgsel
+        // SQL forespørgsel til at gemme projektet i databasen
         String sql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_in_total) " +
                 "VALUES (?, ?, DATEDIFF(?, ?), ?, ?, ?, 0)";
 
         try {
-            // Forsøg at udføre den første SQL
+            // Forsøg at gemme projektet med den oprindelige SQL forespørgsel
             jdbcTemplate.update(sql,
                     project.getWbs(),
                     project.getProjectName(),
@@ -47,9 +45,10 @@ public class ProjectRepository {
                     project.getPlannedFinishDate(),
                     project.getAssigned());
         } catch (Exception e) {
-            // Hvis den første SQL fejler, udfør den alternative forespørgsel
-            System.out.println("First SQL query failed, trying to execute alternate query.");
+            // Hvis den første SQL forespørgsel fejler, brug en alternativ SQL
+            System.out.println("Første SQL forespørgsel fejlede, prøver alternativ forespørgsel.");
 
+            // Alternativ SQL forespørgsel
             String fallbackSql = "INSERT INTO projects (WBS, project_name, duration, planned_start_date, planned_finish_date, assigned, expected_time_in_total) " +
                     "VALUES (?, ?, DATEDIFF(DAY, ?, ?), ?, ?, ?, 0)";
             jdbcTemplate.update(fallbackSql,
@@ -63,6 +62,8 @@ public class ProjectRepository {
         }
     }
 
+    // Opdaterer den tid, der skal bruges på en opgave, hvis det er nødvendigt
+    // Ved at summere tiden brugt på subtasks
     void updateTimeToSpendIfNecessary(Task name) {
         String calculateSubtaskTimeQuery =
                 "SELECT SUM(st.time_to_spend) " +
@@ -79,53 +80,52 @@ public class ProjectRepository {
                         "SET time_to_spend = ? " +
                         "WHERE task_name = ?";
 
+        // Beregn den samlede tid brugt på subtasks
         Double totalSubtaskTime = jdbcTemplate.queryForObject(calculateSubtaskTimeQuery, Double.class, name.getTaskName());
         if (totalSubtaskTime == null) {
             totalSubtaskTime = 0.0;
         }
 
+        // Hent den oprindelige tid afsat til opgaven
         Double taskTimeToSpend = jdbcTemplate.queryForObject(getTaskTimeQuery, Double.class, name.getTaskName());
         if (taskTimeToSpend == null) {
             taskTimeToSpend = 0.0;
         }
 
+        // Hvis den samlede tid brugt på subtasks er større end den oprindelige tid, opdater opgavens tid
         if (totalSubtaskTime > taskTimeToSpend) {
             jdbcTemplate.update(updateTaskTimeQuery, totalSubtaskTime, name.getTaskName());
         }
     }
 
-    // Genererer en ny WBS ved at finde den højeste WBS-værdi og øge den
+    // Genererer en ny WBS (Work Breakdown Structure)
+    // Ved at finde den højeste WBS i databasen og inkrementere den
     private String generateNewWBS() {
-        // MySQL-specifik forespørgsel
+        // SQL forespørgsel for MySQL til at finde den højeste WBS
         String sqlMySQL = "SELECT MAX(CAST(WBS AS UNSIGNED)) FROM projects";
-        // H2-specifik forespørgsel
+        // SQL forespørgsel for H2 til at finde den højeste WBS
         String sqlH2 = "SELECT MAX(CAST(WBS AS INT)) FROM projects";
 
         try {
-            // Forsøg at køre MySQL-forespørgslen først
+            // Forsøg at køre MySQL-forespørgslen
             Integer highestWBS = jdbcTemplate.queryForObject(sqlMySQL, Integer.class);
-            // Hvis ingen WBS findes, start med 1, ellers inkrementer den højeste WBS
+            // Hvis ingen WBS er fundet, start med 1, ellers inkrementer den højeste WBS
             int newWBSValue = (highestWBS == null) ? 1 : highestWBS + 1;
-            // Returner den nye WBS-værdi
             return String.valueOf(newWBSValue);
         } catch (Exception eMySQL) {
-            // Hvis MySQL-forespørgslen fejler, forsøg H2-forespørgslen i stedet
+            // Hvis MySQL-forespørgslen fejler, forsøg H2-forespørgslen
             System.err.println("MySQL-forespørgsel mislykkedes, forsøger H2-forespørgsel: " + eMySQL.getMessage());
             eMySQL.printStackTrace();
 
             try {
                 // Kør H2-specifik forespørgsel
                 Integer highestWBS = jdbcTemplate.queryForObject(sqlH2, Integer.class);
-                // Hvis ingen WBS findes, start med 1, ellers inkrementer den højeste WBS
                 int newWBSValue = (highestWBS == null) ? 1 : highestWBS + 1;
-                // Returner den nye WBS-værdi
                 return String.valueOf(newWBSValue);
             } catch (Exception eH2) {
-                // Hvis H2-forespørgslen også fejler, log fejlen og returner en standardværdi
+                // Hvis H2-forespørgslen fejler, log fejlen og returner en standardværdi
                 System.err.println("H2-forespørgsel mislykkedes: " + eH2.getMessage());
                 eH2.printStackTrace();
-
-                // Returner en standard WBS-værdi, hvis begge forespørgsler fejler
                 return "1"; // Standard WBS-værdi
             }
         }
@@ -135,7 +135,7 @@ public class ProjectRepository {
     public Project findProjectByName(String projectName) {
         String sql = "SELECT * FROM projects WHERE project_name = ?";
         List<Project> projects = jdbcTemplate.query(sql, new Object[]{projectName}, new ProjectRowMapper());
-        return projects.isEmpty() ? null : projects.get(0);  // Returner projektet eller null, hvis ikke fundet
+        return projects.isEmpty() ? null : projects.get(0);  // Returner projektet, eller null hvis ikke fundet
     }
 
     // Henter alle projekter fra databasen
@@ -143,6 +143,7 @@ public class ProjectRepository {
         String sql = "SELECT *, expected_time_in_total, status FROM projects";
         List<Project> projects = jdbcTemplate.query(sql, new ProjectRowMapper());
 
+        // Behandl projekterne for at justere værdierne
         for (Project project : projects) {
             if (project.getProjectName() != null && !project.getProjectName().isEmpty() &&
                     (project.getTaskName() == null || project.getTaskName().isEmpty())) {
@@ -160,7 +161,7 @@ public class ProjectRepository {
         return projects;
     }
 
-    // Henter et projekt baseret på dens ID
+    // Finder et projekt baseret på dets ID
     public List<Project> findProjectByID(Long id) {
         String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total, status " +
                 "FROM projects p " +
@@ -168,7 +169,7 @@ public class ProjectRepository {
         return jdbcTemplate.query(sql, new ProjectRowMapper(), id);
     }
 
-    // Henter et projekt baseret på dens ID (specifikt projekt)
+    // Finder et projekt baseret på dets ID og opdaterer dets status
     public Project findProjectByIDForStatus(Long id) {
         String sql = "SELECT p.id, p.wbs, p.project_name, p.time_spent, p.duration, p.planned_start_date, p.planned_finish_date, p.assigned, p.expected_time_in_total, status " +
                 "FROM projects p " +
@@ -176,7 +177,7 @@ public class ProjectRepository {
         return jdbcTemplate.queryForObject(sql, new ProjectRowMapper(), id);
     }
 
-    // Opdaterer et projekts status
+    // Opdaterer status for et projekt baseret på projektets ID
     public void updateProjectStatusByID(Long id, String status) {
         Project project = findProjectByIDForStatus(id);
         if (project != null) {
@@ -184,17 +185,21 @@ public class ProjectRepository {
             String sql = "UPDATE projects SET status = ? WHERE id = ?";
             jdbcTemplate.update(sql, status, id);
         } else {
-            throw new RuntimeException("Project with ID " + id + " not found");
+            // Hvis projektet ikke findes, kast en undtagelse
+            throw new RuntimeException("Projekt med ID " + id + " blev ikke fundet");
         }
     }
 
+
+
+
     // Opdaterer et projekt i databasen
     public void updateProject(int id, Project project) {
-        // Første SQL forespørgsel, hvor DATEDIFF bruger (?, ?)
+        // SQL forespørgsel til at opdatere projektet med DATEDIFF, hvor vi beregner forskellen mellem start- og slutdato
         String updateProjectSql = "UPDATE projects SET project_name = ?, duration = DATEDIFF(?, ?), planned_start_date = ?, planned_finish_date = ?, expected_time_in_total = ? WHERE id = ?";
 
         try {
-            // Forsøg at opdatere projektet med den første DATEDIFF
+            // Forsøg at opdatere projektet med den oprindelige SQL forespørgsel
             jdbcTemplate.update(updateProjectSql,
                     project.getProjectName(),
                     project.getPlannedFinishDate(),
@@ -204,9 +209,10 @@ public class ProjectRepository {
                     project.getExpectedTimeInTotal(),
                     id);
         } catch (Exception e) {
-            // Hvis den første SQL fejler, udfør alternativ forespørgsel med DATEDIFF(DAY, ?, ?)
+            // Hvis den første SQL forespørgsel fejler, brug en alternativ SQL forespørgsel
             System.out.println("First SQL query failed, trying to execute alternate query.");
 
+            // Alternativ SQL forespørgsel, der bruger DATEDIFF(DAY, ?, ?)
             String fallbackUpdateSql = "UPDATE projects SET project_name = ?, duration = DATEDIFF(DAY, ?, ?), planned_start_date = ?, planned_finish_date = ?, expected_time_in_total = ? WHERE id = ?";
             jdbcTemplate.update(fallbackUpdateSql,
                     project.getProjectName(),
@@ -221,35 +227,36 @@ public class ProjectRepository {
 
     // Sletter et projekt i databasen
     public void deleteProject(int id) {
+        // SQL forespørgsel for at slette et projekt baseret på dets ID
         String sql = "DELETE FROM projects WHERE id = ?";
-        jdbcTemplate.update(sql, id);
+        jdbcTemplate.update(sql, id);  // Udfør sletningen af projektet
 
+        // Opdater tabellen efter sletning for at omorganisere projekterne
         updateProjectsTable();
     }
 
-    // Opdaterer IDs i projects tabellen
+    // Opdaterer IDs i projects tabellen for at sikre, at de er i rækkefølge
     public void updateProjectsTable() {
         // Hent alle projekter sorteret efter ID
         String sql = "SELECT * FROM projects ORDER BY id";
         List<Map<String, Object>> projects = jdbcTemplate.queryForList(sql);
 
-        int newId = 1;
-        // Gennemgå hvert projekt og opdater ID'et
+        int newId = 1;  // Start med ID 1 for at opdatere IDs i rækkefølge
         for (Map<String, Object> project : projects) {
             int originalID = (int) project.get("id");
 
-            // Opdater projektets ID og WBS
+            // Opdater projektets ID og WBS (Work Breakdown Structure)
             String updateSql = "UPDATE projects SET id = ?, WBS = ? WHERE id = ?";
             jdbcTemplate.update(updateSql, newId, newId, originalID);
 
             newId++;  // Øg ID'et for næste projekt
         }
 
-        // Hent opgaverne og deres WBS
+        // Hent opgaverne og deres WBS for at opdatere dem
         String tasksSql = "SELECT id, wbs FROM tasks";
         List<Map<String, Object>> tasks = jdbcTemplate.queryForList(tasksSql);
 
-        // Gennemgå hver opgave og opdater WBS
+        // Opdater WBS for hver opgave
         for (Map<String, Object> task : tasks) {
             int taskId = (int) task.get("id");
             String originalWBS = (String) task.get("wbs");
@@ -269,11 +276,11 @@ public class ProjectRepository {
             }
         }
 
-        // Hent underopgaverne og deres WBS
+        // Hent underopgaverne og deres WBS for at opdatere dem
         String subtasksSql = "SELECT id, wbs FROM subtasks";
         List<Map<String, Object>> subtasks = jdbcTemplate.queryForList(subtasksSql);
 
-        // Gennemgå hver underopgave og opdater WBS
+        // Opdater WBS for hver underopgave
         for (Map<String, Object> subtask : subtasks) {
             int subtaskId = (int) subtask.get("id");
             String originalWBS = (String) subtask.get("wbs");
@@ -294,44 +301,42 @@ public class ProjectRepository {
         }
     }
 
-    // Finder projekter
+    // Finder alle projekter, der ikke er afsluttet (status != 'done')
     public List<Project> findAllProjects() {
+        // SQL forespørgsel for at finde projekter, der ikke er afsluttet
         String sql = "SELECT * FROM projects WHERE status != 'done'";
-        return jdbcTemplate.query(sql, new ProjectRowMapper());
+        return jdbcTemplate.query(sql, new ProjectRowMapper());  // Returner projekterne, der matcher betingelsen
     }
 
+    // Finder det højeste WBS-indeks for et projekt baseret på hovedprojektets WBS
     public int getHighestWbsIndexFromProjects(String mainProjectWBS) {
-        // SQL-forespørgsel for at finde det højeste WBS-indeks fra projekter-tabellen
+        // SQL forespørgsel for MySQL til at finde det højeste WBS-indeks
         String sqlMySQL = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS UNSIGNED)) FROM projects WHERE WBS LIKE CONCAT(?, '.%')";
         String sqlH2 = "SELECT MAX(CAST(SUBSTRING(WBS, LENGTH(?) + 2) AS INT)) FROM projects WHERE WBS LIKE CONCAT(?, '.%')";
 
         try {
-            // Forsøg at køre MySQL-specifik forespørgsel
+            // Forsøg at køre MySQL forespørgslen
             Integer highestTaskIndex = jdbcTemplate.queryForObject(sqlMySQL, new Object[]{mainProjectWBS, mainProjectWBS}, Integer.class);
-            // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
-            return highestTaskIndex != null ? highestTaskIndex : 0;
+            return highestTaskIndex != null ? highestTaskIndex : 0;  // Returner det højeste indeks eller 0, hvis resultatet er null
         } catch (Exception eMySQL) {
-            // Hvis MySQL-forespørgslen fejler, forsøg H2-forespørgslen i stedet
+            // Hvis MySQL forespørgslen fejler, prøv H2 forespørgslen
             System.err.println("MySQL query failed, attempting H2 query: " + eMySQL.getMessage());
             eMySQL.printStackTrace();
 
             try {
-                // Kør H2-specifik forespørgsel
+                // Kør H2 forespørgslen
                 Integer highestTaskIndex = jdbcTemplate.queryForObject(sqlH2, new Object[]{mainProjectWBS, mainProjectWBS}, Integer.class);
-                // Returner det højeste WBS-indeks eller 0, hvis resultatet er null
-                return highestTaskIndex != null ? highestTaskIndex : 0;
+                return highestTaskIndex != null ? highestTaskIndex : 0;  // Returner det højeste indeks eller 0, hvis resultatet er null
             } catch (Exception eH2) {
-                // Hvis H2-forespørgslen også fejler, log fejlen og returner 0
+                // Hvis begge forespørgsler fejler, log fejlen og returner 0
                 System.err.println("H2 query failed: " + eH2.getMessage());
                 eH2.printStackTrace();
-
-                // Returner 0, hvis begge forespørgsler fejler
-                return 0; // Standard WBS-værdi
+                return 0;  // Standard værdi, hvis begge forespørgsler fejler
             }
         }
     }
 
-    // Mapper resultatet af SQL-spørgsmål til et Project-objekt
+    // Mapper resultatet af SQL forespørgsler til et Project objekt
     private static class ProjectRowMapper implements RowMapper<Project> {
         @Override
         public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -346,7 +351,7 @@ public class ProjectRepository {
             project.setPlannedStartDate(rs.getString("planned_start_date"));
             project.setPlannedFinishDate(rs.getString("planned_finish_date"));
             project.setAssigned(rs.getString("assigned"));
-            return project;  // Returner det mapperede Project-objekt
+            return project;  // Returner det mapperede Project objekt
         }
     }
 }
