@@ -3,7 +3,10 @@ package top.topcalculations.controller;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import top.topcalculations.model.Project;
 import top.topcalculations.model.Subtask;
@@ -18,168 +21,187 @@ import java.util.List;
 @Controller
 public class SubTaskController {
 
-    // Service-lag til håndtering af underopgaver, opgaver og brugere
     private final SubTaskService subTaskService;
     private final TaskService taskService;
     private final UserService userService;
 
-    /**
-     * Konstruktor til at injicere de nødvendige services.
-     */
     public SubTaskController(SubTaskService subTaskService, TaskService taskService, UserService userService) {
         this.subTaskService = subTaskService;
         this.taskService = taskService;
         this.userService = userService;
     }
 
-    /**
-     * Viser formularen til at tilføje en ny underopgave.
-     */
+    // Vis formularen til at tilføje en underopgave
     @GetMapping("/addSub")
     public String showAddSubForm(Model model, HttpSession session) {
-        // Tjekker om brugeren er logget ind
+        // Tjek om brugeren er logget ind, ellers send til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Hvis ikke, redirect til login-siden
+            return "redirect:/login";  // Redirect til login-siden
         }
 
-        // Tilføjer brugerinformation (navn og rolle) til modellen
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
-        model.addAttribute("isAdmin", "Admin".equals(user.getRole()));
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
 
-        // Henter liste over opgaver og brugere til formularens dropdown-menuer
-        List<Task> tasks = taskService.getAllTasks();
-        model.addAttribute("tasks", tasks);
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // This will be true if the user is Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Set isAdmin to false for guest users
+        }
 
-        List<User> users = userService.getAllUsers();
-        model.addAttribute("users", users);
+        List<Task> tasks = taskService.getAllTasks();  // Hent alle opgaver
+        model.addAttribute("tasks", tasks);  // Tilføj opgaver til model
 
-        // Tilføjer et tomt Subtask-objekt til formularen
-        model.addAttribute("subtask", new Subtask());
+        List<User> users = userService.getAllUsers();  // Assume userService is injected
+        model.addAttribute("users", users);  // Add the list of users to the model
 
-        return "addSub"; // Returnerer viewet "addSub"
+        model.addAttribute("subtask", new Subtask());  // Tilføj et nyt tomt projekt til model
+        return "addSub";  // Returner formularen til tilføjelse af underopgave
     }
 
-    /**
-     * Håndterer formularindsendelse for at tilføje en ny underopgave.
-     */
     @PostMapping("/addSub")
-    public String submitAddSubForm(@ModelAttribute Subtask subTask, @ModelAttribute Task task,
-                                   Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-        // Tjekker om brugeren er logget ind
+    public String submitAddSubForm(@ModelAttribute Subtask subTask, @ModelAttribute Task task, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
+        // Tjek om brugeren er logget ind, ellers send til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";
+            return "redirect:/login";  // Redirect til login-siden
         }
 
-        // Validerer, at der er valgt en hovedopgave til underopgaven
-        if (subTask.getTaskName() != null && !subTask.getTaskName().isEmpty()) {
-            Task mainTask = taskService.getTaskByName(task.getTaskName());
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
+
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // Sæt til true hvis brugeren er Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæster
+        }
+
+        if (subTask.getTaskName() != null && !subTask.getTaskName().isEmpty()) {  // Hvis taskProjectName er angivet
+            Task mainTask = taskService.getTaskByName(task.getTaskName());  // Hent hovedopgaven
 
             if (mainTask != null) {
-                // Genererer en ny WBS (Work Breakdown Structure) for underopgaven
-                String mainTaskWBS = mainTask.getWbs();
+                String mainTaskWBS = mainTask.getWbs();  // Hent WBS for hovedopgaven
+
+                // Hent den højeste WBS-index for underopgaver
                 int highestSubtaskIndex = subTaskService.getHighestWbsIndexForSubtasks(mainTaskWBS);
+
+                // Generer en ny WBS for underopgaven
                 String newWBS = mainTaskWBS + "." + (highestSubtaskIndex + 1);
 
-                // Sætter værdier for den nye underopgave
-                subTask.setWbs(newWBS);
-                subTask.setTaskName(mainTask.getTaskName());
-                subTask.setProjectName(mainTask.getProjectName());
-                subTaskService.saveSubTask(subTask, task); // Gemmer underopgaven i databasen
+                subTask.setWbs(newWBS);  // Sæt WBS for den nye underopgave
+                subTask.setTaskName(mainTask.getTaskName());  // Sæt taskName
+                subTask.setProjectName(mainTask.getProjectName());  // Sæt projectName
+                subTask.setResource_name(subTask.getResource_name());
+                subTask.setId(subTask.getId());
 
-                redirectAttributes.addFlashAttribute("messageSub", "Subtask added successfully.");
+                subTaskService.saveSubTask(subTask, task);  // Gem underopgaven
+                redirectAttributes.addFlashAttribute("messageSub", "Subtask added successfully.");  // Success-besked
             } else {
-                redirectAttributes.addFlashAttribute("errorMessageSub", "Error: Main task not found.");
-                return "redirect:/addSub"; // Fejl, hvis hovedopgaven ikke findes
+                redirectAttributes.addFlashAttribute("errorMessageSub", "Error: Main task not found.");  // Fejlbesked
+                return "redirect:/addSub";  // Omdiriger tilbage til formularen
             }
         }
-        return "redirect:/addSub"; // Omdirigerer til formularen efter succes
+
+        return "redirect:/addSub";  // Redirect tilbage til formularen for underopgave
     }
 
-    /**
-     * Sletter en underopgave baseret på ID.
-     */
     @PostMapping("/delete-subtask/{id}")
-    public String deleteSubTask(@PathVariable("id") int id, HttpSession session) {
+    public String deleteSubTask(@PathVariable("id") int id, HttpSession session, Project name) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Tjek for login
+            return "redirect:/login";  // Redirect til login-siden
         }
 
         System.out.println("Sletter subtask med ID: " + id);
-        subTaskService.deleteSubTask(id); // Kalder service for at slette underopgaven
 
-        return "redirect:/view"; // Omdirigerer til hovedvisningen
+        subTaskService.deleteSubTask(id);
+
+        return "redirect:/view";
     }
 
-    /**
-     * Viser en specifik underopgave baseret på ID.
-     */
+    // Vis en specifik underopgave ved ID
     @GetMapping("/view-subtask/{id}")
     public String viewSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login"; // Redirect ved manglende login
+            return "redirect:/login";  // Redirect til login-siden
         }
 
-        // Tilføjer brugerinfo til modellen
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
-        model.addAttribute("isAdmin", "Admin".equals(user.getRole()));
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
 
-        // Henter underopgave med det angivne ID og tilføjer det til modellen
-        List<Subtask> subtasks = subTaskService.getSubTaskByID(id);
-        model.addAttribute("subtasks", subtasks);
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
+        }
 
-        return "view-subtask"; // Returnerer view-subtask.html
+        List<Subtask> subtasks = subTaskService.getSubTaskByID(id);  // Hent underopgave efter ID
+        model.addAttribute("subtasks", subtasks);  // Tilføj underopgaver til model
+        return "view-subtask";  // Returner view til visning af underopgavedetaljer
     }
 
-    /**
-     * Viser formularen til redigering af en underopgave.
-     */
+    // Rediger en specifik underopgave ved ID
     @GetMapping("/edit-subtask/{id}")
     public String editSubTask(@PathVariable("id") Long id, Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login"; // Redirect ved manglende login
+            return "redirect:/login";  // Redirect til login-siden
         }
 
         User user = (User) session.getAttribute("user");
-        model.addAttribute("username", user.getUsername());
-        model.addAttribute("isAdmin", "Admin".equals(user.getRole()));
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
 
-        // Henter underopgave til redigering
-        List<Subtask> subtasks = subTaskService.getSubTaskByID(id);
-        model.addAttribute("subtask", subtasks);
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
+        }
 
-        return "edit-subtask"; // Returnerer edit-subtask.html
+        List<Subtask> subtasks = subTaskService.getSubTaskByID(id); // Henter underopgave med ID
+        model.addAttribute("subtask", subtasks); // Tilføjer underopgave til model
+        return "edit-subtask"; // Returnerer view til redigering af underopgave
     }
 
-    /**
-     * Opdaterer en underopgave baseret på indsendt formular.
-     */
     @PostMapping("/update-subtask/{id}")
-    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Subtask subtask,
-                                @ModelAttribute Project project, @ModelAttribute Task task, HttpSession session) {
+    public String updateSubTask(@PathVariable("id") int id, @ModelAttribute Subtask subtask, @ModelAttribute Project project, @ModelAttribute Task task, HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login"; // Redirect ved manglende login
+            return "redirect:/login";  // Redirect til login-siden
         }
 
         System.out.println("Opdaterer underopgave med ID: " + id);
-        subtask.setId(id);
-        subTaskService.updateSubTask(id, subtask, project, task);
+        System.out.println("Nyt underopgavenavn: " + subtask.getSubTaskName());
+        System.out.println("Ny varighed: " + subtask.getDuration());
 
-        return "redirect:/view-subtask/" + id; // Omdirigerer til visning af opdateret underopgave
+        subtask.setId(id);  // Sætter ID for underopgaven
+        subTaskService.updateSubTask(id, subtask, project, task);  // Opdater underopgave
+
+        return "redirect:/view-subtask/" + id;  // Redirect til visning af underopgaven
     }
 
-    /**
-     * Opdaterer status for en underopgave.
-     */
+    // Opdaterer en subtasks status
     @PostMapping("/update-subtask-status/{id}/{status}")
-    public String updateSubTaskStatus(@PathVariable("id") Long id, @PathVariable("status") String status,
-                                      HttpSession session) {
+    public String updateSubTaskStatus(@PathVariable("id") Long id,
+                                      @PathVariable("status") String status, HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login"; // Tjek for login
+            return "redirect:/login";  // Redirect til login-siden
         }
-
-        subTaskService.updateSubTaskStatus(id, status); // Opdaterer status via service
-        return "redirect:/view-subtask/" + id; // Omdirigerer tilbage til underopgaven
+        subTaskService.updateSubTaskStatus(id, status);
+        return "redirect:/view-subtask/" + id;  // Redirect til subtask view efter opdatering af status
     }
 }

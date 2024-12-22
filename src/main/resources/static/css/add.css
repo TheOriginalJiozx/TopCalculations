@@ -49,3 +49,39 @@ button[type="submit"]:hover {
 h1 {
     text-align: center;
 }
+
+@media (max-width: 768px) {
+    .container-custom-add {
+        max-width: 100%;
+        margin: 20px;
+        padding: 10px;
+    }
+
+    .form-group {
+        display: block;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    th, td {
+        padding: 5px;
+    }
+
+    .sr-only {
+        display: block;
+        margin-top: 5px;
+    }
+
+    input[type="text"], input[type="date"], input[type="number"] {
+        padding: 6px;
+        margin: 2px 0;
+    }
+
+    button[type="submit"] {
+        padding: 8px 12px;
+    }
+
+    h1 {
+        font-size: 20px;
+    }
+}

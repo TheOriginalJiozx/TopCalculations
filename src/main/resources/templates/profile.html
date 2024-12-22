@@ -50,15 +50,25 @@
         </tbody>
       </table>
 
+      <div>
+        <strong>Total Time to Spend Left: </strong>
+        <span th:text="${totalTimeToSpend}"></span>
+      </div>
+
       <table aria-labelledby="profile-header" aria-describedby="profile-description">
         <thead>
         <tr>
           <th scope="col">My Projects</th>
+          <th scope="col" class="expected-time-header">Expected Time To Spend</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="project : ${projects}">
           <td th:text="${project.projectName}"></td>
+          <td th:text="${project.expectedTimeInTotal}"></td>
+          <td th:text="${project.status}"></td>
           <td>
             <a th:href="@{/view-project/{id}(id=${project.id})}">View</a>
           </td>
@@ -70,11 +80,16 @@
         <thead>
         <tr>
           <th scope="col">My Tasks</th>
+          <th scope="col" class="expected-time-header">Expected Time To Spend</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="task : ${tasks}">
           <td th:text="${task.taskName}"></td>
+          <td th:text="${task.timeToSpend}"></td>
+          <td th:text="${task.status}"></td>
           <td>
             <a th:href="@{/view-task/{id}(id=${task.id})}">View</a>
           </td>
@@ -86,11 +101,16 @@
         <thead>
         <tr>
           <th scope="col">My Subtasks</th>
+          <th scope="col" class="expected-time-header">Expected Time To Spend</th>
+          <th scope="col">Status</th>
+          <th scope="col">Actions</th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="subtask : ${subtasks}">
           <td th:text="${subtask.subTaskName}"></td>
+          <td th:text="${subtask.timeToSpend}"></td>
+          <td th:text="${subtask.status}"></td>
           <td>
             <a th:href="@{/view-subtask/{id}(id=${subtask.id})}">View</a>
           </td>

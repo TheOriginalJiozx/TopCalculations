@@ -20,78 +20,80 @@ import java.util.List;
 @Controller
 public class TaskController {
 
-    // Services der bruges i controlleren
     private final TaskService taskService;
     private final ProjectService projectService;
     private final UserService userService;
 
-    // Konstruktør for at injicere de nødvendige services
     public TaskController(TaskService taskService, ProjectService projectService, UserService userService) {
         this.taskService = taskService;
         this.projectService = projectService;
         this.userService = userService;
     }
 
-    // Metode til at vise formularen for at tilføje en ny opgave
     @GetMapping("/addTask")
     public String showAddTaskForm(Model model, HttpSession session) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
+        // Tjek om brugeren er logget ind; ellers omdiriger til login
         if (session.getAttribute("user") == null) {
             return "redirect:/login";  // Omdiriger til login-siden
         }
 
         User user = (User) session.getAttribute("user");
         if (user != null) {
-            model.addAttribute("username", user.getUsername());  // Tilføj brugernavn til modellen
+            // Tilføj brugernavnet til modellen
+            model.addAttribute("username", user.getUsername());
 
-            // Tjek om brugeren er admin og tilføj isAdmin-attribut
+            // Tjek om brugeren er admin og tilføj "isAdmin" til modellen
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true);  // Tilføj isAdmin som true for admins
+                model.addAttribute("isAdmin", true);  // Sæt "isAdmin" til true for admins
             } else {
-                model.addAttribute("isAdmin", false);  // Tilføj isAdmin som false for ikke-admins
+                model.addAttribute("isAdmin", false);  // Sæt "isAdmin" til false for ikke-admins
             }
         } else {
-            model.addAttribute("username", "Guest");  // Sæt brugernavn til "Guest" hvis ikke logget ind
-            model.addAttribute("isAdmin", false);  // Sæt isAdmin til false for gæstebrugere
+            // Hvis brugeren ikke er logget ind, sæt standardværdier for "Guest"
+            model.addAttribute("username", "Guest");  // Sæt brugernavnet til "Guest"
+            model.addAttribute("isAdmin", false);  // Sæt "isAdmin" til false for gæstebrugere
         }
 
-        // Hent alle projekter og tilføj dem til modellen
+        // Hent listen over alle projekter
         List<Project> projects = projectService.getAllProjects();
+        // Tilføj listen over projekter til modellen
         model.addAttribute("projects", projects);
 
-        // Hent og tilføj alle brugere til modellen
-        List<User> users = userService.getAllUsers();
+        // Hent listen over alle brugere (brugernavne)
+        List<User> users = userService.getAllUsers();  // Antag at userService er injiceret
+        // Tilføj listen over brugere til modellen
         model.addAttribute("users", users);
 
-        model.addAttribute("task", new Task());  // Tilføj en ny tom Task-objekt til formularbindning
+        // Tilføj en ny tom Task-objekt for form-binding
+        model.addAttribute("task", new Task());
 
-        return "addTask";  // Returner "addTask"-viewet for at vise formularen
+        // Returnér "addTask"-viewet for at vise formularen
+        return "addTask";
     }
 
-    // Metode til at håndtere formularindsendelse for at tilføje en opgave
     @PostMapping("/addTask")
     public String submitAddTaskForm(@ModelAttribute Task task, @ModelAttribute Project project, Model model, RedirectAttributes redirectAttributes, HttpSession session) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
+        // Tjek om brugeren er logget ind, ellers omdiriger til login
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login-siden
+            return "redirect:/login";  // Omdiriger til login siden
         }
 
-        // Hent brugeren fra sessionen og tilføj brugernavn og rolle til modellen
+        // Hent brugeren fra sessionen og tilføj brugernavnet til modellen
         User user = (User) session.getAttribute("user");
         model.addAttribute("username", user != null ? user.getUsername() : "Guest");
         model.addAttribute("isAdmin", user != null && "Admin".equals(user.getRole()));
 
-        // Hvis hovedprojektet er specificeret, behandl som et nyt projekt
+        // Hvis hovedprojektet ikke er valgt, behandl som et nyt projekt
         if (task.getMainProjectName() != null && !task.getMainProjectName().isEmpty()) {
             // Hent hovedprojektet ved navn
-            Project mainProject = projectService.getProjectByName(task.getMainProjectName());  // Hent hovedprojektet efter navn
+            Project mainProject = projectService.getProjectByName(task.getMainProjectName());  // Få hovedprojektet efter navn
 
             // Tjek om hovedprojektet findes
             if (mainProject != null) {
                 // Hent WBS (Work Breakdown Structure) for hovedprojektet
-                String mainProjectWBS = mainProject.getWbs();  // Hent WBS for hovedprojektet
+                String mainProjectWBS = mainProject.getWbs();  // Få WBS for hovedprojektet
 
-                // Hent den højeste WBS indeks fra projekter og opgavetable
+                // Hent den højeste WBS indeks fra projekter og opgave tabeller
                 int highestTaskIndex = projectService.getHighestWbsIndex(mainProjectWBS);
 
                 // Generer en ny WBS for opgaven
@@ -116,64 +118,32 @@ public class TaskController {
         return "redirect:/addTask";  // Omdiriger tilbage til formularen for at tilføje et projekt/opgave
     }
 
-    // Metode til at slette en opgave
     @PostMapping("/delete-task/{id}")
     public String deleteTask(@PathVariable("id") int id, HttpSession session, Project name) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login-siden
+            return "redirect:/login";  // Redirect til login-siden
         }
 
-        System.out.println("Sletter task med ID: " + id);  // Log besked til konsollen
+        System.out.println("Sletter task med ID: " + id);
 
-        taskService.deleteTask(id);  // Slet opgaven
+        taskService.deleteTask(id);
 
-        return "redirect:/view";  // Omdiriger til visning
+        return "redirect:/view";
     }
 
-    // Metode til at vise en specifik opgave baseret på ID
+    // Vis en specifik opgave ved ID
     @GetMapping("/view-task/{id}")
     public String viewTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login-siden
-        }
-
-        User user = (User) session.getAttribute("user");
-        if (user != null) {
-            model.addAttribute("username", user.getUsername());  // Tilføj brugernavn til modellen
-
-            // Hvis brugeren er admin, sæt isAdmin som true
-            if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // Tilføj isAdmin som true for admins
-            } else {
-                model.addAttribute("isAdmin", false);
-            }
-        } else {
-            model.addAttribute("username", "Guest");
-            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
-        }
-
-        List<Task> tasks = taskService.getTaskByID(id);  // Hent opgaven baseret på ID
-        model.addAttribute("tasks", tasks);  // Tilføj opgaver til modellen
-        return "view-task";  // Returner view til visning af opgavedetaljer
-    }
-
-    // Metode til at redigere en opgave
-    @GetMapping("/edit-task/{id}")
-    public String editTask(@PathVariable("id") Long id, Model model, HttpSession session) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
-        if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login-siden
+            return "redirect:/login";  // Redirect til login-siden
         }
 
         User user = (User) session.getAttribute("user");
         if (user != null) {
             model.addAttribute("username", user.getUsername());
 
-            // Hvis brugeren er admin, sæt isAdmin som true
             if ("Admin".equals(user.getRole())) {
-                model.addAttribute("isAdmin", true); // Tilføj isAdmin som true for admins
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
             } else {
                 model.addAttribute("isAdmin", false);
             }
@@ -182,35 +152,58 @@ public class TaskController {
             model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
         }
 
-        List<Task> task = taskService.getTaskByID(id); // Hent opgaven baseret på ID
-        model.addAttribute("task", task); // Tilføj den hentede opgave til modellen
-        return "edit-task"; // Returner view til redigering af opgaven
+        List<Task> tasks = taskService.getTaskByID(id);  // Hent opgave efter ID
+        model.addAttribute("tasks", tasks);  // Tilføj opgaver til model
+        return "view-task";  // Returner view til visning af opgavedetaljer
     }
 
-    // Metode til at opdatere en opgave
-    @PostMapping("/update-task/{id}")
-    public String updateTask(@PathVariable("id") int id, @ModelAttribute Task task, @ModelAttribute Project project, HttpSession session, String oldTaskName) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
+    // Rediger en specifik opgave ved ID
+    @GetMapping("/edit-task/{id}")
+    public String editTask(@PathVariable("id") Long id, Model model, HttpSession session) {
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login-siden
+            return "redirect:/login";  // Redirect til login-siden
         }
 
-        task.setId(id);  // Sæt ID for opgaven
-        taskService.updateTask(id, task, oldTaskName, project);  // Opdater opgaven
+        User user = (User) session.getAttribute("user");
+        if (user != null) {
+            model.addAttribute("username", user.getUsername());
 
-        return "redirect:/view-task/" + id;  // Omdiriger til visning af opgaven
+            if ("Admin".equals(user.getRole())) {
+                model.addAttribute("isAdmin", true); // Dette vil være sandt, hvis brugeren er Admin
+            } else {
+                model.addAttribute("isAdmin", false);
+            }
+        } else {
+            model.addAttribute("username", "Guest");
+            model.addAttribute("isAdmin", false); // Sæt isAdmin til false for gæstebrugere
+        }
+
+        List<Task> task = taskService.getTaskByID(id); // Henter opgaven med det angivne ID
+        model.addAttribute("task", task); // Tilføjer den hentede opgave til modellen
+        return "edit-task"; // Returnerer viewet til at redigere opgaven
     }
 
-    // Metode til at opdatere status for en opgave
+    @PostMapping("/update-task/{id}")
+    public String updateTask(@PathVariable("id") int id, @ModelAttribute Task task, @ModelAttribute Project project, HttpSession session, String oldTaskName) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/login";  // Redirect til login-siden
+        }
+
+        task.setId(id);  // Sætter ID for opgaven
+        taskService.updateTask(id, task, oldTaskName, project);  // Opdater opgaven
+
+        return "redirect:/view-task/" + id;  // Redirect til visning af opgaven
+    }
+
+    // Opdaterer en tasks status
     @PostMapping("/update-task-status/{id}/{status}")
     public String updateTaskStatus(@PathVariable("id") Long id,
                                    @PathVariable("status") String status, HttpSession session, String projectName) {
-        // Tjekker om brugeren er logget ind, hvis ikke omdirigeres de til login-siden
         if (session.getAttribute("user") == null) {
-            return "redirect:/login";  // Omdiriger til login-siden
+            return "redirect:/login";  // Redirect til login-siden
         }
 
-        taskService.updateTaskStatus(id, status, projectName);  // Opdater opgavestatus
-        return "redirect:/view-task/" + id;  // Omdiriger til opgavevisning efter opdatering
+        taskService.updateTaskStatus(id, status, projectName);
+        return "redirect:/view-task/" + id;  // Redirect til task view efter opdatering af status
     }
 }

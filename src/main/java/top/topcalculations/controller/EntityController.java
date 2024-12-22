@@ -14,61 +14,58 @@ import java.util.List;
 
 @Controller
 public class EntityController {
+    private final ProjectService projectService;  // Service til at håndtere projekter
+    private final TaskService taskService;  // Service til at håndtere opgaver
+    private final SubTaskService subTaskService;  // Service til at håndtere underopgaver
 
-    // Services til håndtering af projekter, opgaver og underopgaver
-    private final ProjectService projectService;
-    private final TaskService taskService;
-    private final SubTaskService subTaskService;
-
-    // Konstruktor, som initialiserer services via dependency injection
+    // Konstruktor der initialiserer services
     public EntityController(ProjectService projectService, TaskService taskService, SubTaskService subTaskService) {
         this.projectService = projectService;
         this.taskService = taskService;
         this.subTaskService = subTaskService;
     }
 
-    // Håndterer GET-anmodningen til /view
     @GetMapping("/view")
     public String view(Model model, HttpSession session) {
-        // 1. Tjekker om brugeren er logget ind via sessionen
+        // Tjekker om brugeren er logget ind
         if (session.getAttribute("user") == null) {
-            return "redirect:/login"; // Hvis ikke logget ind, send til login-siden
+            return "redirect:/login"; // Hvis brugeren ikke er logget ind, omdiriger til login-siden
         }
 
-        // 2. Henter brugerinformation fra sessionen
+        // Henter brugeroplysninger fra sessionen
         User user = (User) session.getAttribute("user");
         if (user != null) {
-            model.addAttribute("username", user.getUsername()); // Tilføjer brugernavn til modellen
-            model.addAttribute("isAdmin", "Admin".equals(user.getRole())); // Sætter admin-flag
+            model.addAttribute("username", user.getUsername());
+            model.addAttribute("isAdmin", "Admin".equals(user.getRole())); // Tjekker om brugeren er admin
         } else {
             model.addAttribute("username", "Guest");
             model.addAttribute("isAdmin", false);
         }
 
-        // 3. Henter data fra services: Projekter, Opgaver og Underopgaver
-        List<Project> projects = projectService.getProjects(); // Henter liste af projekter
-        List<Task> tasks = taskService.getTasks(); // Henter liste af opgaver
-        List<Subtask> subtasks = subTaskService.getSubTasks(); // Henter liste af underopgaver
+        // Henter projekter, opgaver og underopgaver fra service-laget
+        List<Project> projects = projectService.getProjects();
+        List<Task> tasks = taskService.getTasks();
+        List<Subtask> subtasks = subTaskService.getSubTasks();
 
-        // 4. Kombinerer alle entiteter i én liste (CombinedEntity)
+        // Opretter en liste til at kombinere alle entiteter (projekter, opgaver og underopgaver)
         List<CombinedEntity> combinedEntities = new ArrayList<>();
 
-        // Tilføjer projekter til den kombinerede liste
+        // Tilføjer projekterne til den kombinerede liste
         for (Project project : projects) {
             CombinedEntity entity = new CombinedEntity(
-                    project.getWbs(),                // Work Breakdown Structure (WBS)
-                    project.getProjectName(),        // Navn på projektet
-                    project.getDuration(),           // Varighed af projektet
-                    project.getPlannedStartDate(),   // Planlagt startdato
-                    project.getPlannedFinishDate(),  // Planlagt slutdato
-                    project.getAssigned(),           // Tildelt bruger
-                    project.getTimeToSpend(),        // Tid der skal bruges
-                    project.getStatus()              // Status på projektet
+                    project.getWbs(),
+                    project.getProjectName(),
+                    project.getDuration(),
+                    project.getPlannedStartDate(),
+                    project.getPlannedFinishDate(),
+                    project.getAssigned(),
+                    project.getTimeToSpend(),
+                    project.getStatus()
             );
             combinedEntities.add(entity);
         }
 
-        // Tilføjer opgaver til den kombinerede liste
+        // Tilføjer opgaverne til den kombinerede liste
         for (Task task : tasks) {
             CombinedEntity entity = new CombinedEntity(
                     task.getWbs(),
@@ -83,7 +80,7 @@ public class EntityController {
             combinedEntities.add(entity);
         }
 
-        // Tilføjer underopgaver til den kombinerede liste
+        // Tilføjer underopgaverne til den kombinerede liste
         for (Subtask subtask : subtasks) {
             CombinedEntity entity = new CombinedEntity(
                     subtask.getWbs(),
@@ -98,48 +95,37 @@ public class EntityController {
             combinedEntities.add(entity);
         }
 
-        // 5. Sorterer den kombinerede liste efter WBS (Work Breakdown Structure)
+        // Sorterer den kombinerede liste af entiteter efter WBS-nummer
         combinedEntities.sort((entity1, entity2) -> {
-            List<Integer> wbs1 = entity1.getWbsParts(); // Henter WBS-dele for første entitet
-            List<Integer> wbs2 = entity2.getWbsParts(); // Henter WBS-dele for anden entitet
+            List<Integer> wbs1 = entity1.getWbsParts();
+            List<Integer> wbs2 = entity2.getWbsParts();
 
-            // Sammenligner WBS-dele en for en
+            // Sammenligner WBS-numrene part for part
             for (int i = 0; i < Math.min(wbs1.size(), wbs2.size()); i++) {
                 int compareResult = Integer.compare(wbs1.get(i), wbs2.get(i));
                 if (compareResult != 0) {
-                    return compareResult; // Returnerer forskel hvis WBS-delene er forskellige
+                    return compareResult;
                 }
             }
 
-            // Hvis en WBS er et prefix af den anden, sættes den kortere først
+            // Hvis et WBS-nummer er et prefix af det andet, skal den kortere liste komme først
             return Integer.compare(wbs1.size(), wbs2.size());
         });
 
-        // 6. Tilføjer den sorterede liste til modellen
+        // Tilføjer den sorterede liste af entiteter til modellen
         model.addAttribute("combinedEntities", combinedEntities);
 
-        // 7. Beregner den samlede tid, der skal bruges for projekter, opgaver og underopgaver
-        double totalTimeToSpend =
-
-                // Beregner tiden for projekter
-                projects.stream() // Omdanner listen af projekter til en stream for at behandle elementerne
-                        .filter(project -> !"done".equals(project.getStatus())) // Filtrerer projekter med status "done" (færdige projekter medregnes ikke)
-                        .mapToDouble(Project::getTimeToSpend) // Mapper hvert projekt til dets "timeToSpend"-værdi (tid der skal bruges)
-                        .sum() // Summerer værdierne fra alle projekter i streamen
-
-                        +
-
-                        // Beregner tiden for opgaver
-                        tasks.stream() // Omdanner listen af opgaver til en stream
-                                .mapToDouble(Task::getTimeToSpend) // Mapper hver opgave til dens "timeToSpend"-værdi
-                                .sum() // Summerer værdierne fra alle opgaver i streamen
-
-                        +
-
-                        // Beregner tiden for underopgaver
-                        subtasks.stream() // Omdanner listen af underopgaver til en stream
-                                .mapToDouble(Subtask::getTimeToSpend) // Mapper hver underopgave til dens "timeToSpend"-værdi
-                                .sum(); // Summerer værdierne fra alle underopgaver i streamen
+        // Beregner den samlede tid, der skal bruges
+        double totalTimeToSpend = projects.stream()
+                .filter(project -> !"done".equals(project.getStatus())) // Filtrerer projekter med status "done"
+                .mapToDouble(Project::getTimeToSpend)
+                .sum()
+                + tasks.stream()
+                .mapToDouble(Task::getTimeToSpend)
+                .sum()
+                + subtasks.stream()
+                .mapToDouble(Subtask::getTimeToSpend)
+                .sum();
 
         // Tilføjer den samlede tid til modellen
         model.addAttribute("totalTimeToSpend", totalTimeToSpend);

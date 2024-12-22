@@ -109,12 +109,29 @@ public class TaskRepository {
         return jdbcTemplate.query(sql, new TaskRowMapper());
     }
 
-    // Henter en opgave baseret på dens ID
+    // Henter en liste af opgaver baseret på deres ID og inkluderer ressourcenavne som en kommasepareret streng
     public List<Task> findTaskByID(Long id) {
-        String sql = "SELECT t.id, t.wbs, t.project_name, t.time_to_spend, t.task_name, t.assigned, t.time_spent, t.duration, t.planned_start_date, t.planned_finish_date, t.status " +
-                "FROM tasks t " +
-                "WHERE t.id = ? AND t.task_name IS NOT NULL AND t.task_name != ''";
-        return jdbcTemplate.query(sql, new TaskRowMapper(), id);
+        // Hent opgaverne
+        String taskSql = "SELECT id, wbs, project_name, task_name, time_spent, time_to_spend, status, duration, planned_start_date, planned_finish_date, assigned " +
+                "FROM tasks WHERE id = ? AND task_name IS NOT NULL AND task_name != ''";
+
+        List<Task> tasks = jdbcTemplate.query(taskSql, new TaskRowMapper(), id);
+
+        // For hver opgave, hent de relaterede ressourcenavne
+        String resourcesSql = "SELECT resource_name FROM resources_tasks WHERE task_id = ?";
+        for (Task task : tasks) {
+            List<String> resources = jdbcTemplate.query(
+                    resourcesSql,
+                    (rs, rowNum) -> rs.getString("resource_name"),
+                    task.getId()
+            );
+
+            // Kombiner ressourcenavnene til en kommasepareret streng
+            String resourceNames = String.join(", ", resources);
+            task.setResource_name(resourceNames);
+        }
+
+        return tasks;
     }
 
     // Henter en opgave baseret på dens ID (specifik opgave)

@@ -138,3 +138,25 @@ body {
     background-color: #f8d7da;
     color: #721c24;
 }
+
+@media (max-width: 768px) {
+    .container-custom {
+        max-width: 100%;
+        margin: 20px;
+        padding: 10px;
+    }
+
+    .container-custom h1 {
+        font-size: 20px;
+    }
+
+    .form-control {
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        padding: 8px;
+        font-size: 14px;
+    }
+}

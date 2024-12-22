@@ -50,10 +50,11 @@ public class SubTaskService {
     }
 
     public int getHighestWbsIndexForSubtasks(String mainTaskWBS) {
-        // Get the highest WBS index from tasks and subtasks tables
+        // Hent den højeste WBS-indeks fra tasks og subtasks tabellerne
         int highestIndexFromTasks = taskRepository.getHighestWbsIndexFromTasks(mainTaskWBS);
         int highestIndexFromSubTasks = subTaskRepository.getHighestWbsIndexFromSubTasks(mainTaskWBS);
-        // Return the highest of the two indexes
+
+        // Returner den højeste af de to indekser
         return Math.max(highestIndexFromTasks, highestIndexFromSubTasks);
     }
 }

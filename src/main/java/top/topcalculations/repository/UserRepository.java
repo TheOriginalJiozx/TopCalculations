@@ -30,7 +30,7 @@ public class UserRepository {
         String sql = "SELECT * FROM users WHERE username = ?";
         // Denne metode udfører en SQL-forespørgsel for at finde en bruger i databasen ved hjælp af det angivne brugernavn.
         try {
-            return jdbcTemplate.queryForObject(sql, new Object[]{username}, this::mapRowToUser);
+            return jdbcTemplate.queryForObject(sql, new Object[]{username}, this::UserRowMapper);
         } catch (EmptyResultDataAccessException e) {
             return null; // Returnerer null, hvis brugeren ikke findes
         }
@@ -81,7 +81,7 @@ public class UserRepository {
     }
 
     // Metode til at mappe en ResultSet til et User-objekt
-    private User mapRowToUser(ResultSet rs, int rowNum) throws SQLException {
+    private User UserRowMapper(ResultSet rs, int rowNum) throws SQLException {
         User user = new User();
         user.setId(rs.getLong("id")); // Sætter id fra databasen
         user.setUsername(rs.getString("username")); // Sætter brugernavn
@@ -113,7 +113,7 @@ public class UserRepository {
         String findUserByIdSql = "SELECT * FROM users WHERE id = ?";
         try {
             // Henter brugeren fra databasen baseret på ID
-            User user = jdbcTemplate.queryForObject(findUserByIdSql, new Object[]{id}, this::mapRowToUser);
+            User user = jdbcTemplate.queryForObject(findUserByIdSql, new Object[]{id}, this::UserRowMapper);
 
             // Opdaterer anonymiseringsfeltet i brugertabellen
             String updateSql = "UPDATE users SET anonymous = ? WHERE id = ?";
@@ -138,11 +138,13 @@ public class UserRepository {
 
     // Henter projekter, der er tilknyttet en bestemt bruger baseret på brugernavn
     public List<Project> getProjectsForUser(String username) {
-        String projectSql = "SELECT id, project_name, assigned FROM projects WHERE assigned = ?";
+        String projectSql = "SELECT id, project_name, expected_time_in_total, status, assigned FROM projects WHERE assigned = ?";
         return jdbcTemplate.query(projectSql, (rs, rowNum) -> {
             Project project = new Project();
             project.setId(rs.getInt("id")); // Sætter projekt-ID
             project.setProjectName(rs.getString("project_name")); // Sætter projektets navn
+            project.setExpectedTimeInTotal(rs.getDouble("expected_time_in_total"));
+            project.setStatus(rs.getString("status")); // Sætter status for projektet
             project.setAssigned(rs.getString("assigned")); // Sætter hvem projektet er tildelt
             return project;
         }, username);
@@ -150,11 +152,13 @@ public class UserRepository {
 
     // Henter opgaver, der er tilknyttet en bestemt bruger baseret på brugernavn
     public List<Task> getTasksForUser(String username) {
-        String taskSql = "SELECT id, task_name, assigned FROM tasks WHERE assigned = ?";
+        String taskSql = "SELECT id, task_name, time_to_spend, status, assigned FROM tasks WHERE assigned = ?";
         return jdbcTemplate.query(taskSql, (rs, rowNum) -> {
             Task task = new Task();
             task.setId(rs.getInt("id")); // Sætter opgave-ID
             task.setTaskName(rs.getString("task_name")); // Sætter opgavens navn
+            task.setTimeToSpend(rs.getDouble("time_to_spend"));
+            task.setStatus(rs.getString("status")); // Sætter status for projektet
             task.setAssigned(rs.getString("assigned")); // Sætter hvem opgaven er tildelt
             return task;
         }, username);
@@ -162,11 +166,13 @@ public class UserRepository {
 
     // Henter underopgaver, der er tilknyttet en bestemt bruger baseret på brugernavn
     public List<Subtask> getSubTasksForUser(String username) {
-        String subtaskSql = "SELECT id, sub_task_name, assigned FROM subtasks WHERE assigned = ?";
+        String subtaskSql = "SELECT id, sub_task_name, time_to_spend, status, assigned FROM subtasks WHERE assigned = ?";
         return jdbcTemplate.query(subtaskSql, (rs, rowNum) -> {
             Subtask subtask = new Subtask();
             subtask.setId(rs.getInt("id")); // Sætter underopgave-ID
             subtask.setSubTaskName(rs.getString("sub_task_name")); // Sætter underopgavens navn
+            subtask.setTimeToSpend(rs.getDouble("time_to_spend"));
+            subtask.setStatus(rs.getString("status")); // Sætter status for projektet
             subtask.setAssigned(rs.getString("assigned")); // Sætter hvem underopgaven er tildelt
             return subtask;
         }, username);

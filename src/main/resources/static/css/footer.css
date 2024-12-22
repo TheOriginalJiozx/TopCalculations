@@ -33,3 +33,21 @@
 .footer a:hover {
     color: #0056b3;
 }
+
+@media (max-width: 768px) {
+    .footer {
+        padding: 10px;
+    }
+
+    .footer div {
+        margin: 5px 0;
+    }
+
+    .footer h3 {
+        font-size: 16px;
+    }
+
+    .footer p, .footer a {
+        font-size: 14px;
+    }
+}
